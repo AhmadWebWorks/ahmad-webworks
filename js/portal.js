@@ -1,5 +1,6 @@
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from
+"https://esm.sh/@supabase/supabase-js@2";
 
 const db = createClient(
   "https://vxdzyfbxcorxqysvlzgn.supabase.co",
@@ -8,66 +9,67 @@ const db = createClient(
 
 const $ = id => document.getElementById(id);
 
-const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  '"': "&quot;",
-  "'": "&#39;"
-}[c]));
-
 let user = null;
 let profile = null;
 let busy = false;
 
-function showMessage(id, value) {
-  const element = $(id);
-  if (element) element.textContent = value;
+const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({
+  "&":"&amp;", "<":"&lt;", ">":"&gt;",
+  '"':"&quot;", "'":"&#39;"
+}[c]));
+
+function msg(id, text) {
+  $(id).textContent = text;
 }
 
-function buttonBusy(button, state) {
-  button.disabled = state;
-  button.dataset.originalText ||= button.textContent;
-  button.textContent = state
-    ? "Please wait..."
-    : button.dataset.originalText;
-}
-
-function slugify(value) {
-  return String(value || "")
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-}
-
-function validURL(value) {
-  if (!value) return null;
-
-  try {
-    const url = new URL(value);
-
-    if (!["https:", "http:"].includes(url.protocol)) {
-      return null;
+function setBusy(button, state) {
+  if (!button) return;
+  if (state) {
+    button.dataset.oldText = button.textContent;
+    button.disabled = true;
+    button.textContent = "Please wait...";
+  } else {
+    button.disabled = false;
+    if (button.dataset.oldText) {
+      button.textContent = button.dataset.oldText;
     }
+    delete button.dataset.oldText;
+  }
+}
 
-    return url.href;
+function safeURL(value) {
+  if (!value) return null;
+  try {
+    const u = new URL(value);
+    return ["https:", "http:"].includes(u.protocol) ? u.href : null;
   } catch {
     return null;
   }
 }
 
-/* =====================================
-   AUTHENTICATION
-===================================== */
+function slugify(value) {
+  return String(value || "").toLowerCase().trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+async function inviteFunction(body) {
+  const { data, error } = await db.functions.invoke(
+    "invite-team-member", { body }
+  );
+  if (error) throw new Error(error.message);
+  if (data?.error) throw new Error(data.error);
+  return data;
+}
+
+/* LOGIN */
 
 $("loginForm").addEventListener("submit", async event => {
   event.preventDefault();
 
   const button = event.submitter;
-  buttonBusy(button, true);
-
-  showMessage("loginMsg", "Signing in...");
+  setBusy(button, true);
+  msg("loginMsg", "Signing in...");
 
   const form = new FormData(event.currentTarget);
 
@@ -78,13 +80,12 @@ $("loginForm").addEventListener("submit", async event => {
     });
 
     if (error) throw error;
-
     await boot();
 
   } catch (error) {
-    showMessage("loginMsg", error.message);
+    msg("loginMsg", error.message);
   } finally {
-    buttonBusy(button, false);
+    setBusy(button, false);
   }
 });
 
@@ -93,17 +94,14 @@ $("logout").addEventListener("click", async () => {
   location.reload();
 });
 
-/* =====================================
-   START WORKSPACE
-===================================== */
+/* ACCOUNT AND ROLE CHECK */
 
 async function boot() {
-  const {
-    data: { user: currentUser },
-    error
-  } = await db.auth.getUser();
+  const { data: { user: currentUser }, error } =
+    await db.auth.getUser();
 
-  if (error || !currentUser) return;
+  if (error) throw error;
+  if (!currentUser) return;
 
   user = currentUser;
 
@@ -113,23 +111,14 @@ async function boot() {
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profileError || !data) {
-    showMessage(
-      "globalMsg",
-      "Your account profile is unavailable. Contact the administrator."
-    );
-    return;
-  }
+  if (profileError) throw profileError;
+  if (!data) throw new Error("Account profile not found.");
 
   profile = data;
 
   if (profile.account_status !== "active") {
-    showMessage(
-      "globalMsg",
-      "Your account is not active. Contact the administrator."
-    );
-
     await db.auth.signOut();
+    msg("loginMsg", "Your account is pending or suspended.");
     return;
   }
 
@@ -137,90 +126,52 @@ async function boot() {
   $("workspace").classList.remove("hidden");
 
   $("welcome").textContent =
-    "Welcome, " + (user.email || "Team member");
+    "Welcome, " + (user.user_metadata?.full_name || user.email);
 
-  $("roleText").textContent =
-    profile.role === "admin"
-      ? "Founder / Administrator"
-      : "Employee Workspace";
+  const roles = {
+    admin: "Founder / Administrator",
+    pa: "Personal Assistant",
+    employee: "Employee Workspace"
+  };
+
+  $("roleText").textContent = roles[profile.role] || "Team Member";
 
   if (profile.role === "admin") {
     $("admin").classList.remove("hidden");
     $("employee").classList.add("hidden");
+    $("paInvitePanel").classList.remove("hidden");
+    document.querySelectorAll("[data-tab]")
+      .forEach(x => x.classList.remove("hidden"));
     await loadAdmin();
-  } else {
+
+  } else if (profile.role === "pa") {
+    $("admin").classList.remove("hidden");
+    $("employee").classList.add("hidden");
+    $("paInvitePanel").classList.add("hidden");
+
+    document.querySelectorAll(
+      '[data-tab="people"],[data-tab="reviews"]'
+    ).forEach(x => x.classList.add("hidden"));
+
+    $("apps").classList.remove("hidden");
+    $("people").classList.add("hidden");
+    $("reviews").classList.add("hidden");
+
+    await loadPA();
+
+  } else if (profile.role === "employee") {
     $("employee").classList.remove("hidden");
     $("admin").classList.add("hidden");
     await loadEmployee();
+
+  } else {
+    throw new Error("Unrecognized account role.");
   }
 }
 
-/* =====================================
-   ADMIN DASHBOARD
-===================================== */
+/* APPLICATIONS */
 
-async function loadAdmin() {
-  showMessage("globalMsg", "Loading administration data...");
-
-  const [applications, accounts, portfolios, projects] =
-    await Promise.all([
-
-      db.from("employee_applications")
-        .select("*")
-        .order("created_at", { ascending: false }),
-
-      db.from("profiles")
-        .select("id,role,account_status,created_at"),
-
-      db.from("employee_portfolios")
-        .select("*"),
-
-      db.from("portfolio_projects")
-        .select("*")
-    ]);
-
-  const results = [
-    applications,
-    accounts,
-    portfolios,
-    projects
-  ];
-
-  const failed = results.find(result => result.error);
-
-  if (failed) {
-    showMessage("globalMsg", failed.error.message);
-    return;
-  }
-
-  const apps = applications.data || [];
-  const people = accounts.data || [];
-  const profiles = portfolios.data || [];
-  const works = projects.data || [];
-
-  $("appCount").textContent = apps.length;
-
-  $("empCount").textContent = people.filter(person =>
-    person.role === "employee" &&
-    person.account_status === "active"
-  ).length;
-
-  $("reviewCount").textContent =
-    profiles.filter(x => x.review_status === "pending").length +
-    works.filter(x => x.review_status === "pending").length;
-
-  renderApplications(apps);
-  renderAccounts(people);
-  renderReviews(profiles, works);
-
-  showMessage("globalMsg", "Administration data loaded.");
-}
-
-/* =====================================
-   APPLICATION MANAGEMENT
-===================================== */
-
-function renderApplications(apps) {
+function renderApplications(apps, canInvite) {
   if (!apps.length) {
     $("appsList").innerHTML =
       '<p class="muted">No applications received yet.</p>';
@@ -238,275 +189,317 @@ function renderApplications(apps) {
         </tr>
       </thead>
       <tbody>
-        ${apps.map(app => `
+      ${apps.map(app => {
+        const portfolioURL = safeURL(app.portfolio_url);
+
+        let invitation = "";
+
+        if (app.invited_at) {
+          invitation = "Invitation already sent";
+        } else if (
+          canInvite && app.status === "approved" && app.email
+        ) {
+          invitation = `
+            <button class="act primary"
+              data-action="invite-employee"
+              data-id="${esc(app.id)}">
+              Send Employee Invitation
+            </button>`;
+        }
+
+        return `
           <tr>
             <td>
-              <b>${esc(app.applicant_name)}</b>
-              <br>${esc(app.email || "No email")}
-              <br>
+              <b>${esc(app.applicant_name)}</b><br>
+              ${esc(app.email || "No email")}
               ${app.email ? `
+                <br>
                 <button class="act"
-                  data-copy-email="${esc(app.email)}">
-                  Copy email
+                  data-action="copy-email"
+                  data-email="${esc(app.email)}">
+                  Copy Email
                 </button>` : ""}
             </td>
 
             <td>
-              ${esc(app.preferred_role)}
-              <br>${esc(app.location)}
+              ${esc(app.preferred_role)}<br>
+              ${esc(app.location)}
             </td>
 
             <td>
               ${esc(app.introduction)}
-              <br>
-              <b>Skills:</b>
+              <br><b>Skills:</b>
               ${esc((app.skills || []).join(", "))}
-              ${app.portfolio_url ? `
-                <br>
-                <a href="${esc(validURL(app.portfolio_url) || "#")}"
-                   target="_blank"
-                   rel="noopener noreferrer">
-                  View portfolio ↗
+              ${portfolioURL ? `
+                <br><a href="${esc(portfolioURL)}"
+                  target="_blank" rel="noopener noreferrer">
+                  View Portfolio
                 </a>` : ""}
             </td>
 
             <td>
               <b>${esc(app.status)}</b>
+              <br>${invitation}
 
               <div class="actions">
                 <button class="act"
-                  data-app="${app.id}"
-                  data-status="under_review">
-                  Review
-                </button>
+                  data-action="application-status"
+                  data-id="${esc(app.id)}"
+                  data-status="under_review">Review</button>
 
                 <button class="act primary"
-                  data-app="${app.id}"
-                  data-status="approved">
-                  Approve
-                </button>
+                  data-action="application-status"
+                  data-id="${esc(app.id)}"
+                  data-status="approved">Approve</button>
 
                 <button class="act danger"
-                  data-app="${app.id}"
-                  data-status="rejected">
-                  Reject
-                </button>
+                  data-action="application-status"
+                  data-id="${esc(app.id)}"
+                  data-status="rejected">Reject</button>
               </div>
 
               <label class="muted">
-                Administrator notes
-                <textarea
-                  id="notes-${app.id}"
-                  rows="2"
-                  maxlength="1000">${esc(app.admin_notes || "")}</textarea>
+                Administrator Notes
+                <textarea id="notes-${esc(app.id)}"
+                  rows="2" maxlength="1000">${esc(app.admin_notes || "")}</textarea>
               </label>
 
               <button class="act"
-                data-save-notes="${app.id}">
-                Save notes
-              </button>
+                data-action="save-notes"
+                data-id="${esc(app.id)}">Save Notes</button>
             </td>
-          </tr>
-        `).join("")}
+          </tr>`;
+      }).join("")}
       </tbody>
-    </table>
-  `;
+    </table>`;
 }
 
-/* =====================================
-   EMPLOYEE ACCOUNT MANAGEMENT
-===================================== */
+async function loadPA() {
+  msg("globalMsg", "Loading applications...");
 
-function renderAccounts(people) {
+  const { data, error } = await db
+    .from("employee_applications")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+
+  $("appCount").textContent = data.length;
+  $("empCount").textContent = "Restricted";
+  $("reviewCount").textContent = data.filter(
+    x => ["new", "under_review"].includes(x.status)
+  ).length;
+
+  renderApplications(data, false);
+  msg("globalMsg", "PA application review access loaded.");
+}
+
+/* FOUNDER DASHBOARD */
+
+async function loadAdmin() {
+  msg("globalMsg", "Loading Founder dashboard...");
+
+  const [apps, people, portfolios, projects] = await Promise.all([
+    db.from("employee_applications")
+      .select("*").order("created_at", { ascending: false }),
+
+    db.from("profiles")
+      .select("id,role,account_status,created_at")
+      .order("created_at", { ascending: false }),
+
+    db.from("employee_portfolios").select("*"),
+
+    db.from("portfolio_projects").select("*")
+  ]);
+
+  for (const result of [apps, people, portfolios, projects]) {
+    if (result.error) throw result.error;
+  }
+
+  $("appCount").textContent = apps.data.length;
+
+  $("empCount").textContent = people.data.filter(
+    x => x.role === "employee" && x.account_status === "active"
+  ).length;
+
+  $("reviewCount").textContent =
+    portfolios.data.filter(x => x.review_status === "pending").length +
+    projects.data.filter(x => x.review_status === "pending").length;
+
+  renderApplications(apps.data, true);
+  renderPeople(people.data);
+  renderReviews(portfolios.data, projects.data);
+
+  msg("globalMsg", "Founder dashboard loaded.");
+}
+
+/* EMPLOYEE ACCOUNT MANAGEMENT */
+
+function renderPeople(people) {
   $("peopleList").innerHTML = people.length ? `
     <table>
       <thead>
-        <tr>
-          <th>User ID</th>
-          <th>Role</th>
-          <th>Account status</th>
-          <th>Action</th>
-        </tr>
+        <tr><th>User ID</th><th>Role</th><th>Status</th><th>Action</th></tr>
       </thead>
       <tbody>
-        ${people.map(person => `
-          <tr>
-            <td>${esc(person.id)}</td>
-            <td>${esc(person.role)}</td>
-            <td>${esc(person.account_status)}</td>
-            <td>
-              ${person.role === "admin"
-                ? "Administrator"
-                : `
-                  <button class="act"
-                    data-user="${person.id}"
-                    data-status="${person.account_status === "active"
-                      ? "suspended" : "active"}">
-                    ${person.account_status === "active"
-                      ? "Suspend" : "Activate"}
-                  </button>
-                `}
-            </td>
-          </tr>
-        `).join("")}
+      ${people.map(person => `
+        <tr>
+          <td>${esc(person.id)}</td>
+          <td>${esc(person.role)}</td>
+          <td>${esc(person.account_status)}</td>
+          <td>
+            ${person.role === "admin" ? "Founder" :
+              person.role === "pa" ? "PA (Restricted)" : `
+              <button class="act"
+                data-action="account-status"
+                data-id="${esc(person.id)}"
+                data-status="${person.account_status === "active" ? "suspended" : "active"}">
+                ${person.account_status === "active" ? "Suspend" : "Activate"}
+              </button>`}
+          </td>
+        </tr>
+      `).join("")}
       </tbody>
     </table>
-  ` : '<p class="muted">No employee accounts yet.</p>';
-
-  $("peopleList").insertAdjacentHTML(
-    "beforeend",
-    `<p class="muted">
-      New employee accounts must first be invited through
-      Supabase Authentication. Activate them here after their
-      account profile exists.
-    </p>`
-  );
+  ` : '<p>No accounts found.</p>';
 }
 
-/* =====================================
-   PORTFOLIO AND PROJECT REVIEWS
-===================================== */
+/* PORTFOLIO REVIEW */
 
-function renderReviews(profiles, projects) {
-  const pendingProfiles = profiles.filter(
-    x => x.review_status === "pending"
-  );
-
-  const pendingProjects = projects.filter(
-    x => x.review_status === "pending"
-  );
-
+function renderReviews(portfolios, projects) {
   const items = [
-    ...pendingProfiles.map(item => ({
-      table: "employee_portfolios",
-      id: item.id,
-      label: "Employee profile: " + item.full_name
-    })),
+    ...portfolios.filter(x => x.review_status === "pending")
+      .map(x => ({
+        table: "employee_portfolios",
+        id: x.id,
+        label: "Employee Profile: " + x.full_name
+      })),
 
-    ...pendingProjects.map(item => ({
-      table: "portfolio_projects",
-      id: item.id,
-      label: "Project: " + item.title
-    }))
+    ...projects.filter(x => x.review_status === "pending")
+      .map(x => ({
+        table: "portfolio_projects",
+        id: x.id,
+        label: "Project: " + x.title
+      }))
   ];
 
   $("reviewsList").innerHTML = items.length
     ? items.map(item => `
-      <div class="stat" style="margin:12px 0">
+      <div class="stat">
         <b>${esc(item.label)}</b>
-
         <div class="actions">
           <button class="act primary"
-            data-review="${item.id}"
+            data-action="portfolio-review"
             data-table="${item.table}"
+            data-id="${esc(item.id)}"
             data-decision="approved">
             Approve & Publish
           </button>
 
           <button class="act danger"
-            data-review="${item.id}"
+            data-action="portfolio-review"
             data-table="${item.table}"
+            data-id="${esc(item.id)}"
             data-decision="rejected">
             Reject
           </button>
         </div>
       </div>
     `).join("")
-    : '<p class="muted">No pending portfolio reviews.</p>';
+    : "<p>No pending reviews.</p>";
 }
 
-/* =====================================
-   ADMIN ACTIONS
-===================================== */
+/* ACTION HANDLER */
 
 document.addEventListener("click", async event => {
-  const button = event.target.closest("button");
-
+  const button = event.target.closest("button[data-action]");
   if (!button || busy) return;
 
+  const action = button.dataset.action;
+  busy = true;
+  setBusy(button, true);
+
   try {
-    busy = true;
-    buttonBusy(button, true);
-
-    /* Copy applicant email */
-
-    if (button.dataset.copyEmail) {
-      await navigator.clipboard.writeText(
-        button.dataset.copyEmail
-      );
-
-      showMessage("globalMsg", "Applicant email copied.");
-      return;
+    if (action === "copy-email") {
+      await navigator.clipboard.writeText(button.dataset.email);
+      msg("globalMsg", "Email copied.");
     }
 
-    /* Update application status */
-
-    if (button.dataset.app) {
+    if (action === "application-status") {
       const { error } = await db
         .from("employee_applications")
         .update({
           status: button.dataset.status,
           reviewed_at: new Date().toISOString()
         })
-        .eq("id", button.dataset.app);
+        .eq("id", button.dataset.id);
 
       if (error) throw error;
 
-      showMessage(
-        "globalMsg",
-        "Application status updated. Approval does not automatically create an account."
-      );
+      if (profile.role === "admin") await loadAdmin();
+      else await loadPA();
 
-      await loadAdmin();
-      return;
+      msg("globalMsg", "Application updated.");
     }
 
-    /* Save administrator notes */
-
-    if (button.dataset.saveNotes) {
-      const notes = $("notes-" + button.dataset.saveNotes).value;
+    if (action === "save-notes") {
+      const notes = $("notes-" + button.dataset.id).value;
 
       const { error } = await db
         .from("employee_applications")
         .update({ admin_notes: notes })
-        .eq("id", button.dataset.saveNotes);
+        .eq("id", button.dataset.id);
 
       if (error) throw error;
 
-      showMessage("globalMsg", "Administrator notes saved.");
-      await loadAdmin();
-      return;
+      if (profile.role === "admin") await loadAdmin();
+      else await loadPA();
+
+      msg("globalMsg", "Notes saved.");
     }
 
-    /* Activate or suspend employee */
+    if (action === "invite-employee") {
+      if (profile.role !== "admin") {
+        throw new Error("Founder access required.");
+      }
 
-    if (button.dataset.user) {
-      if (!confirm("Change this employee account status?")) return;
+      if (!confirm("Send invitation to this approved applicant?")) return;
+
+      const result = await inviteFunction({
+        action: "invite_employee",
+        application_id: button.dataset.id
+      });
+
+      await loadAdmin();
+      msg("globalMsg", result.message || result.warning);
+    }
+
+    if (action === "account-status") {
+      if (profile.role !== "admin") {
+        throw new Error("Founder access required.");
+      }
+
+      if (!confirm("Change this employee's account status?")) return;
 
       const { error } = await db
         .from("profiles")
-        .update({
-          account_status: button.dataset.status
-        })
-        .eq("id", button.dataset.user);
+        .update({ account_status: button.dataset.status })
+        .eq("id", button.dataset.id);
 
       if (error) throw error;
 
-      showMessage("globalMsg", "Employee account status updated.");
       await loadAdmin();
-      return;
+      msg("globalMsg", "Account status updated.");
     }
 
-    /* Approve or reject portfolio / project */
+    if (action === "portfolio-review") {
+      if (profile.role !== "admin") {
+        throw new Error("Founder access required.");
+      }
 
-    if (button.dataset.review) {
       const decision = button.dataset.decision;
 
-      if (!confirm(
-        decision === "approved"
-          ? "Approve and publish this submission?"
-          : "Reject this submission?"
-      )) return;
+      if (!confirm("Confirm portfolio decision?")) return;
 
       const { error } = await db
         .from(button.dataset.table)
@@ -515,45 +508,73 @@ document.addEventListener("click", async event => {
           is_published: decision === "approved",
           updated_at: new Date().toISOString()
         })
-        .eq("id", button.dataset.review);
+        .eq("id", button.dataset.id);
 
       if (error) throw error;
 
-      showMessage("globalMsg", "Review decision saved.");
       await loadAdmin();
+      msg("globalMsg", "Portfolio decision saved.");
     }
 
   } catch (error) {
-    showMessage("globalMsg", error.message);
+    msg("globalMsg", error.message);
   } finally {
     busy = false;
-    buttonBusy(button, false);
+    setBusy(button, false);
   }
 });
 
-/* =====================================
-   ADMIN NAVIGATION TABS
-===================================== */
+/* INVITE PA */
+
+$("paInviteForm").addEventListener("submit", async event => {
+  event.preventDefault();
+
+  if (profile?.role !== "admin") {
+    msg("paInviteMsg", "Only the Founder can invite a PA.");
+    return;
+  }
+
+  const button = event.submitter;
+  setBusy(button, true);
+
+  try {
+    const form = new FormData(event.currentTarget);
+
+    const result = await inviteFunction({
+      action: "invite_pa",
+      email: form.get("email"),
+      full_name: form.get("full_name")
+    });
+
+    event.currentTarget.reset();
+
+    msg("paInviteMsg", result.message || result.warning);
+    await loadAdmin();
+
+  } catch (error) {
+    msg("paInviteMsg", error.message);
+  } finally {
+    setBusy(button, false);
+  }
+});
+
+/* NAVIGATION */
 
 document.querySelectorAll("[data-tab]").forEach(button => {
   button.addEventListener("click", () => {
+    if (profile?.role !== "admin" &&
+        button.dataset.tab !== "apps") return;
 
-    document.querySelectorAll("[data-tab]").forEach(tab => {
-      tab.classList.toggle("active", tab === button);
-    });
+    document.querySelectorAll("[data-tab]")
+      .forEach(x => x.classList.toggle("active", x === button));
 
     ["apps", "people", "reviews"].forEach(id => {
-      $(id).classList.toggle(
-        "hidden",
-        id !== button.dataset.tab
-      );
+      $(id).classList.toggle("hidden", id !== button.dataset.tab);
     });
   });
 });
 
-/* =====================================
-   EMPLOYEE WORKSPACE
-===================================== */
+/* EMPLOYEE PROFILE */
 
 async function loadEmployee() {
   let { data: portfolio, error } = await db
@@ -564,54 +585,37 @@ async function loadEmployee() {
 
   if (error) throw error;
 
-  /* Create initial portfolio for a newly invited employee */
-
   if (!portfolio) {
-    const fullName =
-      user.user_metadata?.full_name ||
-      user.email?.split("@")[0] ||
-      "New Employee";
+    const name = user.user_metadata?.full_name ||
+      user.email.split("@")[0];
 
-    const { data, error: createError } = await db
+    const { data, error: insertError } = await db
       .from("employee_portfolios")
       .insert({
         owner_id: user.id,
-        full_name: fullName,
-        slug: slugify(fullName) + "-" + user.id.slice(0, 6),
-        review_status: "draft",
-        is_published: false
+        full_name: name,
+        slug: slugify(name) + "-" + user.id.slice(0, 6)
       })
       .select()
       .single();
 
-    if (createError) throw createError;
-
+    if (insertError) throw insertError;
     portfolio = data;
   }
 
   const form = $("profileForm");
 
   [
-    "full_name",
-    "job_title",
-    "location",
-    "bio",
-    "website_url",
-    "github_url",
-    "linkedin_url"
+    "full_name", "job_title", "location", "bio",
+    "website_url", "github_url", "linkedin_url"
   ].forEach(key => {
-    if (form.elements[key]) {
-      form.elements[key].value = portfolio[key] || "";
-    }
+    form.elements[key].value = portfolio[key] || "";
   });
 
   form.elements.skills.value =
     (portfolio.skills || []).join(", ");
 
-  showMessage(
-    "profileMsg",
-    "Portfolio status: " + portfolio.review_status
-  );
+  msg("profileMsg", "Status: " + portfolio.review_status);
 
   const { data: projects, error: projectError } = await db
     .from("portfolio_projects")
@@ -623,36 +627,30 @@ async function loadEmployee() {
 
   $("myProjects").innerHTML = projects.length
     ? projects.map(project => `
-      <div class="stat" style="margin:12px 0">
+      <div class="stat">
         <b>${esc(project.title)}</b>
         <p>${esc(project.description)}</p>
         <p class="muted">
           Status: ${esc(project.review_status)}
-          ${project.is_published ? " · Published" : ""}
         </p>
       </div>
     `).join("")
-    : '<p class="muted">No projects submitted yet.</p>';
+    : "<p>No projects submitted.</p>";
 }
 
-/* =====================================
-   EMPLOYEE PROFILE SUBMISSION
-===================================== */
+/* SAVE EMPLOYEE PROFILE */
 
 $("profileForm").addEventListener("submit", async event => {
   event.preventDefault();
 
   const button = event.submitter;
-  buttonBusy(button, true);
+  setBusy(button, true);
 
   try {
     const form = new FormData(event.currentTarget);
-
     const name = String(form.get("full_name") || "").trim();
 
-    if (name.length < 2) {
-      throw new Error("Please enter your full name.");
-    }
+    if (name.length < 2) throw new Error("Enter your full name.");
 
     const payload = {
       full_name: name,
@@ -661,19 +659,13 @@ $("profileForm").addEventListener("submit", async event => {
       bio: String(form.get("bio") || "").trim(),
 
       skills: String(form.get("skills") || "")
-        .split(",")
-        .map(x => x.trim())
-        .filter(Boolean),
+        .split(",").map(x => x.trim()).filter(Boolean),
 
-      website_url: validURL(form.get("website_url")),
-      github_url: validURL(form.get("github_url")),
-      linkedin_url: validURL(form.get("linkedin_url")),
+      website_url: safeURL(form.get("website_url")),
+      github_url: safeURL(form.get("github_url")),
+      linkedin_url: safeURL(form.get("linkedin_url")),
 
-      slug: slugify(name) + "-" + user.id.slice(0, 6),
-
-      review_status: "pending",
-      is_published: false,
-      updated_at: new Date().toISOString()
+      slug: slugify(name) + "-" + user.id.slice(0, 6)
     };
 
     const { error } = await db
@@ -683,45 +675,35 @@ $("profileForm").addEventListener("submit", async event => {
 
     if (error) throw error;
 
-    showMessage(
-      "profileMsg",
-      "Your profile has been submitted for administrator approval."
-    );
-
+    msg("profileMsg", "Profile submitted for Founder approval.");
     await loadEmployee();
 
   } catch (error) {
-    showMessage("profileMsg", error.message);
+    msg("profileMsg", error.message);
   } finally {
-    buttonBusy(button, false);
+    setBusy(button, false);
   }
 });
 
-/* =====================================
-   EMPLOYEE PROJECT SUBMISSION
-===================================== */
+/* ADD PROJECT */
 
 $("projectForm").addEventListener("submit", async event => {
   event.preventDefault();
 
   const button = event.submitter;
-  buttonBusy(button, true);
+  setBusy(button, true);
 
   try {
     const form = new FormData(event.currentTarget);
-
     const title = String(form.get("title") || "").trim();
 
-    if (title.length < 2) {
-      throw new Error("Enter a valid project title.");
-    }
+    if (title.length < 2) throw new Error("Enter project title.");
 
-    const projectURL = form.get("project_url")
-      ? validURL(form.get("project_url"))
-      : null;
+    const rawURL = String(form.get("project_url") || "").trim();
+    const projectURL = rawURL ? safeURL(rawURL) : null;
 
-    if (form.get("project_url") && !projectURL) {
-      throw new Error("Please enter a valid project URL.");
+    if (rawURL && !projectURL) {
+      throw new Error("Enter a valid project URL.");
     }
 
     const { error } = await db
@@ -730,36 +712,28 @@ $("projectForm").addEventListener("submit", async event => {
         owner_id: user.id,
         title,
         description: String(form.get("description") || "").trim(),
-        project_url: projectURL,
-        review_status: "pending",
-        is_published: false
+        project_url: projectURL
       });
 
     if (error) throw error;
 
     event.currentTarget.reset();
 
-    showMessage(
-      "projectMsg",
-      "Project submitted for administrator review."
-    );
-
+    msg("projectMsg", "Project submitted for Founder review.");
     await loadEmployee();
 
   } catch (error) {
-    showMessage("projectMsg", error.message);
+    msg("projectMsg", error.message);
   } finally {
-    buttonBusy(button, false);
+    setBusy(button, false);
   }
 });
 
-/* =====================================
-   INITIAL SESSION
-===================================== */
+/* RESTORE SESSION */
 
 db.auth.getSession().then(async ({ data, error }) => {
   if (error) {
-    showMessage("globalMsg", error.message);
+    msg("globalMsg", error.message);
     return;
   }
 
@@ -767,8 +741,7 @@ db.auth.getSession().then(async ({ data, error }) => {
     try {
       await boot();
     } catch (error) {
-      showMessage("globalMsg", error.message);
+      msg("globalMsg", error.message);
     }
   }
 });
-
