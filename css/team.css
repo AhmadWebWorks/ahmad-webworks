@@ -1,0 +1,397 @@
+
+/* ==========================================
+   AHMAD WEBWORKS — EMPLOYEE TEAM SYSTEM
+   Uses existing main website design variables
+========================================== */
+
+.team-page {
+  padding-top: 76px;
+  min-height: 70vh;
+}
+
+.team-hero {
+  padding-bottom: 54px;
+}
+
+.team-hero .section-head {
+  max-width: 720px;
+  margin-bottom: 0;
+}
+
+.team-hero h1 {
+  font-size: clamp(2.8rem, 7vw, 5rem);
+}
+
+.team-hero-cta {
+  margin-top: 2rem;
+}
+
+.team-members {
+  padding-top: 48px;
+}
+
+.team-section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.team-section-heading h2 {
+  margin-top: .2rem;
+}
+
+.team-count {
+  font-size: .7rem;
+  letter-spacing: .14em;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: .5rem .8rem;
+  border-radius: 99px;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.team-card,
+.team-join-card {
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: var(--glass);
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.team-card {
+  display: grid;
+  grid-template-columns: 145px 1fr;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.6rem;
+}
+
+.team-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(
+    135deg,
+    rgba(82,123,255,.3),
+    rgba(155,112,255,.35)
+  );
+  border: 1px solid rgba(155,112,255,.35);
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.team-role {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .13em;
+  color: var(--accent);
+  display: block;
+  margin-bottom: .6rem;
+}
+
+.team-card h3,
+.team-join-card h3 {
+  font-size: 1.3rem;
+  margin-bottom: .55rem;
+}
+
+.team-card p,
+.team-join-card p {
+  font-size: .88rem;
+}
+
+.team-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin: 1rem 0;
+}
+
+.team-skills span {
+  font-size: .7rem;
+  color: #D8DDF0;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.035);
+  padding: .3rem .55rem;
+  border-radius: 99px;
+}
+
+.team-profile-link {
+  font-size: .85rem;
+  color: #9AB0FF;
+  font-weight: 600;
+}
+
+.team-join-card {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 245px;
+  background: linear-gradient(
+    145deg,
+    rgba(82,123,255,.1),
+    rgba(16,22,41,.65)
+  );
+}
+
+.join-card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  background: var(--grad);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.team-join-card .btn {
+  margin-top: 1.2rem;
+}
+
+.team-note {
+  font-size: .8rem;
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.team-bottom {
+  padding-top: 35px;
+}
+
+/* APPLICATION PAGE */
+
+.application-section {
+  padding-top: 65px;
+}
+
+.application-layout {
+  display: grid;
+  grid-template-columns: .85fr 1.15fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.application-intro {
+  position: sticky;
+  top: 115px;
+}
+
+.application-intro h1 {
+  font-size: clamp(2.6rem, 5vw, 4.3rem);
+}
+
+.application-lead {
+  font-size: 1.05rem;
+  margin: 1.4rem 0 2rem;
+  max-width: 440px;
+}
+
+.application-points {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.application-points > div {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+}
+
+.application-points span {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: rgba(82,123,255,.14);
+  color: #A9B9FF;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: .8rem;
+}
+
+.application-points p {
+  font-size: .88rem;
+}
+
+.back-link {
+  color: #A9B0FF;
+  font-size: .9rem;
+  font-weight: 600;
+}
+
+.application-card {
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: var(--glass);
+  padding: clamp(1.3rem, 4vw, 2.3rem);
+  box-shadow: var(--shadow-lg);
+}
+
+.application-card-head {
+  margin-bottom: 1.6rem;
+}
+
+.application-card-head h2 {
+  font-size: clamp(1.7rem, 4vw, 2.3rem);
+  margin: .3rem 0 .5rem;
+}
+
+.application-card-head p {
+  font-size: .82rem;
+}
+
+.employee-form {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-field {
+  display: grid;
+  gap: .45rem;
+}
+
+.form-field label {
+  font-size: .84rem;
+  font-weight: 600;
+  color: #E7EAF5;
+}
+
+.form-field input,
+.form-field textarea {
+  width: 100%;
+  font: inherit;
+  font-size: .9rem;
+  color: var(--text);
+  background: rgba(4,7,16,.55);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px;
+  padding: .85rem 1rem;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(82,123,255,.14);
+}
+
+.form-field input::placeholder,
+.form-field textarea::placeholder {
+  color: #77819A;
+}
+
+.form-field textarea {
+  resize: vertical;
+  min-height: 95px;
+}
+
+.field-hint {
+  font-size: .74rem;
+  color: var(--muted);
+}
+
+.consent-check {
+  display: flex;
+  align-items: flex-start;
+  gap: .65rem;
+  font-size: .8rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.consent-check input {
+  margin-top: .2rem;
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+}
+
+.form-submit {
+  justify-content: center;
+  width: 100%;
+  margin-top: .2rem;
+}
+
+.form-privacy {
+  font-size: .74rem;
+  line-height: 1.55;
+}
+
+.form-message {
+  font-size: .84rem;
+  color: #A9B9FF;
+  min-height: 1.2em;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .application-layout {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .application-intro {
+    position: static;
+  }
+
+  .application-points {
+    max-width: 500px;
+  }
+}
+
+@media (max-width: 600px) {
+  .team-section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .team-card {
+    grid-template-columns: 1fr;
+  }
+
+  .team-avatar {
+    width: 92px;
+    height: 92px;
+    border-radius: 18px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .application-section {
+    padding-top: 40px;
+  }
+}
