@@ -1,93 +1,195 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#080B16">
-  <meta name="description" content="Meet the team behind Ahmad WebWorks.">
+  <meta name="description" content="Meet the founder and approved team members behind Ahmad WebWorks.">
+
   <title>Our Team | Ahmad WebWorks</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+  <!-- EXISTING STYLES -->
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/team.css">
+
+  <!-- EMPLOYEE DIRECTORY STYLES -->
+  <link rel="stylesheet" href="css/public-team.css">
+
+  <!-- EXISTING WEBSITE SCRIPT -->
   <script src="js/main.js" defer></script>
+
+  <!-- DYNAMIC EMPLOYEE DIRECTORY -->
+  <script type="module" src="js/public-team.js"></script>
 </head>
+
 <body>
 
+<!-- =====================================
+     HEADER
+===================================== -->
+
 <header class="site-header">
+
   <nav class="nav container">
+
     <a href="index.html" class="brand">
       <span class="brand-mark">AW</span>
       <span class="brand-word">AHMAD <em>WEBWORKS</em></span>
     </a>
 
-    <button class="nav-toggle" aria-label="Open navigation" aria-expanded="false">
-      <span></span><span></span><span></span>
+    <button class="nav-toggle"
+            aria-label="Open navigation"
+            aria-expanded="false">
+
+      <span></span>
+      <span></span>
+      <span></span>
+
     </button>
 
     <div class="nav-backdrop"></div>
 
     <div class="nav-links">
-      <a class="nav-link" href="index.html">Home</a>
-      <a class="nav-link active" href="team.html">Our Team</a>
-      <a class="nav-link" href="index.html#services">Services</a>
-      <a class="nav-link" href="index.html#projects">Projects</a>
-      <a class="btn btn-primary nav-cta" href="https://wa.me/923704513823">Let's Talk</a>
+
+      <a class="nav-link" href="index.html">
+        Home
+      </a>
+
+      <a class="nav-link active" href="team.html">
+        Our Team
+      </a>
+
+      <a class="nav-link" href="index.html#services">
+        Services
+      </a>
+
+      <a class="nav-link" href="index.html#projects">
+        Projects
+      </a>
+
+      <a class="btn btn-primary nav-cta"
+         href="https://wa.me/923704513823">
+        Let's Talk
+      </a>
+
     </div>
+
   </nav>
+
 </header>
+
+
+<!-- =====================================
+     MAIN CONTENT
+===================================== -->
 
 <main class="team-page">
 
+
+  <!-- HERO SECTION -->
+
   <section class="section team-hero">
+
     <div class="container">
+
       <div class="section-head reveal">
+
         <span class="eyebrow center">
+
           <span class="eyebrow-dot"></span>
+
           THE PEOPLE BEHIND THE WORK
+
         </span>
 
-        <h1>Meet our <span class="grad-text">team.</span></h1>
+        <h1>
+          Meet our <span class="grad-text">team.</span>
+        </h1>
 
         <p class="section-sub">
-          A growing team of creative people bringing digital
-          experiences to life.
+          A founder-led studio building thoughtful digital
+          experiences. We're open to meeting talented people
+          who want to grow with us.
         </p>
 
-        <a href="join-team.html" class="btn btn-primary btn-lg">
+        <a href="join-team.html"
+           class="btn btn-primary btn-lg">
+
           Apply to Join Us ↗
+
         </a>
+
       </div>
+
     </div>
+
   </section>
 
+
+  <!-- TEAM MEMBERS SECTION -->
+
   <section class="section team-members">
+
     <div class="container">
 
+
       <div class="team-section-heading reveal">
+
         <div>
+
           <span class="eyebrow">
+
             <span class="eyebrow-dot"></span>
+
             OUR PEOPLE
+
           </span>
-          <h2>Meet the <span class="grad-text">team.</span></h2>
+
+          <h2>
+            Meet the <span class="grad-text">team.</span>
+          </h2>
+
         </div>
-        <span class="team-count">FOUNDER-LED STUDIO</span>
+
+        <span class="team-count">
+          FOUNDER-LED STUDIO
+        </span>
+
       </div>
+
+
+      <!-- TEAM GRID -->
 
       <div class="team-grid">
 
-        <!-- FOUNDER -->
+
+        <!-- =================================
+             FOUNDER PROFILE
+        ================================== -->
+
         <article class="team-card reveal">
-          <div class="team-avatar">AHK</div>
+
+          <div class="team-avatar">
+            AHK
+          </div>
 
           <div class="team-card-body">
-            <span class="team-role">FOUNDER</span>
-            <h3>Ahmad Hassan Khan</h3>
+
+            <span class="team-role">
+              FOUNDER
+            </span>
+
+            <h3>
+              Ahmad Hassan Khan
+            </h3>
 
             <p>
               Founder of Ahmad WebWorks, focused on building
@@ -95,59 +197,118 @@
             </p>
 
             <div class="team-skills">
+
               <span>Web Development</span>
               <span>Electronics</span>
+
             </div>
 
             <a href="mailto:ahmadhassankhan79@gmail.com"
                class="team-profile-link">
+
               Contact Founder ↗
+
             </a>
+
           </div>
+
         </article>
 
-        <!-- JOIN OUR TEAM -->
+
+        <!-- =================================
+             DYNAMIC EMPLOYEE DIRECTORY
+
+             Supabase loads approved employees
+             automatically into this container.
+        ================================== -->
+
+        <div id="employeeTeamGrid"
+             class="employee-team-grid"
+             aria-live="polite">
+
+          <div class="employee-empty">
+            Loading our team...
+          </div>
+
+        </div>
+
+
+        <!-- =================================
+             JOIN OUR TEAM
+        ================================== -->
+
         <article class="team-join-card reveal d1">
-          <div class="join-card-icon">+</div>
 
-          <span class="team-role">YOUR NEXT OPPORTUNITY</span>
+          <div class="join-card-icon">
+            +
+          </div>
 
-          <h3>Your work could be here.</h3>
+          <span class="team-role">
+            YOUR NEXT OPPORTUNITY
+          </span>
+
+          <h3>
+            Your work could be here.
+          </h3>
 
           <p>
             Share your skills, experience and projects.
             Apply to become part of Ahmad WebWorks.
           </p>
 
-          <a href="join-team.html" class="btn btn-ghost">
+          <a href="join-team.html"
+             class="btn btn-ghost">
+
             Submit Your Portfolio ↗
+
           </a>
+
         </article>
+
 
       </div>
 
+
+      <!-- TEAM NOTE -->
+
       <p class="team-note">
+
         Employee profiles are published only after review
         and approval by Ahmad WebWorks.
+
       </p>
 
     </div>
+
   </section>
 
+
+  <!-- BOTTOM CALL TO ACTION -->
+
   <section class="section team-bottom">
+
     <div class="container">
-      <div class="cta-panel reveal">
+
+      <div class="cta-panel">
 
         <div class="cta-glow"></div>
 
         <span class="eyebrow center">
+
           <span class="eyebrow-dot"></span>
+
           GROW WITH US
+
         </span>
 
         <h2>
+
           Ready to put your work
-          <span class="grad-text">out there?</span>
+
+          <span class="grad-text">
+            out there?
+          </span>
+
         </h2>
 
         <p>
@@ -155,60 +316,128 @@
           Our team will review your application.
         </p>
 
-        <a href="join-team.html" class="btn btn-primary btn-lg">
+        <a href="join-team.html"
+           class="btn btn-primary btn-lg">
+
           Join Ahmad WebWorks ↗
+
         </a>
 
       </div>
+
     </div>
+
   </section>
+
 
 </main>
 
+
+<!-- =====================================
+     FOOTER
+===================================== -->
+
 <footer class="site-footer">
+
   <div class="container">
 
     <div class="footer-grid">
 
+
+      <!-- BRAND -->
+
       <div class="f-brand">
+
         <a href="index.html" class="brand">
-          <span class="brand-mark">AW</span>
-          <span class="brand-word">AHMAD <em>WEBWORKS</em></span>
+
+          <span class="brand-mark">
+            AW
+          </span>
+
+          <span class="brand-word">
+            AHMAD <em>WEBWORKS</em>
+          </span>
+
         </a>
+
         <p class="f-tag">
+
           Thoughtful websites for ideas, people,
           and growing businesses.
+
         </p>
+
       </div>
 
+
+      <!-- EXPLORE -->
+
       <div class="f-col">
+
         <h4>Explore</h4>
+
         <a href="index.html">Home</a>
         <a href="team.html">Our Team</a>
         <a href="index.html#services">Services</a>
         <a href="index.html#projects">Projects</a>
+
       </div>
 
+
+      <!-- CONTACT -->
+
       <div class="f-col">
+
         <h4>Contact</h4>
-        <a href="mailto:ahmadhassankhan79@gmail.com">Email Us</a>
-        <a href="https://wa.me/923704513823">WhatsApp</a>
+
+        <a href="mailto:ahmadhassankhan79@gmail.com">
+          Email Us
+        </a>
+
+        <a href="https://wa.me/923704513823">
+          WhatsApp
+        </a>
+
       </div>
 
+
+      <!-- SOCIAL -->
+
       <div class="f-col">
+
         <h4>Follow</h4>
-        <a href="https://www.facebook.com/profile.php?id=61596110341289">Facebook</a>
-        <a href="https://whatsapp.com/channel/0029VbDgUJtKrWQwrKaFiu3S">WhatsApp Channel</a>
+
+        <a href="https://www.facebook.com/profile.php?id=61596110341289">
+          Facebook
+        </a>
+
+        <a href="https://whatsapp.com/channel/0029VbDgUJtKrWQwrKaFiu3S">
+          WhatsApp Channel
+        </a>
+
       </div>
+
 
     </div>
 
+
+    <!-- COPYRIGHT -->
+
     <div class="footer-bottom">
-      <p>© <span id="year"></span> Ahmad WebWorks. All rights reserved.</p>
-      <p>Designed with purpose. Built with care.</p>
+
+      <p>
+        © <span id="year"></span>
+        Ahmad WebWorks. All rights reserved.
+      </p>
+
+      <p>
+        Designed with purpose. Built with care.
+      </p>
+
     </div>
 
   </div>
+
 </footer>
 
 </body>
