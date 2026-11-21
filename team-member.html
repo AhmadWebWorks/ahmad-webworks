@@ -1,0 +1,193 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="theme-color" content="#080B16">
+
+    <title>Team Member | Ahmad WebWorks</title>
+
+    <meta name="description"
+          content="Professional employee portfolio at Ahmad WebWorks.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        .member-container {
+            width: min(900px, 92%);
+            margin: 125px auto 70px;
+        }
+
+        .member-panel {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: clamp(22px, 5vw, 42px);
+            margin-bottom: 20px;
+        }
+
+        .member-header {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .member-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 22px;
+            overflow: hidden;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(
+                135deg,
+                rgba(105,125,255,.25),
+                rgba(30,220,190,.12)
+            );
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .member-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .member-muted {
+            color: var(--muted);
+            line-height: 1.8;
+        }
+
+        .member-skills,
+        .member-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin-top: 18px;
+        }
+
+        .member-skills span,
+        .member-links a {
+            padding: 8px 13px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            color: var(--text);
+            font-size: .85rem;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .project-card {
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 18px;
+        }
+
+        .project-card img {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+
+        .project-card p {
+            color: var(--muted);
+            line-height: 1.7;
+        }
+    </style>
+
+    <script type="module" src="js/team-member.js"></script>
+</head>
+
+<body>
+
+<header class="site-header">
+
+    <nav class="nav container">
+
+        <a href="index.html" class="brand">
+            <span class="brand-mark">AW</span>
+
+            <span class="brand-word">
+                AHMAD <em>WEBWORKS</em>
+            </span>
+        </a>
+
+        <a href="team.html" class="btn btn-ghost">
+            ← Our Team
+        </a>
+
+    </nav>
+
+</header>
+
+<main class="member-container">
+
+    <div id="memberStatus" class="member-panel member-muted">
+        Loading employee portfolio...
+    </div>
+
+    <section id="memberContent" hidden>
+
+        <div class="member-panel">
+
+            <div class="member-header">
+
+                <div id="memberAvatar" class="member-avatar"></div>
+
+                <div>
+
+                    <span class="eyebrow">
+                        AHMAD WEBWORKS TEAM
+                    </span>
+
+                    <h1 id="memberName"></h1>
+
+                    <p id="memberTitle" class="member-muted"></p>
+
+                    <p id="memberLocation" class="member-muted"></p>
+
+                </div>
+
+            </div>
+
+            <p id="memberBio"
+               class="member-muted"
+               style="margin-top:25px">
+            </p>
+
+            <div id="memberSkills" class="member-skills"></div>
+
+            <div id="memberLinks" class="member-links"></div>
+
+        </div>
+
+        <section class="member-panel">
+
+            <h2>Selected Projects</h2>
+
+            <div id="memberProjects" class="project-grid"></div>
+
+        </section>
+
+    </section>
+
+</main>
+
+</body>
+</html>
