@@ -6,24 +6,20 @@
 
   if (!form) return;
 
-  // Ahmad WebWorks official WhatsApp number
   const whatsappNumber = "923704513823";
-
   const message = document.getElementById("formMessage");
 
-  form.addEventListener("submit", event => {
+  form.addEventListener("submit", async event => {
 
     event.preventDefault();
 
     if (!form.reportValidity()) return;
 
     const data = new FormData(form);
-
     const clean = value => String(value || "").trim();
 
     const portfolio = clean(data.get("portfolio"));
 
-    // Validate portfolio URL
     if (portfolio) {
       try {
         const parsed = new URL(portfolio);
@@ -35,42 +31,66 @@
       } catch {
         message.textContent =
           "Please enter a valid portfolio link beginning with https://";
-
         return;
       }
     }
 
-    // Prepare application message
+    const applicant = {
+      applicant_name: clean(data.get("fullName")),
+      email: clean(data.get("email")) || null,
+      preferred_role: clean(data.get("role")),
+      location: clean(data.get("location")),
+      skills: clean(data.get("skills"))
+        .split(",")
+        .map(x => x.trim())
+        .filter(Boolean),
+      introduction: clean(data.get("experience")),
+      portfolio_url: portfolio || null
+    };
+
     const lines = [
-
       "AHMAD WEBWORKS — EMPLOYEE PORTFOLIO APPLICATION",
-
       "",
-
-      "Name: " + clean(data.get("fullName")),
-
-      "Preferred role: " + clean(data.get("role")),
-
-      "Location: " + clean(data.get("location")),
-
-      "Skills: " + clean(data.get("skills")),
-
-      "Experience / Introduction: " +
-        clean(data.get("experience")),
-
-      "Portfolio / Project Link: " +
-        (portfolio || "Not provided"),
-
-      "Email: " +
-        (clean(data.get("email")) || "Not provided"),
-
+      "Name: " + applicant.applicant_name,
+      "Preferred role: " + applicant.preferred_role,
+      "Location: " + applicant.location,
+      "Skills: " + applicant.skills.join(", "),
+      "Experience / Introduction: " + applicant.introduction,
+      "Portfolio / Project Link: " + (portfolio || "Not provided"),
+      "Email: " + (applicant.email || "Not provided"),
       "",
-
       "I confirm that the information above is accurate.",
-
       "Please review my application."
-
     ];
+
+    message.textContent = "Saving your application...";
+
+    try {
+
+      const { createClient } =
+        await import("https://esm.sh/@supabase/supabase-js@2");
+
+      const db = createClient(
+        "https://vxdzyfbxcorxqysvlzgn.supabase.co",
+        "sb_publishable_egeeneg2jGd6y2yotB_Bdw_FR2XMVJB"
+      );
+
+      const { error } = await db
+        .from("employee_applications")
+        .insert(applicant);
+
+      if (error) throw error;
+
+      message.textContent =
+        "Application saved! Opening WhatsApp for confirmation...";
+
+    } catch (error) {
+
+      message.textContent =
+        "Database saving failed: " + error.message +
+        ". You can still submit through WhatsApp.";
+
+    }
 
     const whatsappUrl =
       "https://wa.me/" +
@@ -78,17 +98,12 @@
       "?text=" +
       encodeURIComponent(lines.join("\n"));
 
-    message.textContent =
-      "WhatsApp is opening. Please review your application and press Send.";
-
-    // Open WhatsApp
     const opened = window.open(
       whatsappUrl,
       "_blank",
       "noopener,noreferrer"
     );
 
-    // Fallback for browsers blocking new tabs
     if (!opened) {
       window.location.href = whatsappUrl;
     }
