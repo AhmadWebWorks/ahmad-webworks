@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#080B16">
   <meta name="description" content="Apply to join Ahmad WebWorks and submit your professional portfolio.">
-
   <title>Join Our Team | Ahmad WebWorks</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -78,12 +77,12 @@
 
       <div>
         <span>02</span>
-        <p>Send your application directly to our WhatsApp.</p>
+        <p>Provide a valid email so we can contact you.</p>
       </div>
 
       <div>
         <span>03</span>
-        <p>Our admin reviews it before publishing.</p>
+        <p>Our admin reviews your application before publishing.</p>
       </div>
 
     </div>
@@ -102,7 +101,7 @@
       <p>Fields marked * are required.</p>
     </div>
 
-    <form id="employeeApplication" class="employee-form">
+    <form id="employeeApplication" class="employee-form" novalidate>
 
       <div class="form-field">
         <label for="fullName">Full name *</label>
@@ -157,11 +156,16 @@
       </div>
 
       <div class="form-field">
-        <label for="email">Email Address</label>
+        <label for="email">Email Address *</label>
         <input id="email" name="email"
           type="email" maxlength="120"
           autocomplete="email"
-          placeholder="you@example.com">
+          placeholder="you@example.com"
+          required>
+        <span class="field-hint">
+          Required. We'll use this email for application updates,
+          interview details and employee invitations.
+        </span>
       </div>
 
       <label class="consent-check">
@@ -177,8 +181,9 @@
       </button>
 
       <p class="form-privacy">
-        This website does not store your application.
-        WhatsApp will open with your message for review.
+        WhatsApp will open with your application message.
+        Please review it and press Send. Your application is
+        not submitted until you send the WhatsApp message.
         Please send your profile photo separately in the same chat.
       </p>
 
