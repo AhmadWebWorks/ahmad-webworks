@@ -77,6 +77,7 @@ begin
     raise exception 'Portfolio link must be a valid HTTP or HTTPS URL.' using errcode = '22023';
   end if;
 
+  -- Serialize submissions by email to avoid duplicate rapid submissions.
   perform pg_catalog.pg_advisory_xact_lock(
     pg_catalog.hashtextextended(v_email, 0)
   );
@@ -92,12 +93,22 @@ begin
   end if;
 
   insert into public.employee_applications (
-    applicant_name, email, preferred_role, location,
-    skills, introduction, portfolio_url
+    applicant_name,
+    email,
+    preferred_role,
+    location,
+    skills,
+    introduction,
+    portfolio_url
   )
   values (
-    v_name, v_email, v_role, v_location,
-    v_skills, v_introduction, v_portfolio
+    v_name,
+    v_email,
+    v_role,
+    v_location,
+    v_skills,
+    v_introduction,
+    v_portfolio
   )
   returning id into v_id;
 
@@ -105,6 +116,7 @@ begin
 end;
 $$;
 
+-- A SECURITY DEFINER RPC is a narrow public entry point: grant only EXECUTE.
 revoke all on function public.submit_employee_application(
   text, text, text, text, text[], text, text
 ) from public, anon, authenticated;
@@ -113,6 +125,7 @@ grant execute on function public.submit_employee_application(
   text, text, text, text, text[], text, text
 ) to anon, authenticated;
 
+-- Remove direct insert access, including previously granted column-level INSERT.
 revoke insert on table public.employee_applications from anon, authenticated;
 revoke insert (
   id, applicant_name, email, preferred_role, location, skills,
