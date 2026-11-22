@@ -26,4 +26,6 @@ Do not commit the actual Auth user UUID or any service-role credentials.
 - `notify-application-status`: public receipt action plus admin-only status notifications and diagnostics. Privileged actions verify the signed-in user inside the function.
 - `invite-team-member`: requires a signed-in Founder session at the gateway and checks Founder permissions again inside the function.
 
-Function JWT settings are recorded in `config.toml`. Secrets must be configured in the Supabase project, never committed here.
+Function JWT settings are recorded in `config.toml`.
+
+The transactional email functions require the `BREVO_API_KEY` project secret. Supabase supplies the project URL and platform API keys to Edge Functions. Keep every secret in Supabase project secrets; never place secret values in this repository.
