@@ -782,10 +782,11 @@ $("paInviteForm").addEventListener("submit", async event => {
   }
 
   const button = event.submitter;
+  const formElement = event.currentTarget;
   setBusy(button, true);
 
   try {
-    const form = new FormData(event.currentTarget);
+    const form = new FormData(formElement);
 
     const result = await inviteFunction({
       action: "invite_pa",
@@ -793,7 +794,7 @@ $("paInviteForm").addEventListener("submit", async event => {
       full_name: form.get("full_name")
     });
 
-    event.currentTarget.reset();
+    formElement.reset();
 
     msg("paInviteMsg", result.message || result.warning);
     await loadAdmin();
@@ -941,10 +942,11 @@ $("projectForm").addEventListener("submit", async event => {
   event.preventDefault();
 
   const button = event.submitter;
+  const formElement = event.currentTarget;
   setBusy(button, true);
 
   try {
-    const form = new FormData(event.currentTarget);
+    const form = new FormData(formElement);
     const title = String(form.get("title") || "").trim();
 
     if (title.length < 2) {
@@ -969,7 +971,7 @@ const { error } = await db
 
     if (error) throw error;
 
-    event.currentTarget.reset();
+    formElement.reset();
 
     msg("projectMsg", "Project submitted for Founder review.");
     await loadEmployee();
