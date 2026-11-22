@@ -30,11 +30,11 @@ function json(data: unknown, status = 200, origin?: string | null) {
 }
 
 Deno.serve(async (req: Request) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: { ...corsHeaders, "Access-Control-Allow-Origin": origin && ALLOWED_ORIGINS.has(origin) ? origin : SITE_ORIGIN } });
-  if (req.method !== "POST") return respond({ error: "Method not allowed." }, 405);
-
   const origin = req.headers.get("origin");
   const respond = (data: unknown, status = 200) => json(data, status, origin);
+
+  if (req.method === "OPTIONS") return new Response("ok", { headers: { ...corsHeaders, "Access-Control-Allow-Origin": origin && ALLOWED_ORIGINS.has(origin) ? origin : SITE_ORIGIN } });
+  if (req.method !== "POST") return respond({ error: "Method not allowed." }, 405);
   if (origin && !ALLOWED_ORIGINS.has(origin)) return respond({ error: "Origin not allowed." }, 403);
 
   try {
