@@ -15,84 +15,149 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/team.css">
   <script src="js/main.js" defer></script>
-<script type="module">
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+<script>
+(() => {
+  "use strict";
+  const SUPABASE_URL = "https://vxdzyfbxcorxqysvlzgn.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_egeeneg2jGd6y2yotB_Bdw_FR2XMVJB";
 
-const db = createClient(
-  "https://vxdzyfbxcorxqysvlzgn.supabase.co",
-  "sb_publishable_egeeneg2jGd6y2yotB_Bdw_FR2XMVJB"
-);
+  const safeURL = value => {
+    if (!value) return null;
+    try {
+      const url = new URL(value);
+      return ["https:", "http:"].includes(url.protocol) ? url.href : null;
+    } catch { return null; }
+  };
 
-const grid = document.querySelector(".team-grid");
-const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, c => ({
-  "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
-}[c]));
-const safeURL = value => {
-  if (!value) return null;
-  try {
-    const url = new URL(value);
-    return ["https:", "http:"].includes(url.protocol) ? url.href : null;
-  } catch { return null; }
-};
-const initials = name => String(name || "Team Member")
-  .trim().split(/\s+/).slice(0, 2).map(part => part[0] || "").join("").toUpperCase();
+  const initials = name => String(name || "Team Member")
+    .trim().split(/\s+/).slice(0, 2)
+    .map(part => part[0] || "").join("").toUpperCase();
 
-async function loadPublishedTeam() {
-  try {
-    const { data, error } = await db
-      .from("employee_portfolios")
-      .select("id,full_name,job_title,location,bio,skills,avatar_url,website_url,github_url,linkedin_url,slug")
-      .eq("is_published", true)
-      .eq("review_status", "approved")
-      .order("created_at", { ascending: true });
-
-    if (error) throw error;
-
-    const joinCard = grid.querySelector(".team-join-card");
-    for (const member of (data || [])) {
-      const card = document.createElement("article");
-      card.className = "team-card reveal visible";
-      const avatar = safeURL(member.avatar_url);
-      const links = [
-        ["Website", member.website_url],
-        ["GitHub", member.github_url],
-        ["LinkedIn", member.linkedin_url]
-      ].filter(([, url]) => safeURL(url));
-
-      card.innerHTML = `
-        <div class="team-avatar ${avatar ? "has-image" : ""}">
-          ${avatar
-            ? `<img src="${escapeHTML(avatar)}" alt="${escapeHTML(member.full_name)}">`
-            : escapeHTML(initials(member.full_name))}
-        </div>
-        <div class="team-card-body">
-          <span class="team-role">${escapeHTML(member.job_title || "TEAM MEMBER")}</span>
-          <h3>${escapeHTML(member.full_name)}</h3>
-          ${member.location ? `<p class="team-location">${escapeHTML(member.location)}</p>` : ""}
-          <p>${escapeHTML(member.bio || "A member of the Ahmad WebWorks team.")}</p>
-          ${(member.skills || []).length ? `
-            <div class="team-skills">
-              ${member.skills.map(skill => `<span>${escapeHTML(skill)}</span>`).join("")}
-            </div>` : ""}
-          ${links.length ? `
-            <div class="team-member-links">
-              ${links.map(([label, url]) => `<a class="team-profile-link" href="${escapeHTML(safeURL(url))}" target="_blank" rel="noopener noreferrer">${label} ↗</a>`).join("")}
-            </div>` : ""}
-        </div>`;
-      grid.insertBefore(card, joinCard);
-    }
-
-    const count = document.querySelector(".team-count");
-    if (count) {
-      const total = 1 + (data || []).length;
-      count.textContent = total + (total === 1 ? " TEAM MEMBER" : " TEAM MEMBERS");
-    }
-  } catch (error) {
-    console.error("Could not load published team profiles:", error);
+  function addText(parent, tag, className, value) {
+    if (!value) return null;
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    el.textContent = value;
+    parent.appendChild(el);
+    return el;
   }
-}
 
-loadPublishedTeam();
+  function makeProfileCard(member) {
+    const card = document.createElement("article");
+    card.className = "team-card";
+
+    const avatar = document.createElement("div");
+    avatar.className = "team-avatar";
+    const avatarURL = safeURL(member.avatar_url);
+    if (avatarURL) {
+      avatar.classList.add("has-image");
+      const img = document.createElement("img");
+      img.src = avatarURL;
+      img.alt = member.full_name || "Team member";
+      avatar.appendChild(img);
+    } else {
+      avatar.textContent = initials(member.full_name);
+    }
+    card.appendChild(avatar);
+
+    const body = document.createElement("div");
+    body.className = "team-card-body";
+    addText(body, "span", "team-role", member.job_title || "TEAM MEMBER");
+    addText(body, "h3", "", member.full_name || "Team Member");
+    addText(body, "p", "team-location", member.location);
+    addText(body, "p", "", member.bio || "A member of the Ahmad WebWorks team.");
+
+    if (Array.isArray(member.skills) && member.skills.length) {
+      const skills = document.createElement("div");
+      skills.className = "team-skills";
+      member.skills.forEach(skill => addText(skills, "span", "", skill));
+      body.appendChild(skills);
+    }
+
+    const links = [
+      ["Website", member.website_url],
+      ["GitHub", member.github_url],
+      ["LinkedIn", member.linkedin_url]
+    ];
+    const validLinks = links.map(([label, value]) => [label, safeURL(value)])
+      .filter(([, url]) => url);
+    if (validLinks.length) {
+      const linkBox = document.createElement("div");
+      linkBox.className = "team-member-links";
+      validLinks.forEach(([label, url]) => {
+        const a = document.createElement("a");
+        a.className = "team-profile-link";
+        a.href = url;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.textContent = label + " ↗";
+        linkBox.appendChild(a);
+      });
+      body.appendChild(linkBox);
+    }
+
+    card.appendChild(body);
+    return card;
+  }
+
+  async function loadPublishedTeam() {
+    const grid = document.querySelector(".team-grid");
+    const count = document.querySelector(".team-count");
+    if (!grid) {
+      console.error("Team page loader: .team-grid was not found.");
+      return;
+    }
+
+    try {
+      const params = new URLSearchParams({
+        select: "id,full_name,job_title,location,bio,skills,avatar_url,website_url,github_url,linkedin_url,slug",
+        is_published: "eq.true",
+        review_status: "eq.approved",
+        order: "created_at.asc"
+      });
+      const response = await fetch(
+        SUPABASE_URL + "/rest/v1/employee_portfolios?" + params.toString(),
+        {
+          method: "GET",
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: "Bearer " + SUPABASE_KEY
+          },
+          cache: "no-store"
+        }
+      );
+      if (!response.ok) {
+        const detail = await response.text();
+        throw new Error("Supabase REST " + response.status + ": " + detail);
+      }
+
+      const members = await response.json();
+      const joinCard = grid.querySelector(".team-join-card");
+      grid.querySelectorAll("[data-dynamic-employee]").forEach(card => card.remove());
+
+      (members || []).forEach(member => {
+        const card = makeProfileCard(member);
+        card.dataset.dynamicEmployee = "true";
+        grid.insertBefore(card, joinCard || null);
+      });
+
+      if (count) {
+        const total = 1 + (members || []).length;
+        count.textContent = total + (total === 1 ? " TEAM MEMBER" : " TEAM MEMBERS");
+      }
+      console.info("Team page loaded published employee profiles:", (members || []).length);
+    } catch (error) {
+      console.error("Could not load published team profiles:", error);
+      if (count) count.textContent = "TEAM DATA UNAVAILABLE";
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", loadPublishedTeam, { once: true });
+  } else {
+    loadPublishedTeam();
+  }
+})();
 </script>
 
 </head>
