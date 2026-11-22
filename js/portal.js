@@ -559,18 +559,25 @@ document.addEventListener("click", async event => {
 
       if (diagnosticError) throw new Error(diagnosticError.message);
 
-      if (diagnostic?.ok && diagnostic?.template_active) {
+      if (diagnostic?.ok && diagnostic?.templates?.length === 4) {
         msg(
           "globalMsg",
-          "Brevo API connection verified. Template #2 is active. No email was sent. (" +
+          "Brevo connection verified. Transactional templates #1, #2, #3 and #4 are active. No email was sent. (" +
             diagnostic.elapsed_ms + " ms)"
+        );
+      } else if (diagnostic?.templates?.length) {
+        const status = diagnostic.templates
+          .map(item => "#" + item.template_id + ": " + (item.active ? "active" : "inactive / unavailable"))
+          .join("; ");
+        msg(
+          "globalMsg",
+          "Brevo template check: " + status + ". No email was sent."
         );
       } else {
         msg(
           "globalMsg",
           "Brevo API check failed: " +
-            (diagnostic?.error || "Template #2 is not active.") +
-            (diagnostic?.http_status ? " HTTP " + diagnostic.http_status : "")
+            (diagnostic?.error || "Could not verify the transactional templates.")
         );
       }
     }
