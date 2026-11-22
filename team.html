@@ -51,7 +51,7 @@ async function loadPublishedTeam() {
     const joinCard = grid.querySelector(".team-join-card");
     for (const member of (data || [])) {
       const card = document.createElement("article");
-      card.className = "team-card reveal";
+      card.className = "team-card reveal visible";
       const avatar = safeURL(member.avatar_url);
       const links = [
         ["Website", member.website_url],
