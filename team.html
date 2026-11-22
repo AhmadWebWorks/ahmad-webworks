@@ -15,6 +15,86 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/team.css">
   <script src="js/main.js" defer></script>
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const db = createClient(
+  "https://vxdzyfbxcorxqysvlzgn.supabase.co",
+  "sb_publishable_egeeneg2jGd6y2yotB_Bdw_FR2XMVJB"
+);
+
+const grid = document.querySelector(".team-grid");
+const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, c => ({
+  "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+}[c]));
+const safeURL = value => {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    return ["https:", "http:"].includes(url.protocol) ? url.href : null;
+  } catch { return null; }
+};
+const initials = name => String(name || "Team Member")
+  .trim().split(/\\s+/).slice(0, 2).map(part => part[0] || "").join("").toUpperCase();
+
+async function loadPublishedTeam() {
+  try {
+    const { data, error } = await db
+      .from("employee_portfolios")
+      .select("id,full_name,job_title,location,bio,skills,avatar_url,website_url,github_url,linkedin_url,slug")
+      .eq("is_published", true)
+      .eq("review_status", "approved")
+      .order("created_at", { ascending: true });
+
+    if (error) throw error;
+
+    const joinCard = grid.querySelector(".team-join-card");
+    for (const member of (data || [])) {
+      const card = document.createElement("article");
+      card.className = "team-card reveal";
+      const avatar = safeURL(member.avatar_url);
+      const links = [
+        ["Website", member.website_url],
+        ["GitHub", member.github_url],
+        ["LinkedIn", member.linkedin_url]
+      ].filter(([, url]) => safeURL(url));
+
+      card.innerHTML = `
+        <div class="team-avatar ${avatar ? "has-image" : ""}">
+          ${avatar
+            ? `<img src="${escapeHTML(avatar)}" alt="${escapeHTML(member.full_name)}">`
+            : escapeHTML(initials(member.full_name))}
+        </div>
+        <div class="team-card-body">
+          <span class="team-role">${escapeHTML(member.job_title || "TEAM MEMBER")}</span>
+          <h3>${escapeHTML(member.full_name)}</h3>
+          ${member.location ? `<p class="team-location">${escapeHTML(member.location)}</p>` : ""}
+          <p>${escapeHTML(member.bio || "A member of the Ahmad WebWorks team.")}</p>
+          ${(member.skills || []).length ? `
+            <div class="team-skills">
+              ${member.skills.map(skill => `<span>${escapeHTML(skill)}</span>`).join("")}
+            </div>` : ""}
+          ${links.length ? `
+            <div class="team-member-links">
+              ${links.map(([label, url]) => `<a class="team-profile-link" href="${escapeHTML(safeURL(url))}" target="_blank" rel="noopener noreferrer">${label} ↗</a>`).join("")}
+            </div>` : ""}
+        </div>`;
+      grid.insertBefore(card, joinCard);
+    }
+
+    const count = document.querySelector(".team-count");
+    if (count) {
+      const total = 1 + (data || []).length;
+      count.textContent = total + (total === 1 ? " TEAM MEMBER" : " TEAM MEMBERS");
+    }
+  } catch (error) {
+    console.error("Could not load published team profiles:", error);
+  }
+}
+
+loadPublishedTeam();
+</script>
+
 </head>
 <body>
 
