@@ -13,6 +13,9 @@ let user = null;
 let profile = null;
 let busy = false;
 
+const invitationFlow =
+  new URLSearchParams(location.search).get("flow") === "invite";
+
 const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({
   "&":"&amp;", "<":"&lt;", ">":"&gt;",
   '"':"&quot;", "'":"&#39;"
@@ -24,21 +27,25 @@ function msg(id, text) {
 
 function setBusy(button, state) {
   if (!button) return;
+
   if (state) {
     button.dataset.oldText = button.textContent;
     button.disabled = true;
     button.textContent = "Please wait...";
   } else {
     button.disabled = false;
+
     if (button.dataset.oldText) {
       button.textContent = button.dataset.oldText;
     }
+
     delete button.dataset.oldText;
   }
 }
 
 function safeURL(value) {
   if (!value) return null;
+
   try {
     const u = new URL(value);
     return ["https:", "http:"].includes(u.protocol) ? u.href : null;
@@ -57,10 +64,79 @@ async function inviteFunction(body) {
   const { data, error } = await db.functions.invoke(
     "invite-team-member", { body }
   );
+
   if (error) throw new Error(error.message);
   if (data?.error) throw new Error(data.error);
+
   return data;
 }
+
+/* INVITATION ACCEPTANCE */
+
+async function showInvitationSetup(session) {
+  $("login").classList.add("hidden");
+  $("workspace").classList.add("hidden");
+  $("inviteSetup").classList.remove("hidden");
+
+  if (!session) {
+    $("inviteForm").classList.add("hidden");
+    msg(
+      "inviteMsg",
+      "This invitation link is invalid, expired, or already used. Contact the Founder for a new invitation."
+    );
+    return;
+  }
+
+  $("inviteEmail").value =
+    session.user.email || "";
+
+  $("inviteForm").classList.remove("hidden");
+  msg("inviteMsg", "Create your password to finish accepting the invitation.");
+}
+
+$("inviteForm").addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const button = event.submitter;
+  setBusy(button, true);
+  msg("inviteMsg", "Setting up your account...");
+
+  try {
+    const form = new FormData(event.currentTarget);
+
+    const password = String(form.get("password") || "");
+    const confirmPassword =
+      String(form.get("confirm_password") || "");
+
+    if (password.length < 8) {
+      throw new Error("Password must contain at least 8 characters.");
+    }
+
+    if (password !== confirmPassword) {
+      throw new Error("Passwords do not match.");
+    }
+
+    const { error } = await db.auth.updateUser({ password });
+
+    if (error) throw error;
+
+    $("inviteForm").classList.add("hidden");
+
+    msg(
+      "inviteDone",
+      "Password created successfully! Your invitation is accepted. Your account is now waiting for Founder activation. You can sign in after the Founder activates your account."
+    );
+
+    $("inviteDone").classList.remove("hidden");
+
+    await db.auth.signOut();
+
+  } catch (error) {
+    msg("inviteMsg", error.message);
+  } finally {
+    setBusy(button, false);
+  }
+});
 
 /* LOGIN */
 
@@ -80,6 +156,7 @@ $("loginForm").addEventListener("submit", async event => {
     });
 
     if (error) throw error;
+
     await boot();
 
   } catch (error) {
@@ -118,11 +195,14 @@ async function boot() {
 
   if (profile.account_status !== "active") {
     await db.auth.signOut();
-    msg("loginMsg", "Your account is pending or suspended.");
+    $("workspace").classList.add("hidden");
+    $("login").classList.remove("hidden");
+    msg("loginMsg", "Your account is pending or suspended. Contact the Founder.");
     return;
   }
 
   $("login").classList.add("hidden");
+  $("inviteSetup").classList.add("hidden");
   $("workspace").classList.remove("hidden");
 
   $("welcome").textContent =
@@ -134,14 +214,17 @@ async function boot() {
     employee: "Employee Workspace"
   };
 
-  $("roleText").textContent = roles[profile.role] || "Team Member";
+  $("roleText").textContent =
+    roles[profile.role] || "Team Member";
 
   if (profile.role === "admin") {
     $("admin").classList.remove("hidden");
     $("employee").classList.add("hidden");
     $("paInvitePanel").classList.remove("hidden");
+
     document.querySelectorAll("[data-tab]")
       .forEach(x => x.classList.remove("hidden"));
+
     await loadAdmin();
 
   } else if (profile.role === "pa") {
@@ -162,6 +245,7 @@ async function boot() {
   } else if (profile.role === "employee") {
     $("employee").classList.remove("hidden");
     $("admin").classList.add("hidden");
+
     await loadEmployee();
 
   } else {
@@ -188,6 +272,7 @@ function renderApplications(apps, canInvite) {
           <th>Review</th>
         </tr>
       </thead>
+
       <tbody>
       ${apps.map(app => {
         const portfolioURL = safeURL(app.portfolio_url);
@@ -207,11 +292,19 @@ function renderApplications(apps, canInvite) {
             </button>`;
         }
 
+        const deleteButton = canInvite ? `
+          <button class="act danger"
+            data-action="delete-application"
+            data-id="${esc(app.id)}">
+            Delete Application
+          </button>` : "";
+
         return `
           <tr>
             <td>
               <b>${esc(app.applicant_name)}</b><br>
               ${esc(app.email || "No email")}
+
               ${app.email ? `
                 <br>
                 <button class="act"
@@ -230,6 +323,7 @@ function renderApplications(apps, canInvite) {
               ${esc(app.introduction)}
               <br><b>Skills:</b>
               ${esc((app.skills || []).join(", "))}
+
               ${portfolioURL ? `
                 <br><a href="${esc(portfolioURL)}"
                   target="_blank" rel="noopener noreferrer">
@@ -267,12 +361,16 @@ function renderApplications(apps, canInvite) {
               <button class="act"
                 data-action="save-notes"
                 data-id="${esc(app.id)}">Save Notes</button>
+
+              ${deleteButton}
             </td>
           </tr>`;
       }).join("")}
       </tbody>
     </table>`;
 }
+
+/* PA DASHBOARD */
 
 async function loadPA() {
   msg("globalMsg", "Loading applications...");
@@ -286,6 +384,7 @@ async function loadPA() {
 
   $("appCount").textContent = data.length;
   $("empCount").textContent = "Restricted";
+
   $("reviewCount").textContent = data.filter(
     x => ["new", "under_review"].includes(x.status)
   ).length;
@@ -339,14 +438,21 @@ function renderPeople(people) {
   $("peopleList").innerHTML = people.length ? `
     <table>
       <thead>
-        <tr><th>User ID</th><th>Role</th><th>Status</th><th>Action</th></tr>
+        <tr>
+          <th>User ID</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
       </thead>
+
       <tbody>
       ${people.map(person => `
         <tr>
           <td>${esc(person.id)}</td>
           <td>${esc(person.role)}</td>
           <td>${esc(person.account_status)}</td>
+
           <td>
             ${person.role === "admin" ? "Founder" :
               person.role === "pa" ? "PA (Restricted)" : `
@@ -387,6 +493,7 @@ function renderReviews(portfolios, projects) {
     ? items.map(item => `
       <div class="stat">
         <b>${esc(item.label)}</b>
+
         <div class="actions">
           <button class="act primary"
             data-action="portfolio-review"
@@ -413,9 +520,11 @@ function renderReviews(portfolios, projects) {
 
 document.addEventListener("click", async event => {
   const button = event.target.closest("button[data-action]");
+
   if (!button || busy) return;
 
   const action = button.dataset.action;
+
   busy = true;
   setBusy(button, true);
 
@@ -456,6 +565,32 @@ document.addEventListener("click", async event => {
       else await loadPA();
 
       msg("globalMsg", "Notes saved.");
+    }
+
+    if (action === "delete-application") {
+      if (profile.role !== "admin") {
+        throw new Error("Only the Founder can delete applications.");
+      }
+
+      const row = button.closest("tr");
+      const applicantName =
+        row?.querySelector("td b")?.textContent || "this applicant";
+
+      const confirmed = confirm(
+        `Permanently delete ${applicantName}'s application? This cannot be undone. Any separate employee account will NOT be deleted.`
+      );
+
+      if (!confirmed) return;
+
+      const { error } = await db
+        .from("employee_applications")
+        .delete()
+        .eq("id", button.dataset.id);
+
+      if (error) throw error;
+
+      await loadAdmin();
+      msg("globalMsg", "Application permanently deleted.");
     }
 
     if (action === "invite-employee") {
@@ -600,6 +735,7 @@ async function loadEmployee() {
       .single();
 
     if (insertError) throw insertError;
+
     portfolio = data;
   }
 
@@ -650,7 +786,9 @@ $("profileForm").addEventListener("submit", async event => {
     const form = new FormData(event.currentTarget);
     const name = String(form.get("full_name") || "").trim();
 
-    if (name.length < 2) throw new Error("Enter your full name.");
+    if (name.length < 2) {
+      throw new Error("Enter your full name.");
+    }
 
     const payload = {
       full_name: name,
@@ -665,7 +803,7 @@ $("profileForm").addEventListener("submit", async event => {
       github_url: safeURL(form.get("github_url")),
       linkedin_url: safeURL(form.get("linkedin_url")),
 
-      slug: slugify(name) + "-" + user.id.slice(0, 6)
+slug: slugify(name) + "-" + user.id.slice(0, 6)
     };
 
     const { error } = await db
@@ -697,7 +835,9 @@ $("projectForm").addEventListener("submit", async event => {
     const form = new FormData(event.currentTarget);
     const title = String(form.get("title") || "").trim();
 
-    if (title.length < 2) throw new Error("Enter project title.");
+    if (title.length < 2) {
+      throw new Error("Enter project title.");
+    }
 
     const rawURL = String(form.get("project_url") || "").trim();
     const projectURL = rawURL ? safeURL(rawURL) : null;
@@ -706,7 +846,7 @@ $("projectForm").addEventListener("submit", async event => {
       throw new Error("Enter a valid project URL.");
     }
 
-    const { error } = await db
+const { error } = await db
       .from("portfolio_projects")
       .insert({
         owner_id: user.id,
@@ -729,11 +869,18 @@ $("projectForm").addEventListener("submit", async event => {
   }
 });
 
-/* RESTORE SESSION */
+/* RESTORE SESSION / HANDLE INVITATION */
 
-db.auth.getSession().then(async ({ data, error }) => {
+async function restoreSession() {
+  const { data, error } = await db.auth.getSession();
+
   if (error) {
     msg("globalMsg", error.message);
+    return;
+  }
+
+  if (invitationFlow) {
+    await showInvitationSetup(data.session);
     return;
   }
 
@@ -744,4 +891,6 @@ db.auth.getSession().then(async ({ data, error }) => {
       msg("globalMsg", error.message);
     }
   }
-});
+}
+
+restoreSession();
