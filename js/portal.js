@@ -299,6 +299,26 @@ function renderApplications(apps, canInvite) {
             Delete Application
           </button>` : "";
 
+        const statusActions = canInvite ? `
+          <button class="act"
+            data-action="application-status"
+            data-id="${esc(app.id)}"
+            data-status="under_review">Review</button>
+
+          <button class="act primary"
+            data-action="application-status"
+            data-id="${esc(app.id)}"
+            data-status="approved">Approve</button>
+
+          <button class="act danger"
+            data-action="application-status"
+            data-id="${esc(app.id)}"
+            data-status="rejected">Reject</button>` : `
+          <button class="act"
+            data-action="application-status"
+            data-id="${esc(app.id)}"
+            data-status="under_review">Mark Under Review</button>`;
+
         return `
           <tr>
             <td>
@@ -336,20 +356,7 @@ function renderApplications(apps, canInvite) {
               <br>${invitation}
 
               <div class="actions">
-                <button class="act"
-                  data-action="application-status"
-                  data-id="${esc(app.id)}"
-                  data-status="under_review">Review</button>
-
-                <button class="act primary"
-                  data-action="application-status"
-                  data-id="${esc(app.id)}"
-                  data-status="approved">Approve</button>
-
-                <button class="act danger"
-                  data-action="application-status"
-                  data-id="${esc(app.id)}"
-                  data-status="rejected">Reject</button>
+                ${statusActions}
               </div>
 
               <label class="muted">
@@ -535,20 +542,52 @@ document.addEventListener("click", async event => {
     }
 
     if (action === "application-status") {
+      const nextStatus = button.dataset.status;
+
+      if (
+        profile.role !== "admin" &&
+        nextStatus !== "under_review"
+      ) {
+        throw new Error("Only the Founder can approve or reject applications.");
+      }
+
       const { error } = await db
         .from("employee_applications")
         .update({
-          status: button.dataset.status,
+          status: nextStatus,
           reviewed_at: new Date().toISOString()
         })
         .eq("id", button.dataset.id);
 
       if (error) throw error;
 
+      let notificationMessage = "";
+
+      if (
+        profile.role === "admin" &&
+        ["approved", "rejected"].includes(nextStatus)
+      ) {
+        const { data: notification, error: notificationError } =
+          await db.functions.invoke("notify-application-status", {
+            body: { application_id: button.dataset.id }
+          });
+
+        if (notificationError || notification?.error) {
+          notificationMessage =
+            " Status saved; email notification was not sent: " +
+            (notification?.error || notificationError.message);
+        } else {
+          notificationMessage =
+            notification?.message
+              ? " " + notification.message
+              : " Email notification processed.";
+        }
+      }
+
       if (profile.role === "admin") await loadAdmin();
       else await loadPA();
 
-      msg("globalMsg", "Application updated.");
+      msg("globalMsg", "Application updated." + notificationMessage);
     }
 
     if (action === "save-notes") {
