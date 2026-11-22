@@ -205,8 +205,11 @@ async function boot() {
   $("inviteSetup").classList.add("hidden");
   $("workspace").classList.remove("hidden");
 
-  $("welcome").textContent =
-    "Welcome, " + (user.user_metadata?.full_name || user.email);
+  const displayName =
+    user.user_metadata?.full_name?.trim() ||
+    (profile.role === "admin" ? "Ahmad Hassan Khan" : "Team Member");
+
+  $("welcome").textContent = "Welcome, " + displayName;
 
   const roles = {
     admin: "Founder / Administrator",
