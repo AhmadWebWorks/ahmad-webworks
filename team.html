@@ -35,7 +35,7 @@ const safeURL = value => {
   } catch { return null; }
 };
 const initials = name => String(name || "Team Member")
-  .trim().split(/\\s+/).slice(0, 2).map(part => part[0] || "").join("").toUpperCase();
+  .trim().split(/\s+/).slice(0, 2).map(part => part[0] || "").join("").toUpperCase();
 
 async function loadPublishedTeam() {
   try {
