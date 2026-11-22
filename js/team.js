@@ -140,20 +140,24 @@ import { createClient } from
       lines.push("", "Application Reference: " + savedApplication.id);
 
       let receiptNote = "";
-      const { data: receipt, error: receiptError } = await db.functions.invoke(
-        "notify-application-status",
-        {
-          body: {
-            action: "application_received",
-            application_id: savedApplication.id
+      try {
+        const { data: receipt, error: receiptError } = await db.functions.invoke(
+          "notify-application-status",
+          {
+            body: {
+              action: "application_received",
+              application_id: savedApplication.id
+            }
           }
-        }
-      );
+        );
 
-      if (receiptError || receipt?.error || receipt?.rate_limited) {
+        if (receiptError || receipt?.error || receipt?.rate_limited) {
+          receiptNote = " Your application is saved, but the receipt email could not be confirmed. Our team can still review it.";
+        } else {
+          receiptNote = " A receipt email has been processed for your application.";
+        }
+      } catch {
         receiptNote = " Your application is saved, but the receipt email could not be confirmed. Our team can still review it.";
-      } else {
-        receiptNote = " A receipt email has been processed for your application.";
       }
 
       const whatsappUrl =
@@ -168,6 +172,7 @@ import { createClient } from
         receiptNote;
 
       if (popup && !popup.closed) {
+        popup.opener = null;
         popup.location.href = whatsappUrl;
       } else {
         window.location.href = whatsappUrl;
