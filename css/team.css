@@ -395,3 +395,26 @@
     padding-top: 40px;
   }
 }
+
+
+/* Dynamic approved employee profiles */
+.team-avatar.has-image {
+  overflow: hidden;
+  padding: 0;
+}
+.team-avatar.has-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.team-member-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .9rem;
+  margin-top: .85rem;
+}
+.team-location {
+  color: var(--muted);
+  font-size: .78rem !important;
+  margin-top: -.25rem;
+}
