@@ -53,7 +53,8 @@ async function loadPortfolio() {
             avatar_url,
             website_url,
             github_url,
-            linkedin_url
+            linkedin_url,
+            slug
         `)
         .eq("slug", slug)
         .eq("review_status", "approved")
@@ -70,6 +71,37 @@ async function loadPortfolio() {
 
     document.title =
         employee.full_name + " | Ahmad WebWorks";
+
+    const pageDescription =
+        employee.full_name + " is " +
+        (employee.job_title || "a team member") +
+        " at Ahmad WebWorks. View their skills, profile and approved projects.";
+
+    const descriptionTag = document.querySelector('meta[name="description"]');
+    if (descriptionTag) descriptionTag.content = pageDescription;
+
+    const socialTags = [
+        ['meta[property="og:title"]', document.title],
+        ['meta[property="og:description"]', pageDescription],
+        ['meta[name="twitter:title"]', document.title],
+        ['meta[name="twitter:description"]', pageDescription]
+    ];
+
+    socialTags.forEach(([selector, value]) => {
+        const tag = document.querySelector(selector);
+        if (tag) tag.setAttribute("content", value);
+    });
+
+    const canonical = document.querySelector('link[rel="canonical"]') ||
+        document.createElement("link");
+    canonical.rel = "canonical";
+    canonical.href =
+        "https://ahmadwebworks.github.io/team-member.html?slug=" +
+        encodeURIComponent(employee.slug || slug);
+    if (!canonical.isConnected) document.head.appendChild(canonical);
+
+    const ogURL = document.querySelector('meta[property="og:url"]');
+    if (ogURL) ogURL.setAttribute("content", canonical.href);
 
     $("memberName").textContent = employee.full_name;
 
