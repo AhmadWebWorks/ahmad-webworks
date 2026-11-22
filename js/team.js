@@ -132,7 +132,7 @@ import { createClient } from
             skills: clean(data.get("skills")).split(",").map(x => x.trim()).filter(Boolean),
             introduction: clean(data.get("experience")),
             portfolio_url: portfolio || null,
-            website: clean(data.get("website"), 200)
+            website: clean(data.get("site_reference"), 200)
           }
         }
       );
