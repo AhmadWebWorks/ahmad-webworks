@@ -15,6 +15,9 @@ const admin = createClient(PROJECT_URL, SERVICE_KEY, {
   auth: { persistSession: false, autoRefreshToken: false }
 });
 
+const PREVIEW_ORIGIN = "https://rawcdn.githack.com";
+const ALLOWED_ORIGINS = new Set([SITE_ORIGIN, PREVIEW_ORIGIN]);
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": SITE_ORIGIN,
   "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info",
@@ -22,10 +25,11 @@ const corsHeaders = {
   "Vary": "Origin"
 };
 
-function json(data: unknown, status = 200) {
+function json(data: unknown, status = 200, origin?: string | null) {
+  const allowOrigin = origin && ALLOWED_ORIGINS.has(origin) ? origin : SITE_ORIGIN;
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" }
+    headers: { ...corsHeaders, "Access-Control-Allow-Origin": allowOrigin, "Content-Type": "application/json" }
   });
 }
 
@@ -35,20 +39,22 @@ function clean(value: unknown, maxLength: number) {
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response("ok", { headers: { ...corsHeaders, "Access-Control-Allow-Origin": origin && ALLOWED_ORIGINS.has(origin) ? origin : SITE_ORIGIN } });
   }
 
   if (req.method !== "POST") {
-    return json({ error: "Method not allowed." }, 405);
+    return respond({ error: "Method not allowed." }, 405);
   }
 
   const origin = req.headers.get("origin");
-  if (origin && origin !== SITE_ORIGIN) {
-    return json({ error: "Origin not allowed." }, 403);
+  const respond = (data: unknown, status = 200) => json(data, status, origin);
+
+  if (origin && !ALLOWED_ORIGINS.has(origin)) {
+    return respond({ error: "Origin not allowed." }, 403);
   }
 
   if (!req.headers.get("content-type")?.toLowerCase().includes("application/json")) {
-    return json({ error: "A JSON request is required." }, 415);
+    return respond({ error: "A JSON request is required." }, 415);
   }
 
   try {
@@ -66,19 +72,19 @@ Deno.serve(async (req: Request) => {
       : [];
 
     if (applicant_name.length < 2) {
-      return json({ error: "Name must be between 2 and 100 characters." }, 400);
+      return respond({ error: "Name must be between 2 and 100 characters." }, 400);
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return json({ error: "Enter a valid email address." }, 400);
+      return respond({ error: "Enter a valid email address." }, 400);
     }
 
     if (preferred_role.length < 2) {
-      return json({ error: "Please enter your preferred role." }, 400);
+      return respond({ error: "Please enter your preferred role." }, 400);
     }
 
     if (introduction.length < 5) {
-      return json({ error: "Please add a short introduction or experience summary." }, 400);
+      return respond({ error: "Please add a short introduction or experience summary." }, 400);
     }
 
     if (portfolio_url) {
@@ -86,7 +92,7 @@ Deno.serve(async (req: Request) => {
         const parsed = new URL(portfolio_url);
         if (!["http:", "https:"].includes(parsed.protocol)) throw new Error("Invalid protocol");
       } catch {
-        return json({ error: "Portfolio link must be a valid HTTP or HTTPS URL." }, 400);
+        return respond({ error: "Portfolio link must be a valid HTTP or HTTPS URL." }, 400);
       }
     }
 
@@ -106,16 +112,16 @@ Deno.serve(async (req: Request) => {
 
     if (error) {
       if (error.code === "P0001") {
-        return json({ error: "An application from this email was submitted recently. Please wait 10 minutes before trying again." }, 429);
+        return respond({ error: "An application from this email was submitted recently. Please wait 10 minutes before trying again." }, 429);
       }
 
       console.error("Application intake database error:", error.message);
-      return json({ error: "We couldn't save your application. Please try again later." }, 500);
+      return respond({ error: "We couldn't save your application. Please try again later." }, 500);
     }
 
-    return json({ ok: true, application_id: data.id });
+    return respond({ ok: true, application_id: data.id });
   } catch (error) {
     console.error("Application intake error:", error);
-    return json({ error: "The application could not be processed. Please try again." }, 500);
+    return respond({ error: "The application could not be processed. Please try again." }, 500);
   }
 });
