@@ -7,7 +7,6 @@
   <meta name="theme-color" content="#080B16">
   <title>Team Portal | Ahmad WebWorks</title>
   <meta name="description" content="Ahmad WebWorks secure team portal.">
-
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/team.css">
 
@@ -16,7 +15,6 @@
       width: min(1100px, 92%);
       margin: 120px auto 70px;
     }
-
     .panel {
       background: var(--glass, #111827);
       border: 1px solid var(--border, #30384c);
@@ -24,22 +22,18 @@
       padding: 25px;
       margin: 18px 0;
     }
-
     .login, .invite-panel {
       max-width: 470px;
       margin: auto;
     }
-
     .fields {
       display: grid;
       gap: 14px;
     }
-
     .fields label {
       display: grid;
       gap: 7px;
     }
-
     .fields input, .fields textarea {
       width: 100%;
       padding: 12px;
@@ -49,34 +43,28 @@
       color: white;
       font: inherit;
     }
-
     .fields textarea { min-height: 90px; }
-
     .stats {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 12px;
     }
-
     .stat {
       padding: 18px;
       border: 1px solid var(--border, #30384c);
       border-radius: 12px;
       margin: 10px 0;
     }
-
     .stat b {
       display: block;
       font-size: 1.7rem;
     }
-
     .tabs, .actions {
       display: flex;
       flex-wrap: wrap;
       gap: 9px;
       margin: 14px 0;
     }
-
     .tab, .act {
       padding: 9px 13px;
       border: 1px solid var(--border, #30384c);
@@ -85,31 +73,35 @@
       color: white;
       cursor: pointer;
     }
-
     .tab.active, .act.primary {
       background: var(--grad, #5546c8);
     }
-
     .act.danger { border-color: #a44b58; }
-
     .tablewrap { overflow-x: auto; }
-
     table {
       width: 100%;
       min-width: 650px;
       border-collapse: collapse;
     }
-
     td, th {
       text-align: left;
       padding: 11px;
       border-bottom: 1px solid var(--border, #30384c);
       vertical-align: top;
     }
-
     .muted { opacity: .7; font-size: .85rem; }
     .msg { min-height: 24px; color: #b7c8ff; }
     .hidden { display: none !important; }
+
+    .forgot-link {
+      display: block;
+      text-align: right;
+      color: #b7c8ff;
+      font-size: .88rem;
+      text-decoration: none;
+      margin-top: -5px;
+    }
+    .forgot-link:hover { text-decoration: underline; }
 
     @media(max-width:650px) {
       .stats { grid-template-columns: 1fr; }
@@ -120,7 +112,6 @@
 </head>
 
 <body>
-
 <header class="site-header">
   <nav class="nav container">
     <a href="index.html" class="brand">
@@ -133,7 +124,6 @@
 
 <main class="portal">
 
-  <!-- NORMAL LOGIN -->
   <section id="login" class="panel login">
     <h1>Team <span class="grad-text">Portal.</span></h1>
     <p>Authorized team members only.</p>
@@ -148,13 +138,17 @@
       </label>
 
       <button class="btn btn-primary" type="submit">Sign In</button>
+
+      <a class="forgot-link" href="password-recovery.html">
+        Forgot Password?
+      </a>
+
       <p id="loginMsg" class="msg" role="status"></p>
     </form>
 
     <p class="muted">Employee and PA accounts are invitation-only.</p>
   </section>
 
-  <!-- INVITATION PASSWORD SETUP -->
   <section id="inviteSetup" class="panel invite-panel hidden">
     <h1>Accept <span class="grad-text">Invitation.</span></h1>
     <p id="inviteInfo">Create a password for your Ahmad WebWorks team account.</p>
@@ -165,28 +159,21 @@
       </label>
 
       <label>Create Password
-        <input name="password" type="password"
-          minlength="8" required autocomplete="new-password">
+        <input name="password" type="password" minlength="8" required autocomplete="new-password">
       </label>
 
       <label>Confirm Password
-        <input name="confirm_password" type="password"
-          minlength="8" required autocomplete="new-password">
+        <input name="confirm_password" type="password" minlength="8" required autocomplete="new-password">
       </label>
 
-      <button class="btn btn-primary" type="submit">
-        Set Password & Accept
-      </button>
-
+      <button class="btn btn-primary" type="submit">Set Password & Accept</button>
       <p id="inviteMsg" class="msg" role="status"></p>
     </form>
 
     <p id="inviteDone" class="msg hidden"></p>
   </section>
 
-  <!-- MAIN WORKSPACE -->
   <section id="workspace" class="hidden">
-
     <div>
       <h1 id="welcome">Workspace</h1>
       <p id="roleText"></p>
@@ -194,7 +181,6 @@
     </div>
 
     <div id="admin" class="hidden">
-
       <div class="stats">
         <div class="stat">Applications<b id="appCount">0</b></div>
         <div class="stat">Active Employees<b id="empCount">0</b></div>
@@ -227,15 +213,10 @@
             <label>Full Name
               <input name="full_name" maxlength="100" required>
             </label>
-
             <label>Email
               <input name="email" type="email" required>
             </label>
-
-            <button class="btn btn-primary" type="submit">
-              Send PA Invitation
-            </button>
-
+            <button class="btn btn-primary" type="submit">Send PA Invitation</button>
             <p id="paInviteMsg" class="msg"></p>
           </form>
         </div>
@@ -245,15 +226,11 @@
         <h2>Portfolio Reviews</h2>
         <div id="reviewsList"></div>
       </section>
-
     </div>
 
-    <!-- EMPLOYEE WORKSPACE -->
     <div id="employee" class="hidden">
-
       <section class="panel">
         <h2>My Professional Profile</h2>
-
         <form id="profileForm" class="fields">
           <label>Full Name<input name="full_name" required></label>
           <label>Professional Title<input name="job_title"></label>
@@ -263,39 +240,26 @@
           <label>Website<input name="website_url" type="url"></label>
           <label>GitHub<input name="github_url" type="url"></label>
           <label>LinkedIn<input name="linkedin_url" type="url"></label>
-
-          <button class="btn btn-primary" type="submit">
-            Submit Profile for Approval
-          </button>
-
+          <button class="btn btn-primary" type="submit">Submit Profile for Approval</button>
           <p id="profileMsg" class="msg"></p>
         </form>
       </section>
 
       <section class="panel">
         <h2>My Projects</h2>
-
         <form id="projectForm" class="fields">
           <label>Project Title<input name="title" required></label>
           <label>Description<textarea name="description"></textarea></label>
           <label>Project URL<input name="project_url" type="url"></label>
-
-          <button class="btn btn-primary" type="submit">
-            Submit Project
-          </button>
-
+          <button class="btn btn-primary" type="submit">Submit Project</button>
           <p id="projectMsg" class="msg"></p>
         </form>
-
         <div id="myProjects"></div>
       </section>
-
     </div>
 
     <p id="globalMsg" class="msg"></p>
-
   </section>
-
 </main>
 </body>
 </html>
