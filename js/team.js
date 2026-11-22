@@ -1,6 +1,14 @@
 
+import { createClient } from
+  "https://esm.sh/@supabase/supabase-js@2";
+
 (() => {
   "use strict";
+
+  const db = createClient(
+    "https://vxdzyfbxcorxqysvlzgn.supabase.co",
+    "sb_publishable_egeeneg2jGd6y2yotB_Bdw_FR2XMVJB"
+  );
 
   const form = document.getElementById("employeeApplication");
 
@@ -26,7 +34,7 @@
     }
   });
 
-  form.addEventListener("submit", event => {
+  form.addEventListener("submit", async event => {
 
     event.preventDefault();
 
@@ -103,24 +111,77 @@
 
     ];
 
-    const whatsappUrl =
-      "https://wa.me/" +
-      whatsappNumber +
-      "?text=" +
-      encodeURIComponent(lines.join("\n"));
+    // Open a tab synchronously so mobile browsers do not block the WhatsApp handoff.
+    const popup = window.open("about:blank", "_blank");
+    const submitButton = form.querySelector('button[type="submit"]');
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = "Submitting application...";
+    }
+    message.textContent = "Saving your application securely...";
 
-    message.textContent =
-      "WhatsApp is opening. Please review your application and press Send.";
+    try {
+      const { data: savedApplication, error: saveError } = await db
+        .from("employee_applications")
+        .insert({
+          applicant_name: clean(data.get("fullName")),
+          email,
+          preferred_role: clean(data.get("role")),
+          location: clean(data.get("location")),
+          skills: clean(data.get("skills")).split(",").map(x => x.trim()).filter(Boolean),
+          introduction: clean(data.get("experience")),
+          portfolio_url: portfolio || null
+        })
+        .select("id")
+        .single();
 
-    const opened = window.open(
-      whatsappUrl,
-      "_blank",
-      "noopener,noreferrer"
-    );
+      if (saveError) throw saveError;
 
-    // Fallback if the browser blocks the new tab.
-    if (!opened) {
-      window.location.href = whatsappUrl;
+      lines.push("", "Application Reference: " + savedApplication.id);
+
+      let receiptNote = "";
+      const { data: receipt, error: receiptError } = await db.functions.invoke(
+        "notify-application-status",
+        {
+          body: {
+            action: "application_received",
+            application_id: savedApplication.id
+          }
+        }
+      );
+
+      if (receiptError || receipt?.error || receipt?.rate_limited) {
+        receiptNote = " Your application is saved, but the receipt email could not be confirmed. Our team can still review it.";
+      } else {
+        receiptNote = " A receipt email has been processed for your application.";
+      }
+
+      const whatsappUrl =
+        "https://wa.me/" +
+        whatsappNumber +
+        "?text=" +
+        encodeURIComponent(lines.join("\n"));
+
+      message.textContent =
+        "Application saved. Reference: " + savedApplication.id +
+        ". WhatsApp is opening; please review the message and press Send." +
+        receiptNote;
+
+      if (popup && !popup.closed) {
+        popup.location.href = whatsappUrl;
+      } else {
+        window.location.href = whatsappUrl;
+      }
+
+    } catch (error) {
+      if (popup && !popup.closed) popup.close();
+      message.textContent =
+        "We could not save your application. Please check your connection and try again. " +
+        (error?.message || "");
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = "Submit Application & Continue to WhatsApp";
+      }
     }
 
   });
