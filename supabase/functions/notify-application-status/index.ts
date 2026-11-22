@@ -40,7 +40,6 @@ Deno.serve(async (req: Request) => {
   try {
     const authorization = req.headers.get("authorization") ?? "";
     const token = authorization.replace(/^Bearer\s+/i, "");
-    if (!token || token === authorization) return respond({ error: "A valid sign-in session is required." }, 401);
 
     const body = await req.json();
 
@@ -155,6 +154,8 @@ Deno.serve(async (req: Request) => {
       }
       return respond({ ok: true, message: "Application receipt email sent." });
     }
+
+    if (!token || token === authorization) return respond({ error: "A valid sign-in session is required." }, 401);
 
     const { data: authData, error: authError } = await admin.auth.getUser(token);
     if (authError || !authData.user) return respond({ error: "Your session is invalid or expired." }, 401);
