@@ -25,7 +25,7 @@
       margin: 18px 0;
     }
 
-    .login {
+    .login, .invite-panel {
       max-width: 470px;
       margin: auto;
     }
@@ -133,6 +133,7 @@
 
 <main class="portal">
 
+  <!-- NORMAL LOGIN -->
   <section id="login" class="panel login">
     <h1>Team <span class="grad-text">Portal.</span></h1>
     <p>Authorized team members only.</p>
@@ -153,6 +154,37 @@
     <p class="muted">Employee and PA accounts are invitation-only.</p>
   </section>
 
+  <!-- INVITATION PASSWORD SETUP -->
+  <section id="inviteSetup" class="panel invite-panel hidden">
+    <h1>Accept <span class="grad-text">Invitation.</span></h1>
+    <p id="inviteInfo">Create a password for your Ahmad WebWorks team account.</p>
+
+    <form id="inviteForm" class="fields">
+      <label>Email
+        <input id="inviteEmail" type="email" readonly>
+      </label>
+
+      <label>Create Password
+        <input name="password" type="password"
+          minlength="8" required autocomplete="new-password">
+      </label>
+
+      <label>Confirm Password
+        <input name="confirm_password" type="password"
+          minlength="8" required autocomplete="new-password">
+      </label>
+
+      <button class="btn btn-primary" type="submit">
+        Set Password & Accept
+      </button>
+
+      <p id="inviteMsg" class="msg" role="status"></p>
+    </form>
+
+    <p id="inviteDone" class="msg hidden"></p>
+  </section>
+
+  <!-- MAIN WORKSPACE -->
   <section id="workspace" class="hidden">
 
     <div>
@@ -216,6 +248,7 @@
 
     </div>
 
+    <!-- EMPLOYEE WORKSPACE -->
     <div id="employee" class="hidden">
 
       <section class="panel">
