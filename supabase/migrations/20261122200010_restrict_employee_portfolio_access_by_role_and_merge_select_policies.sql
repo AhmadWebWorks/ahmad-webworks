@@ -17,6 +17,7 @@ as $$
   );
 $$;
 
+-- EMPLOYEE PORTFOLIOS
 drop policy if exists "Employees create own portfolio" on public.employee_portfolios;
 create policy "Employees create own portfolio"
 on public.employee_portfolios
@@ -61,6 +62,7 @@ with check (
   or (select private.is_admin())
 );
 
+-- PORTFOLIO PROJECTS
 drop policy if exists "Employees create own projects" on public.portfolio_projects;
 create policy "Employees create own projects"
 on public.portfolio_projects
@@ -120,6 +122,7 @@ using (
   or (select private.is_admin())
 );
 
+-- PROFILES: keep one SELECT policy and separate admin write policies.
 drop policy if exists "Admins manage profiles" on public.profiles;
 
 create policy "Admins insert profiles"
