@@ -265,7 +265,15 @@ function renderApplications(apps, canInvite) {
     return;
   }
 
+  const diagnosticBar = canInvite ? `
+    <div class="actions">
+      <button class="act" data-action="diagnose-brevo">
+        Check Brevo API (no email sent)
+      </button>
+    </div>` : "";
+
   $("appsList").innerHTML = `
+    ${diagnosticBar}
     <table>
       <thead>
         <tr>
@@ -542,6 +550,36 @@ document.addEventListener("click", async event => {
     if (action === "copy-email") {
       await navigator.clipboard.writeText(button.dataset.email);
       msg("globalMsg", "Email copied.");
+    }
+
+    if (action === "diagnose-brevo") {
+      if (profile.role !== "admin") {
+        throw new Error("Founder access required.");
+      }
+
+      msg("globalMsg", "Checking Brevo API connection. No email will be sent.");
+
+      const { data: diagnostic, error: diagnosticError } =
+        await db.functions.invoke("notify-application-status", {
+          body: { action: "diagnose_brevo" }
+        });
+
+      if (diagnosticError) throw new Error(diagnosticError.message);
+
+      if (diagnostic?.ok && diagnostic?.template_active) {
+        msg(
+          "globalMsg",
+          "Brevo API connection verified. Template #2 is active. No email was sent. (" +
+            diagnostic.elapsed_ms + " ms)"
+        );
+      } else {
+        msg(
+          "globalMsg",
+          "Brevo API check failed: " +
+            (diagnostic?.error || "Template #2 is not active.") +
+            (diagnostic?.http_status ? " HTTP " + diagnostic.http_status : "")
+        );
+      }
     }
 
     if (action === "application-status") {
