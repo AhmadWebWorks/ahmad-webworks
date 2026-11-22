@@ -447,3 +447,7 @@ body.nav-open .nav-toggle span:nth-child(3){transform:translateY(-7px) rotate(-4
 .founder-signoff span{font-family:var(--font-body);font-size:.85rem;font-weight:400;color:var(--muted)}
 @media(max-width:800px){.founder-grid{grid-template-columns:1fr;gap:2.5rem}.founder-portrait-wrap{max-width:360px}.founder-portrait{min-height:410px}.founder-copy{text-align:left}}
 @media(prefers-reduced-motion:reduce){.founder-portrait::before,.founder-portrait::after{animation:none}}
+
+/* Founder portrait image */
+.founder-portrait-wrap{overflow:hidden;border-radius:28px}
+.founder-portrait-image{display:block;width:100%;height:auto;aspect-ratio:1020/2278;object-fit:cover;object-position:center;border:1px solid rgba(255,255,255,.13);border-radius:28px;box-shadow:var(--shadow-lg)}
