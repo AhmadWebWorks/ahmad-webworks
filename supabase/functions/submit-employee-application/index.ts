@@ -60,6 +60,11 @@ Deno.serve(async (req: Request) => {
   try {
     const body = await req.json();
 
+    // Honeypot: humans leave this hidden field empty.
+    if (clean(body.website, 200)) {
+      return respond({ error: "Submission rejected." }, 400);
+    }
+
     const applicant_name = clean(body.applicant_name, 100);
     const email = clean(body.email, 254).toLowerCase();
     const preferred_role = clean(body.preferred_role, 100);
