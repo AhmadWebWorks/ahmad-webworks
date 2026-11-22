@@ -169,47 +169,46 @@ Deno.serve(async (req: Request) => {
 
     if (!BREVO_API_KEY) return respond({ error: "BREVO_API_KEY is not configured in Supabase Edge Function secrets." }, 503);
 
-    // Safe diagnostic: verify the Brevo API key can read template 2.
-    // This branch never creates a delivery log and never sends an email.
+    // Safe diagnostic: check all four transactional templates without sending email.
     if (body.action === "diagnose_brevo") {
-      const templateId = 2;
+      const templateIds = [1, 2, 3, 4];
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 3500);
+      const timeout = setTimeout(() => controller.abort(), 5000);
       const startedAt = Date.now();
 
-      console.log("BREVO_DIAG: template lookup started", { templateId });
-
       try {
-        const check = await fetch(
-          `https://api.brevo.com/v3/smtp/templates/${templateId}`,
-          {
-            headers: { "accept": "application/json", "api-key": BREVO_API_KEY },
-            signal: controller.signal
+        const templates = await Promise.all(templateIds.map(async templateId => {
+          const check = await fetch(
+            `https://api.brevo.com/v3/smtp/templates/${templateId}`,
+            {
+              headers: { "accept": "application/json", "api-key": BREVO_API_KEY },
+              signal: controller.signal
+            }
+          );
+
+          const responseText = await check.text();
+          let templateInfo: Record<string, unknown> = {};
+          try {
+            templateInfo = responseText ? JSON.parse(responseText) : {};
+          } catch {
+            templateInfo = {};
           }
-        );
 
-        const responseText = await check.text();
-        let templateInfo: Record<string, unknown> = {};
+          return {
+            template_id: templateId,
+            http_status: check.status,
+            active: check.ok && templateInfo.isActive === true
+          };
+        }));
 
-        try {
-          templateInfo = responseText ? JSON.parse(responseText) : {};
-        } catch {
-          templateInfo = {};
-        }
-
-        console.log("BREVO_DIAG: template lookup completed", {
-          httpStatus: check.status,
-          elapsedMs: Date.now() - startedAt
-        });
-
+        const allActive = templates.every(template => template.active);
         return respond({
-          ok: check.ok,
+          ok: allActive,
           stage: "template_lookup",
-          http_status: check.status,
-          template_id: templateId,
-          template_active: templateInfo.isActive === true,
+          templates,
+          template_active: templates.find(template => template.template_id === 2)?.active ?? false,
           elapsed_ms: Date.now() - startedAt,
-          error: check.ok ? null : "Brevo API rejected the template lookup."
+          error: allActive ? null : "One or more transactional templates are missing or inactive."
         });
       } catch (diagnosticError) {
         console.error("BREVO_DIAG: template lookup failed", {
