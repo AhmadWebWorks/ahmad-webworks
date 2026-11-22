@@ -496,47 +496,35 @@ function renderPeople(people) {
 /* PORTFOLIO REVIEW */
 
 function renderReviews(portfolios, projects) {
-  const items = [
+  const pending = [
     ...portfolios.filter(x => x.review_status === "pending")
-      .map(x => ({
-        table: "employee_portfolios",
-        id: x.id,
-        label: "Employee Profile: " + x.full_name
-      })),
-
+      .map(x => ({ table: "employee_portfolios", id: x.id, label: "Employee Profile: " + x.full_name })),
     ...projects.filter(x => x.review_status === "pending")
-      .map(x => ({
-        table: "portfolio_projects",
-        id: x.id,
-        label: "Project: " + x.title
-      }))
+      .map(x => ({ table: "portfolio_projects", id: x.id, label: "Project: " + x.title }))
   ];
+  const published = portfolios.filter(x => x.is_published && x.review_status === "approved");
 
-  $("reviewsList").innerHTML = items.length
-    ? items.map(item => `
+  $("reviewsList").innerHTML = `
+    <h3>Pending Reviews</h3>
+    ${pending.length ? pending.map(item => `
       <div class="stat">
         <b>${esc(item.label)}</b>
-
         <div class="actions">
-          <button class="act primary"
-            data-action="portfolio-review"
-            data-table="${item.table}"
-            data-id="${esc(item.id)}"
-            data-decision="approved">
-            Approve & Publish
-          </button>
-
-          <button class="act danger"
-            data-action="portfolio-review"
-            data-table="${item.table}"
-            data-id="${esc(item.id)}"
-            data-decision="rejected">
-            Reject
-          </button>
+          <button class="act primary" data-action="portfolio-review" data-table="${item.table}" data-id="${esc(item.id)}" data-decision="approved">Approve & Publish</button>
+          <button class="act danger" data-action="portfolio-review" data-table="${item.table}" data-id="${esc(item.id)}" data-decision="rejected">Reject</button>
         </div>
-      </div>
-    `).join("")
-    : "<p>No pending reviews.</p>";
+      </div>`).join("") : '<p class="muted">No pending reviews.</p>'}
+    <h3 style="margin-top:2rem">Published Employee Profiles</h3>
+    ${published.length ? published.map(item => `
+      <div class="stat">
+        <b>${esc(item.full_name)}</b>
+        <p class="muted">${esc(item.job_title || "Team member")} · Public on Team page</p>
+        <div class="actions">
+          <button class="act" data-action="unpublish-profile" data-id="${esc(item.id)}">Unpublish</button>
+          <button class="act danger" data-action="delete-employee-profile" data-id="${esc(item.id)}" data-owner="${esc(item.owner_id)}">Delete Profile & Projects</button>
+        </div>
+      </div>`).join("") : '<p class="muted">No published employee profiles.</p>'}
+  `;
 }
 
 /* ACTION HANDLER */
@@ -726,6 +714,29 @@ document.addEventListener("click", async event => {
 
       await loadAdmin();
       msg("globalMsg", "Account status updated.");
+    }
+
+    if (action === "unpublish-profile") {
+      if (profile.role !== "admin") throw new Error("Founder access required.");
+      if (!confirm("Remove this profile from the public Team page? The profile will remain saved and can be reviewed again later.")) return;
+      const { error } = await db.from("employee_portfolios")
+        .update({ is_published: false, updated_at: new Date().toISOString() })
+        .eq("id", button.dataset.id);
+      if (error) throw error;
+      await loadAdmin();
+      msg("globalMsg", "Employee profile unpublished. The employee account remains active.");
+    }
+
+    if (action === "delete-employee-profile") {
+      if (profile.role !== "admin") throw new Error("Founder access required.");
+      if (!confirm("Permanently delete this employee portfolio and all of this employee's portfolio projects? Their login account and employee access will NOT be deleted.")) return;
+      const ownerId = button.dataset.owner;
+      const { error: projectError } = await db.from("portfolio_projects").delete().eq("owner_id", ownerId);
+      if (projectError) throw projectError;
+      const { error: profileError } = await db.from("employee_portfolios").delete().eq("id", button.dataset.id);
+      if (profileError) throw profileError;
+      await loadAdmin();
+      msg("globalMsg", "Portfolio and its projects deleted. Employee login account remains active.");
     }
 
     if (action === "portfolio-review") {
