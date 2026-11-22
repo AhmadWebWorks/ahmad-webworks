@@ -296,6 +296,11 @@ function renderApplications(apps, canInvite) {
           canInvite && app.status === "approved" && app.email
         ) {
           invitation = `
+            <button class="act"
+              data-action="repair-invitation-tracking"
+              data-id="${esc(app.id)}">
+              Repair Existing Invitation (no email)
+            </button>
             <button class="act primary"
               data-action="invite-employee"
               data-id="${esc(app.id)}">
@@ -671,6 +676,22 @@ document.addEventListener("click", async event => {
 
       await loadAdmin();
       msg("globalMsg", "Application permanently deleted.");
+    }
+
+    if (action === "repair-invitation-tracking") {
+      if (profile.role !== "admin") {
+        throw new Error("Founder access required.");
+      }
+
+      if (!confirm("Repair the tracking record for an invitation that was already sent? This will NOT send another email.")) return;
+
+      const result = await inviteFunction({
+        action: "repair_invitation_tracking",
+        application_id: button.dataset.id
+      });
+
+      await loadAdmin();
+      msg("globalMsg", result.message || result.error || "Invitation tracking checked.");
     }
 
     if (action === "invite-employee") {
