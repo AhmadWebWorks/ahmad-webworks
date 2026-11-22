@@ -97,6 +97,14 @@
       body.appendChild(linkBox);
     }
 
+    if (member.slug) {
+      const profileLink = document.createElement("a");
+      profileLink.className = "team-profile-link";
+      profileLink.href = "team-member.html?slug=" + encodeURIComponent(member.slug);
+      profileLink.textContent = "View Profile ↗";
+      body.appendChild(profileLink);
+    }
+
     card.appendChild(body);
     return card;
   }
