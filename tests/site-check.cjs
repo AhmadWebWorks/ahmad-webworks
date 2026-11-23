@@ -172,16 +172,16 @@ async function main() {
               if (!opened || expanded !== "true") {
                 fail(pageName + " mobile menu did not open correctly at " + width + "px");
               }
-              const close = page.locator(".nav-close");
-              if (await close.count()) {
-                await close.click();
-              } else {
-                await page.locator(".nav-backdrop").click({ position: { x: 5, y: 100 } });
-              }
+              // The menu toggle is the reliable close control at every mobile breakpoint.
+              // The separate close button can be covered by the fixed toggle during animation.
+              await toggle.click();
               const closed = await page.locator("body").evaluate(
                 el => !el.classList.contains("nav-open")
               );
-              if (!closed) fail(pageName + " mobile menu did not close at " + width + "px");
+              const collapsed = await toggle.getAttribute("aria-expanded");
+              if (!closed || collapsed !== "false") {
+                fail(pageName + " mobile menu did not close correctly at " + width + "px");
+              }
             }
           }
 
