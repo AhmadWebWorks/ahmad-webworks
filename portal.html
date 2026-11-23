@@ -124,7 +124,7 @@
     <h1>Team <span class="grad-text">Portal.</span></h1>
     <p>Authorized team members only.</p>
 
-    <form id="loginForm" class="fields">
+    <form method="post" id="loginForm" class="fields">
       <label>Email
         <input name="email" type="email" required autocomplete="username">
       </label>
@@ -149,7 +149,7 @@
     <h1>Accept <span class="grad-text">Invitation.</span></h1>
     <p id="inviteInfo">Create a password for your Ahmad WebWorks team account.</p>
 
-    <form id="inviteForm" class="fields">
+    <form method="post" id="inviteForm" class="fields">
       <label>Email
         <input id="inviteEmail" type="email" readonly>
       </label>
@@ -205,7 +205,7 @@
             They cannot manage employee accounts or publish portfolios.
           </p>
 
-          <form id="paInviteForm" class="fields">
+          <form method="post" id="paInviteForm" class="fields">
             <label>Full Name
               <input name="full_name" maxlength="100" required>
             </label>
@@ -227,7 +227,7 @@
     <div id="employee" class="hidden">
       <section class="panel">
         <h2>My Professional Profile</h2>
-        <form id="profileForm" class="fields">
+        <form method="post" id="profileForm" class="fields">
           <label>Full Name<input name="full_name" required></label>
           <label>Professional Title<input name="job_title"></label>
           <label>Location<input name="location"></label>
@@ -243,7 +243,7 @@
 
       <section class="panel">
         <h2>My Projects</h2>
-        <form id="projectForm" class="fields">
+        <form method="post" id="projectForm" class="fields">
           <label>Project Title<input name="title" required></label>
           <label>Description<textarea name="description"></textarea></label>
           <label>Project URL<input name="project_url" type="url"></label>
