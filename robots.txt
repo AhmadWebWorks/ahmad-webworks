@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
-Disallow: /portal.html
-Disallow: /password-recovery.html
+Disallow: /ahmad-webworks/portal.html
+Disallow: /ahmad-webworks/password-recovery.html
 
-Sitemap: https://ahmadwebworks.github.io/sitemap.xml
+Sitemap: https://ahmadwebworks.github.io/ahmad-webworks/sitemap.xml
