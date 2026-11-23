@@ -96,7 +96,7 @@ async function loadPortfolio() {
         document.createElement("link");
     canonical.rel = "canonical";
     canonical.href =
-        "https://ahmadwebworks.github.io/team-member.html?slug=" +
+        "https://ahmadwebworks.github.io/ahmad-webworks/team-member.html?slug=" +
         encodeURIComponent(employee.slug || slug);
     if (!canonical.isConnected) document.head.appendChild(canonical);
 
