@@ -24,7 +24,7 @@ const PUBLIC_KEY =
 const SITE_ORIGIN = "https://ahmadwebworks.github.io";
 const PREVIEW_ORIGIN = "https://rawcdn.githack.com";
 const ALLOWED_ORIGINS = new Set([SITE_ORIGIN, PREVIEW_ORIGIN]);
-const PORTAL_URL = "https://ahmadwebworks.github.io/portal.html?flow=invite";
+const PORTAL_URL = "https://ahmadwebworks.github.io/ahmad-webworks/portal.html?flow=invite";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": SITE_ORIGIN,
