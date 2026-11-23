@@ -6,6 +6,7 @@
   const navToggle = document.querySelector(".nav-toggle");
   const navLinks = document.querySelector(".nav-links");
   const backdrop = document.querySelector(".nav-backdrop");
+  const navClose = document.querySelector(".nav-close");
 
   // MOBILE NAVIGATION
   function closeMenu() {
@@ -25,6 +26,7 @@
   });
 
   backdrop?.addEventListener("click", closeMenu);
+  navClose?.addEventListener("click", closeMenu);
 
   navLinks?.querySelectorAll("a").forEach(link => {
     link.addEventListener("click", closeMenu);
