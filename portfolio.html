@@ -12,7 +12,7 @@
   <script src="js/main.js" defer></script>
   <title>Portfolio & Projects | Ahmad WebWorks</title>
   <meta name="description" content="Explore selected website projects and clearly labelled design concepts from Ahmad WebWorks.">
-  <link rel="canonical" href="https://ahmadwebworks.github.io/portfolio.html">
+  <link rel="canonical" href="https://ahmadwebworks.github.io/ahmad-webworks/portfolio.html">
   <style>
     .inner-hero{padding:150px 0 55px;text-align:center}.inner-hero h1{max-width:850px;margin:0 auto 1rem}.inner-hero p{max-width:690px;margin:auto}
     .portfolio-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.6rem}.portfolio-card{overflow:hidden;border:1px solid var(--border);border-radius:20px;background:var(--glass)}
@@ -24,7 +24,7 @@
   </style>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta property="og:site_name" content="Ahmad WebWorks">
-  <meta property="og:url" content="https://ahmadwebworks.github.io/portfolio.html">
+  <meta property="og:url" content="https://ahmadwebworks.github.io/ahmad-webworks/portfolio.html">
   <meta property="og:title" content="Portfolio &amp; Projects | Ahmad WebWorks">
   <meta property="og:description" content="Explore selected website projects and clearly labelled design concepts from Ahmad WebWorks.">
   <meta property="og:type" content="website">
@@ -35,16 +35,20 @@
 <body>
 <header class="site-header">
   <nav class="nav container" aria-label="Main navigation">
-    <a href="index.html" class="brand" aria-label="Ahmad WebWorks home"><span class="brand-mark">AW</span><span class="brand-word">AHMAD <em>WEBWORKS</em></span></a>
-    <button class="nav-toggle" type="button" aria-label="Open navigation" aria-controls="primary-navigation" aria-expanded="false"><span></span><span></span><span></span></button>
+    <a href="index.html" class="brand" aria-label="Ahmad WebWorks home">
+      <span class="brand-mark">AW</span><span class="brand-word">AHMAD <em>WEBWORKS</em></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-label="Open navigation" aria-controls="primary-navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
     <div class="nav-backdrop"></div>
     <div class="nav-links" id="primary-navigation">
       <a class="nav-link" href="index.html">Home</a>
-      <a class="nav-link" href="services.html">Services</a>
-      <a class="nav-link active" href="portfolio.html">Portfolio</a>
-      <a class="nav-link" href="about.html">About</a>
       <a class="nav-link" href="team.html">Our Team</a>
-      <a class="nav-link" href="work-with-us.html">Work With Us</a>
+      <a class="nav-link" href="services.html">Services</a>
+      <a class="nav-link active" href="portfolio.html">Projects</a>
+      <a class="nav-link" href="about.html">About</a>
+      <a class="nav-link" href="index.html#founder">Founder</a>
       <a class="nav-link" href="contact.html">Contact</a>
       <a class="btn btn-primary nav-cta" href="contact.html">Let's Talk</a>
     </div>
@@ -58,14 +62,40 @@
 <article class="portfolio-card reveal"><div class="portfolio-art"><strong>CREATIVE PORTFOLIO</strong></div><div class="portfolio-content"><div class="pc-top"><span class="pc-badge">CONCEPT</span><span class="pc-tag">Portfolio UI</span></div><h2>Creative Portfolio</h2><p>A layout concept for presenting a person's skills, selected work and professional identity.</p><span class="pc-link">Design concept — not a deployed client product</span></div></article>
 </div><p class="portfolio-disclaimer">Project labels are intentional: live work is separated from concepts. No client results or testimonials are claimed unless they can be verified.</p></div></section>
 <section class="section"><div class="container"><div class="cta-panel reveal"><div class="cta-glow"></div><span class="eyebrow center">HAVE A PROJECT?</span><h2>Your idea could be <span class="grad-text">next.</span></h2><p>Tell us what you're planning and we'll discuss a practical next step.</p><a class="btn btn-primary btn-lg" href="work-with-us.html">Work with us ↗</a></div></div></section>
-</main><footer class="site-footer"><div class="container">
-  <div class="footer-grid">
-    <div class="f-brand"><a href="index.html" class="brand"><span class="brand-mark">AW</span><span class="brand-word">AHMAD <em>WEBWORKS</em></span></a><p class="f-tag">Thoughtful websites for ideas, people, and growing businesses.</p></div>
-    <div class="f-col"><h4>Explore</h4><a href="index.html">Home</a><a href="services.html">Services</a><a href="portfolio.html">Portfolio</a><a href="about.html">About</a><a href="team.html">Our Team</a><a href="work-with-us.html">Work With Us</a></div>
-    <div class="f-col"><h4>Contact</h4><a href="contact.html">Contact page</a><a href="privacy.html">Privacy notice</a><a href="mailto:ahmadhassankhan79@gmail.com">Email</a><a href="https://wa.me/923704513823" target="_blank" rel="noopener noreferrer">WhatsApp</a></div>
-    <div class="f-col"><h4>Follow</h4><a href="https://www.facebook.com/profile.php?id=61596110341289" target="_blank" rel="noopener noreferrer">Facebook</a><a href="https://whatsapp.com/channel/0029VbDgUJtKrWQwrKaFiu3S" target="_blank" rel="noopener noreferrer">WhatsApp Channel</a></div>
+</main><footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="f-brand">
+        <a href="index.html" class="brand"><span class="brand-mark">AW</span><span class="brand-word">AHMAD <em>WEBWORKS</em></span></a>
+        <p class="f-tag">Thoughtful websites for ideas, people, and growing businesses.</p>
+      </div>
+      <div class="f-col">
+        <h4>Explore</h4>
+        <a href="index.html">Home</a>
+        <a href="team.html">Our Team</a>
+        <a href="services.html">Services</a>
+        <a href="portfolio.html">Projects</a>
+        <a href="about.html">About</a>
+        <a href="index.html#founder">Founder</a>
+      </div>
+      <div class="f-col">
+        <h4>Contact</h4>
+        <a href="contact.html">Contact page</a>
+        <a href="privacy.html">Privacy notice</a>
+        <a href="mailto:ahmadhassankhan79@gmail.com">Email Us</a>
+        <a href="https://wa.me/923704513823" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+      </div>
+      <div class="f-col">
+        <h4>Follow</h4>
+        <a href="https://www.facebook.com/profile.php?id=61596110341289" target="_blank" rel="noopener noreferrer">Facebook</a>
+        <a href="https://whatsapp.com/channel/0029VbDgUJtKrWQwrKaFiu3S" target="_blank" rel="noopener noreferrer">WhatsApp Channel</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© <span id="year"></span> Ahmad WebWorks. All rights reserved.</p>
+      <p>Designed with purpose. Built with care.</p>
+    </div>
   </div>
-  <div class="footer-bottom"><p>© <span id="year"></span> Ahmad WebWorks. All rights reserved.</p><p>Designed with purpose. Built with care.</p></div>
-</div></footer>
+</footer>
 </body>
 </html>
