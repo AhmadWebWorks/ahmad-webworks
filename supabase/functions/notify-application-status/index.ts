@@ -60,7 +60,7 @@ Deno.serve(async (req: Request) => {
 
       if (applicationError || !application) return respond({ error: "Application not found." }, 404);
       if (application.status !== "new" || !application.email ||
-          !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(application.email)) {
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(application.email)) {
         return respond({ error: "Only a new application with a valid email can receive a receipt." }, 409);
       }
 
