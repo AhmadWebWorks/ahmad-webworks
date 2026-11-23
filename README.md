@@ -2,7 +2,7 @@
 
 Official website and team portal for **Ahmad WebWorks**.
 
-**Website:** https://ahmadwebworks.github.io/
+**Website:** https://ahmadwebworks.github.io/ahmad-webworks/
 
 ## Website pages
 
