@@ -18,7 +18,7 @@ const PAGES = [
   "password-recovery.html",
   "team-member.html"
 ];
-const VIEWPORTS = [360, 390, 768, 1280];
+const VIEWPORTS = [320, 360, 390, 640, 768, 1024, 1280, 1440];
 const failures = [];
 
 function fail(message) {
