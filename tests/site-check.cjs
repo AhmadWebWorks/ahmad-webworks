@@ -66,6 +66,13 @@ const server = http.createServer((req, res) => {
 
 function checkLocalReferences(page) {
   const html = fs.readFileSync(path.join(ROOT, page), "utf8");
+  const forms = [...html.matchAll(/<form\b([^>]*)>/gi)];
+  for (const form of forms) {
+    const method = form[1].match(/\bmethod\s*=\s*["']?([^\s"' >]+)/i)?.[1];
+    if (method?.toLowerCase() !== "post") {
+      fail(page + " contains a form without an explicit POST method");
+    }
+  }
   const refs = [...html.matchAll(/\b(?:href|src)\s*=\s*["']([^"']+)["']/gi)];
   for (const match of refs) {
     const raw = match[1].trim();
