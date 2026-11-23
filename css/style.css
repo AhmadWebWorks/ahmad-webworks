@@ -663,3 +663,136 @@ section,
   .chip-b { left: 8px; right: auto; }
   .chip-c { left: auto; right: 8px; }
 }
+
+
+/* HOMEPAGE-ONLY MOBILE OVERFLOW FIX
+   Scoped to body.home-page so team.html and other pages keep their layout. */
+.home-page,
+.home-page main {
+  min-width: 0;
+  max-width: 100%;
+}
+.home-page main > section {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: clip;
+}
+.home-page .hero,
+.home-page .hero-grid,
+.home-page .hero-grid > *,
+.home-page .hero-content,
+.home-page .hero-visual,
+.home-page .browser-card,
+.home-page .browser-bar,
+.home-page .code-area,
+.home-page .services-grid,
+.home-page .projects-grid,
+.home-page .why-grid,
+.home-page .why-cards,
+.home-page .founder-grid,
+.home-page .process-track,
+.home-page .cta-panel {
+  min-width: 0;
+  max-width: 100%;
+}
+.home-page .services-grid > *,
+.home-page .projects-grid > *,
+.home-page .why-grid > *,
+.home-page .why-cards > *,
+.home-page .founder-grid > *,
+.home-page .process-track > * {
+  min-width: 0;
+  max-width: 100%;
+}
+.home-page .hero-bg,
+.home-page .hero-visual {
+  overflow: clip;
+}
+.home-page .hero-bg::before {
+  width: min(760px, 100vw);
+  max-width: 100%;
+}
+.home-page .hv-orbit {
+  inset: 0;
+  max-width: 100%;
+}
+.home-page .float-chip {
+  max-width: calc(100% - 16px);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.home-page .code-line,
+.home-page pre,
+.home-page code {
+  max-width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.home-page .code-line {
+  width: min(var(--w, 100%), 100%);
+  overflow: visible;
+}
+.home-page .pc-top {
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.home-page .pc-badge,
+.home-page .pc-tag {
+  min-width: 0;
+  max-width: 100%;
+}
+.home-page .hero-tags {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+@media (max-width: 640px) {
+  .home-page .hero-grid,
+  .home-page .services-grid,
+  .home-page .projects-grid,
+  .home-page .why-grid,
+  .home-page .why-cards,
+  .home-page .founder-grid,
+  .home-page .process-track {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .home-page .hero-grid {
+    width: 92%;
+    gap: 2rem;
+  }
+  .home-page .hero-visual {
+    width: 100%;
+    min-height: 390px;
+  }
+  .home-page .browser-card,
+  .home-page .code-area,
+  .home-page .browser-bar {
+    width: 100%;
+  }
+  .home-page .code-area {
+    padding-inline: .75rem;
+    font-size: clamp(.6rem, 2.5vw, .76rem);
+  }
+  .home-page .chip-a { left: auto; right: 8px; }
+  .home-page .chip-b { left: 8px; right: auto; }
+  .home-page .chip-c { left: auto; right: 8px; }
+  .home-page .service-card,
+  .home-page .project-card,
+  .home-page .why-card,
+  .home-page .step,
+  .home-page .cta-panel {
+    width: 100%;
+  }
+  .home-page .cta-panel {
+    padding-inline: 1rem;
+  }
+}
+@media (max-width: 390px) {
+  .home-page .hero-visual {
+    min-height: 360px;
+  }
+  .home-page .float-chip {
+    font-size: .68rem;
+    padding: .4rem .6rem;
+  }
+}
