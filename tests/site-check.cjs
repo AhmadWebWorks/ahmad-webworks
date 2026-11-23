@@ -189,6 +189,16 @@ async function main() {
               if (!closed || collapsed !== "false") {
                 fail(pageName + " mobile menu did not close correctly at " + width + "px");
               }
+
+              await toggle.click();
+              await page.keyboard.press("Escape");
+              const escapeClosed = await page.locator("body").evaluate(
+                el => !el.classList.contains("nav-open")
+              );
+              const escapeExpanded = await toggle.getAttribute("aria-expanded");
+              if (!escapeClosed || escapeExpanded !== "false") {
+                fail(pageName + " Escape key did not close the mobile menu at " + width + "px");
+              }
             }
           }
 
