@@ -573,3 +573,93 @@ svg { max-width: 100%; }
   }
   .float-chip { max-width: calc(100% - 16px); }
 }
+
+
+/* 360px VIEWPORT: PREVENT GRID TRACKS AND HERO DECOR FROM EXPANDING PAGE */
+html,
+body {
+  inline-size: 100%;
+  max-inline-size: 100%;
+  overflow-x: clip !important;
+}
+main,
+main > section,
+section,
+.hero,
+.hero.section {
+  max-width: 100%;
+  overflow-x: clip;
+}
+.container,
+.nav,
+main,
+main > section,
+section,
+.hero,
+.hero-grid,
+.hero-grid > *,
+.hero-content,
+.hero-visual,
+.browser-card,
+.browser-bar,
+.code-area,
+.footer-grid,
+.footer-grid > * {
+  min-width: 0;
+  max-width: 100%;
+}
+@media (max-width: 480px) {
+  .hero-grid {
+    width: 92%;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+  .hero-content,
+  .hero-visual {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+  .hero h1,
+  .hero-sub,
+  .hero-tags,
+  .hero-actions {
+    max-width: 100%;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .hv-orbit {
+    inset: 0;
+    max-width: 100%;
+  }
+  .browser-card {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+  .browser-bar,
+  .code-area {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .code-line {
+    width: min(var(--w, 100%), 100%);
+    max-width: 100%;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  .cursor-line {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .float-chip {
+    max-width: calc(100% - 16px);
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .chip-a { left: auto; right: 8px; }
+  .chip-b { left: 8px; right: auto; }
+  .chip-c { left: auto; right: 8px; }
+}
