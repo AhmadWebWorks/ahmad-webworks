@@ -8,21 +8,25 @@
   const backdrop = document.querySelector(".nav-backdrop");
   const navClose = document.querySelector(".nav-close");
 
-  // MOBILE NAVIGATION
+  // MOBILE NAVIGATION — reliable tap, backdrop and keyboard handling
   function closeMenu() {
+    if (!navToggle || !navLinks) return;
     body.classList.remove("nav-open");
-    navToggle?.setAttribute("aria-expanded", "false");
-    navToggle?.setAttribute("aria-label", "Open navigation");
+    navToggle.setAttribute("aria-expanded", "false");
+    navToggle.setAttribute("aria-label", "Open navigation");
   }
 
   function openMenu() {
+    if (!navToggle || !navLinks) return;
     body.classList.add("nav-open");
-    navToggle?.setAttribute("aria-expanded", "true");
-    navToggle?.setAttribute("aria-label", "Close navigation");
+    navToggle.setAttribute("aria-expanded", "true");
+    navToggle.setAttribute("aria-label", "Close navigation");
   }
 
-  navToggle?.addEventListener("click", () => {
-    body.classList.contains("nav-open") ? closeMenu() : openMenu();
+  navToggle?.addEventListener("click", event => {
+    event.preventDefault();
+    if (body.classList.contains("nav-open")) closeMenu();
+    else openMenu();
   });
 
   backdrop?.addEventListener("click", closeMenu);
