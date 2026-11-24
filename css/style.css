@@ -388,17 +388,18 @@ body.nav-open .nav-toggle span:nth-child(3){transform:translateY(-7px) rotate(-4
   .nav-links{
     position:fixed;inset:0 0 0 auto;width:min(320px,84vw);
     flex-direction:column;align-items:flex-start;justify-content:center;gap:1.6rem;
-    background:rgba(10,14,28,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-    border-left:1px solid var(--border);padding:2rem 2.4rem;
+    background:rgba(10,14,28,.98);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-left:1px solid var(--border);padding:4.25rem 2rem 2rem;
     max-height:100dvh;overflow-y:auto;overscroll-behavior:contain;
-    transform:translateX(100%);
-    visibility:hidden;
-    transition:transform .45s var(--ease),visibility 0s linear .45s;
+    transform:translate3d(100%,0,0);
+    visibility:hidden;pointer-events:none;
+    transition:transform .3s ease,visibility 0s linear .3s;
+    z-index:101;
   }
   body.nav-open .nav-links{
-    transform:translateX(0);
-    visibility:visible;
-    transition:transform .45s var(--ease),visibility 0s;
+    transform:translate3d(0,0,0);
+    visibility:visible;pointer-events:auto;
+    transition:transform .3s ease,visibility 0s;
   }
   body.nav-open{overflow:hidden}
   .nav-link{font-size:1.15rem}
@@ -433,8 +434,8 @@ body.nav-open .nav-toggle span:nth-child(3){transform:translateY(-7px) rotate(-4
     opacity:0;animation:fadeIn .35s var(--ease) forwards;
   }
   @keyframes fadeIn{to{opacity:1}}
-  .nav-links{z-index:100}
-  .nav-toggle{position:relative;z-index:110}
+  .nav-links{z-index:101}
+  .nav-toggle{position:relative;z-index:102;min-width:44px;min-height:44px;align-items:center;justify-content:center;touch-action:manipulation}
 }
 
 /* FOUNDER STORY */
