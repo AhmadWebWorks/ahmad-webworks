@@ -9,7 +9,7 @@
   <meta name="description" content="Ahmad WebWorks secure team portal.">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/team.css">
-  <link rel="stylesheet" href="css/portal.css?v=20261124-portal1">
+  <link rel="stylesheet" href="css/portal.css?v=20261124-sovereign1">
 
   <style>
     .portal {
@@ -109,7 +109,7 @@
     }
   </style>
 
-  <script type="module" src="js/portal.js?v=20261124-portal1"></script>
+  <script type="module" src="js/portal.js?v=20261124-sovereign1"></script>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="robots" content="noindex, nofollow">
 <script src="js/main.js" defer></script>
@@ -184,16 +184,34 @@
         <div class="stat">Pending Reviews<b id="reviewCount">0</b></div>
       </div>
 
-      <div class="tabs">
-        <button type="button" class="tab active" data-tab="apps">Applications</button>
-        <button type="button" class="tab" data-tab="people">Employees & PA</button>
-        <button type="button" class="tab" data-tab="reviews">Portfolio Reviews</button>
+      <div class="executive-heading">
+        <div><span class="portal-eyebrow">FOUNDER / CEO CONSOLE</span><h2>Executive Command Centre</h2><p class="muted">A single place to lead people, delivery and company operations.</p></div>
+        <div class="executive-grade">SOVEREIGN <span>SSS+</span></div>
       </div>
-
-      <section id="apps" class="panel">
-        <h2>Employee Applications</h2>
-        <div id="appsList" class="tablewrap"></div>
-      </section>
+      <div class="executive-layout">
+        <nav class="executive-nav" aria-label="Executive sections">
+          <button type="button" class="tab active" data-tab="overview">◈ <span>Overview</span></button>
+          <button type="button" class="tab" data-tab="apps">▤ <span>Applications</span></button>
+          <button type="button" class="tab" data-tab="people">♙ <span>People & Access</span></button>
+          <button type="button" class="tab" data-tab="work">⚑ <span>Work Command</span></button>
+          <button type="button" class="tab" data-tab="reviews">✧ <span>Portfolio Reviews</span></button>
+          <button type="button" class="tab" data-tab="reports">▥ <span>Reports & Analytics</span></button>
+        </nav>
+        <div class="executive-pages">
+          <section id="overview" class="panel executive-page">
+            <div class="portal-overview-heading"><div><span class="portal-eyebrow">LIVE BUSINESS SNAPSHOT</span><h2>Welcome to your command centre</h2></div><span class="portal-account-pill"><span></span> Founder access</span></div>
+            <div class="executive-kpis">
+              <article class="executive-kpi"><small>Applications</small><strong id="ceoAppKpi">0</strong><span>All received applications</span></article>
+              <article class="executive-kpi"><small>Active employees</small><strong id="ceoEmployeeKpi">0</strong><span>Active team accounts</span></article>
+              <article class="executive-kpi"><small>Pending reviews</small><strong id="ceoReviewKpi">0</strong><span>Profiles and projects</span></article>
+              <article class="executive-kpi"><small>Open assignments</small><strong id="ceoWorkKpi">0</strong><span>Work not yet approved</span></article>
+            </div>
+            <div class="executive-overview-grid">
+              <article class="portal-overview-panel"><span class="portal-eyebrow">PRIORITIES</span><h3>Needs your attention</h3><div id="ceoPriorityList" class="portal-project-list"></div></article>
+              <article class="portal-overview-panel"><span class="portal-eyebrow">QUICK ACCESS</span><h3>Executive actions</h3><div class="executive-quick-actions"><button class="act primary" data-tab="work" type="button">＋ Assign Work</button><button class="act" data-tab="people" type="button">Manage Team</button><button class="act" data-tab="apps" type="button">Review Applications</button><button class="act" data-tab="reviews" type="button">Review Portfolio</button></div></article>
+            </div>
+          </section>
+          <section id="apps" class="panel executive-page hidden"><h2>Employee Applications</h2><p class="muted">Review applicants, record decisions and send invitations.</p><div id="appsList" class="tablewrap"></div></section>
 
       <section id="people" class="panel hidden">
         <h2>Employee Accounts</h2>
@@ -219,10 +237,28 @@
         </div>
       </section>
 
-      <section id="reviews" class="panel hidden">
-        <h2>Portfolio Reviews</h2>
-        <div id="reviewsList"></div>
-      </section>
+          <section id="work" class="panel executive-page hidden">
+            <div class="portal-overview-heading"><div><span class="portal-eyebrow">DELIVERY MANAGEMENT</span><h2>Work Command</h2><p class="muted">Create assignments, set priorities and review employee submissions.</p></div></div>
+            <form id="assignmentForm" class="portal-form executive-form">
+              <h3>Create New Assignment</h3>
+              <label>Assign to employee<select name="assigned_to" id="assignmentEmployee" required><option value="">Loading employees...</option></select></label>
+              <label>Task title<input name="title" maxlength="180" required placeholder="e.g. Build the client landing page"></label>
+              <label>Instructions / deliverables<textarea name="description" rows="4" placeholder="Describe the expected outcome, requirements and acceptance criteria."></textarea></label>
+              <div class="executive-form-row">
+                <label>Priority<select name="priority"><option value="normal">Normal</option><option value="low">Low</option><option value="high">High</option><option value="critical">Critical</option></select></label>
+                <label>Deadline<input name="due_at" type="datetime-local"></label>
+              </div>
+              <button class="btn btn-primary" type="submit">Assign Work to Employee</button><p id="assignmentMsg" class="msg"></p>
+            </form>
+            <div class="executive-section-title"><div><span class="portal-eyebrow">TASK REGISTER</span><h3>All assignments</h3></div></div>
+            <div id="founderAssignments" class="portal-project-list"></div>
+            <div class="executive-section-title"><div><span class="portal-eyebrow">EMPLOYEE DELIVERABLES</span><h3>Submissions awaiting review</h3></div></div>
+            <div id="founderSubmissions" class="portal-project-list"></div>
+          </section>
+          <section id="reviews" class="panel executive-page hidden"><h2>Portfolio Reviews</h2><p class="muted">Approve and publish employee profiles and project work.</p><div id="reviewsList"></div></section>
+          <section id="reports" class="panel executive-page hidden"><span class="portal-eyebrow">OPERATIONS INTELLIGENCE</span><h2>Reports & Analytics</h2><p class="muted">Live summaries calculated from the current portal records.</p><div id="ceoReports"></div></section>
+        </div>
+      </div>
     </div>
 
     <div id="employee" class="hidden">
@@ -257,6 +293,10 @@
             <strong>My projects</strong>
             <small><span id="employeeProjectCount">0</span> projects submitted</small>
             <span class="portal-card-action">Open projects →</span>
+          </button>
+          <button id="viewEmployeeAssignments" class="portal-quick-card" type="button">
+            <span class="portal-card-icon">⚑</span><span class="portal-card-label">ASSIGNED WORK</span>
+            <strong>My Assigned Work</strong><small><span id="employeeAssignmentCount">0</span> active assignments</small><span class="portal-card-action">Open assignments →</span>
           </button>
         </div>
 
@@ -304,6 +344,10 @@
         <div id="myProjects" class="portal-project-list"></div>
       </section>
 
+      <section id="employeeWorkPanel" class="portal-detail-panel hidden">
+        <div class="portal-detail-heading"><div><span class="portal-eyebrow">FOUNDER / CEO ASSIGNMENTS</span><h2>My Assigned Work</h2><p class="muted">Tasks and deliverables assigned to you by company leadership.</p></div><button id="closeEmployeeWork" class="act" type="button">Close</button></div>
+        <div id="employeeAssignments" class="portal-project-list"></div>
+      </section>
       <section class="portal-detail-panel hidden" id="profileFormPanel">
         <h2>Update Professional Profile</h2>
       </section>
