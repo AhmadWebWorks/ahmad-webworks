@@ -9,6 +9,7 @@
   <meta name="description" content="Ahmad WebWorks secure team portal.">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/team.css">
+  <link rel="stylesheet" href="css/portal.css">
 
   <style>
     .portal {
@@ -225,33 +226,109 @@
     </div>
 
     <div id="employee" class="hidden">
-      <section class="panel">
-        <h2>My Professional Profile</h2>
-        <form method="post" id="profileForm" class="fields">
-          <label>Full Name<input name="full_name" required></label>
-          <label>Professional Title<input name="job_title"></label>
-          <label>Location<input name="location"></label>
-          <label>Introduction<textarea name="bio"></textarea></label>
-          <label>Skills<input name="skills"></label>
-          <label>Website<input name="website_url" type="url"></label>
-          <label>GitHub<input name="github_url" type="url"></label>
-          <label>LinkedIn<input name="linkedin_url" type="url"></label>
-          <button class="btn btn-primary" type="submit">Submit Profile for Approval</button>
-          <p id="profileMsg" class="msg"></p>
-        </form>
+      <section id="employeeSetup" class="portal-welcome-card hidden">
+        <span class="portal-eyebrow">GETTING STARTED</span>
+        <h2>Let's set up your professional profile.</h2>
+        <p>Add your role, introduction and skills so the Founder can review your team profile.</p>
+        <button id="completeEmployeeProfile" class="btn btn-primary" type="button">Complete My Profile</button>
       </section>
 
-      <section class="panel">
-        <h2>My Projects</h2>
-        <form method="post" id="projectForm" class="fields">
-          <label>Project Title<input name="title" required></label>
-          <label>Description<textarea name="description"></textarea></label>
-          <label>Project URL<input name="project_url" type="url"></label>
-          <button class="btn btn-primary" type="submit">Submit Project</button>
-          <p id="projectMsg" class="msg"></p>
-        </form>
-        <div id="myProjects"></div>
+      <section id="employeeDashboard">
+        <div class="portal-dashboard-heading">
+          <div>
+            <span class="portal-eyebrow">EMPLOYEE WORKSPACE</span>
+            <h2>Your workspace</h2>
+            <p class="muted">Manage your professional information and showcase your work.</p>
+          </div>
+          <div class="portal-account-pill"><span></span> Account active</div>
+        </div>
+
+        <div class="portal-quick-grid">
+          <button id="viewEmployeeProfile" class="portal-quick-card" type="button">
+            <span class="portal-card-icon">♙</span>
+            <span class="portal-card-label">MY PROFILE</span>
+            <strong>Professional profile</strong>
+            <small>View and update your details</small>
+            <span class="portal-card-action">Open profile →</span>
+          </button>
+          <button id="viewEmployeeProjects" class="portal-quick-card" type="button">
+            <span class="portal-card-icon">▤</span>
+            <span class="portal-card-label">MY WORK</span>
+            <strong>My projects</strong>
+            <small><span id="employeeProjectCount">0</span> projects submitted</small>
+            <span class="portal-card-action">Open projects →</span>
+          </button>
+        </div>
+
+        <section class="portal-overview-panel">
+          <div class="portal-overview-heading">
+            <div><span class="portal-eyebrow">AT A GLANCE</span><h3>Profile overview</h3></div>
+            <span id="employeeProfileStatus" class="portal-status">draft</span>
+          </div>
+          <h2 id="employeeProfileName">Team Member</h2>
+          <p id="employeeProfileTitle" class="portal-role-line">Role not added yet</p>
+          <p id="employeeStatusNote" class="muted"></p>
+          <div class="portal-overview-footer">
+            <span id="employeeProfileLocation" class="muted">Location not added</span>
+            <button id="editEmployeeProfile" class="act" type="button">Edit Profile</button>
+          </div>
+        </section>
+
+        <section class="portal-overview-panel">
+          <div class="portal-overview-heading">
+            <div><span class="portal-eyebrow">RECENT WORK</span><h3>Project highlights</h3></div>
+            <button id="addEmployeeProject" class="act primary" type="button">+ Add Project</button>
+          </div>
+          <div id="employeeProjectPreview" class="portal-project-list"></div>
+        </section>
       </section>
+
+      <section id="profileDetailsPanel" class="portal-detail-panel hidden">
+        <div class="portal-detail-heading">
+          <div><span class="portal-eyebrow">YOUR INFORMATION</span><h2>My Professional Profile</h2></div>
+          <button class="act" type="button" onclick="document.getElementById('profileDetailsPanel').classList.add('hidden')">Close</button>
+        </div>
+        <h3 id="employeeProfileName"></h3>
+        <p id="employeeProfileTitle" class="portal-role-line"></p>
+        <p id="employeeProfileBio"></p>
+        <div id="employeeSkills" class="portal-chip-list"></div>
+        <div id="employeeProfileLinks" class="portal-link-list"></div>
+        <button class="btn btn-primary" type="button" onclick="document.getElementById('editEmployeeProfile').click()">Edit Profile</button>
+      </section>
+
+      <section id="projectsPanel" class="portal-detail-panel hidden">
+        <div class="portal-detail-heading">
+          <div><span class="portal-eyebrow">PORTFOLIO</span><h2>My Projects</h2></div>
+          <button id="addEmployeeProject" class="act primary" type="button">+ Add Project</button>
+        </div>
+        <div id="myProjects" class="portal-project-list"></div>
+      </section>
+
+      <section class="portal-detail-panel hidden" id="profileFormPanel">
+        <h2>Update Professional Profile</h2>
+      </section>
+      <form method="post" id="profileForm" class="fields portal-form hidden">
+        <div class="portal-detail-heading"><div><span class="portal-eyebrow">PROFILE EDITOR</span><h2>Update Professional Profile</h2></div></div>
+        <label>Full Name<input name="full_name" required></label>
+        <label>Professional Title<input name="job_title"></label>
+        <label>Location<input name="location"></label>
+        <label>Introduction<textarea name="bio"></textarea></label>
+        <label>Skills<input name="skills" placeholder="Web Design, Development, UI/UX"></label>
+        <label>Website<input name="website_url" type="url"></label>
+        <label>GitHub<input name="github_url" type="url"></label>
+        <label>LinkedIn<input name="linkedin_url" type="url"></label>
+        <div class="actions"><button class="btn btn-primary" type="submit">Save & Submit for Review</button><button class="act" type="button" onclick="document.getElementById('profileForm').classList.add('hidden')">Cancel</button></div>
+        <p id="profileMsg" class="msg"></p>
+      </form>
+
+      <form method="post" id="projectForm" class="fields portal-form hidden">
+        <div class="portal-detail-heading"><div><span class="portal-eyebrow">ADD TO PORTFOLIO</span><h2>New Project</h2></div></div>
+        <label>Project Title<input name="title" required></label>
+        <label>Description<textarea name="description"></textarea></label>
+        <label>Project URL<input name="project_url" type="url"></label>
+        <div class="actions"><button class="btn btn-primary" type="submit">Submit Project</button><button class="act" type="button" onclick="document.getElementById('projectForm').classList.add('hidden')">Cancel</button></div>
+        <p id="projectMsg" class="msg"></p>
+      </form>
     </div>
 
     <p id="globalMsg" class="msg"></p>
