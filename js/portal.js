@@ -866,7 +866,9 @@ async function loadEmployee() {
   $("projectsPanel").classList.add("hidden");
 
   $("employeeProfileName").textContent = portfolio.full_name || "Team Member";
+  $("employeeProfileDetailName").textContent = portfolio.full_name || "Team Member";
   $("employeeProfileTitle").textContent = portfolio.job_title || "Role not added yet";
+  $("employeeProfileDetailTitle").textContent = portfolio.job_title || "Role not added yet";
   $("employeeProfileLocation").textContent = portfolio.location || "Location not added";
   $("employeeProfileStatus").textContent = status.replace(/_/g, " ");
   $("employeeProfileBio").textContent = portfolio.bio || "No introduction added yet.";
@@ -952,6 +954,14 @@ $("addEmployeeProject").addEventListener("click", () => {
   $("projectForm").classList.toggle("hidden");
   $("projectForm").scrollIntoView({behavior:"smooth",block:"start"});
 });
+$("addEmployeeProjectFromPanel").addEventListener("click", () => {
+  $("projectForm").classList.remove("hidden");
+  $("projectForm").scrollIntoView({behavior:"smooth",block:"start"});
+});
+$("closeEmployeeProfile").addEventListener("click", () => $("profileDetailsPanel").classList.add("hidden"));
+$("editEmployeeProfileFromDetails").addEventListener("click", () => $("editEmployeeProfile").click());
+$("cancelProfileEdit").addEventListener("click", () => $("profileForm").classList.add("hidden"));
+$("cancelProjectAdd").addEventListener("click", () => $("projectForm").classList.add("hidden"));
 
 /* SAVE EMPLOYEE PROFILE */
 
