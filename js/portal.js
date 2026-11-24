@@ -796,6 +796,16 @@ document.addEventListener("click", async event => {
       msg("globalMsg", "Portfolio and its projects deleted. Employee login account remains active.");
     }
 
+    if (action === "employee-start-work") {
+      if (profile?.role !== "employee") throw new Error("Employee access required.");
+      const { error } = await db.rpc("employee_start_work", { p_assignment_id: button.dataset.id });
+      if (error) throw error;
+      await loadEmployee();
+      $("employeeWorkPanel").classList.remove("hidden");
+      $("employeeWorkPanel").scrollIntoView({behavior:"smooth",block:"start"});
+      msg("globalMsg","Assignment started. You can now submit progress or completed work.");
+    }
+
     if (action === "work-status") {
       if (profile.role !== "admin") throw new Error("Founder access required.");
       const nextStatus = $("task-status-" + button.dataset.id).value;
@@ -1037,8 +1047,9 @@ async function loadEmployee() {
   $("employeeAssignments").innerHTML = assignments.length ? assignments.map(task => {
     const latest = submissions.find(s => s.assignment_id === task.id);
     const shownStatus = latest?.review_status === "pending" ? "submitted for review" : task.status.replace(/_/g," ");
-    const canSubmit = !["approved","cancelled"].includes(task.status) && latest?.review_status !== "pending";
-    return '<article class="portal-project-card"><div class="portal-project-top"><h3>' + esc(task.title) + '</h3><span class="portal-status">' + esc(shownStatus) + '</span></div><p>' + esc(task.description || "No additional instructions.") + '</p><div class="executive-task-meta"><span>Priority: <b class="priority-' + esc(task.priority) + '">' + esc(task.priority) + '</b></span><span>Deadline: ' + (task.due_at ? esc(new Date(task.due_at).toLocaleString()) : "Not specified") + '</span></div>' + (latest ? '<div class="portal-project-card"><b>Latest submission:</b><p>' + esc(latest.message) + '</p>' + (latest.reviewer_feedback ? '<p><b>Founder feedback:</b> ' + esc(latest.reviewer_feedback) + '</p>' : '') + (safeURL(latest.attachment_url) ? '<a class="portal-link" href="' + esc(safeURL(latest.attachment_url)) + '" target="_blank" rel="noopener noreferrer">Open submitted work ↗</a>' : '') + '</div>' : '') + (canSubmit ? '<form class="work-submit-form portal-form" data-task="' + esc(task.id) + '"><label>Progress update / work submission<textarea name="message" rows="3" minlength="5" required placeholder="Describe your progress or submit your completed work."></textarea></label><label>Attachment or work link (optional)<input name="attachment_url" type="url" placeholder="https://..."></label><button class="btn btn-primary" type="submit">Submit Update to Founder</button><p class="msg"></p></form>' : '') + '</article>';
+    const canStart = ["assigned","revision_requested"].includes(task.status) && latest?.review_status !== "pending";
+    const canSubmit = task.status === "in_progress" && latest?.review_status !== "pending";
+    return '<article class="portal-project-card"><div class="portal-project-top"><h3>' + esc(task.title) + '</h3><span class="portal-status">' + esc(shownStatus) + '</span></div><p>' + esc(task.description || "No additional instructions.") + '</p><div class="executive-task-meta"><span>Priority: <b class="priority-' + esc(task.priority) + '">' + esc(task.priority) + '</b></span><span>Deadline: ' + (task.due_at ? esc(new Date(task.due_at).toLocaleString()) : "Not specified") + '</span></div>' + (latest ? '<div class="portal-project-card"><b>Latest submission:</b><p>' + esc(latest.message) + '</p>' + (latest.reviewer_feedback ? '<p><b>Founder feedback:</b> ' + esc(latest.reviewer_feedback) + '</p>' : '') + (safeURL(latest.attachment_url) ? '<a class="portal-link" href="' + esc(safeURL(latest.attachment_url)) + '" target="_blank" rel="noopener noreferrer">Open submitted work ↗</a>' : '') + '</div>' : '') + (canStart ? '<div class="actions"><button class="act primary" data-action="employee-start-work" data-id="' + esc(task.id) + '">Start Work</button></div>' : '') + (canSubmit ? '<form class="work-submit-form portal-form" data-task="' + esc(task.id) + '"><label>Progress update / work submission<textarea name="message" rows="3" minlength="5" required placeholder="Describe your progress or submit your completed work."></textarea></label><label>Attachment or work link (optional)<input name="attachment_url" type="url" placeholder="https://..."></label><button class="btn btn-primary" type="submit">Submit Update to Founder</button><p class="msg"></p></form>' : '') + '</article>';
   }).join("") : '<p class="muted">No work has been assigned to you yet. New assignments from the Founder/CEO will appear here.</p>';
 
   $("myProjects").innerHTML = projects.length
