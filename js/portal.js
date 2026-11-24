@@ -798,7 +798,10 @@ document.addEventListener("click", async event => {
 
     if (action === "employee-start-work") {
       if (profile?.role !== "employee") throw new Error("Employee access required.");
-      const { error } = await db.rpc("employee_start_work", { p_assignment_id: button.dataset.id });
+      const { error } = await db.from("work_assignments")
+        .update({status:"in_progress",updated_at:new Date().toISOString()})
+        .eq("id",button.dataset.id)
+        .eq("assigned_to",user.id);
       if (error) throw error;
       await loadEmployee();
       $("employeeWorkPanel").classList.remove("hidden");
