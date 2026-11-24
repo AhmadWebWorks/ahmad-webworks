@@ -188,6 +188,14 @@ async function main() {
             });
             console.log("MOBILE HOMEPAGE GEOMETRY " + width + "px: " +
               JSON.stringify(criticalLayout));
+            if ([360, 390].includes(width)) {
+              const artifactDir = path.join(ROOT, "artifacts");
+              fs.mkdirSync(artifactDir, { recursive: true });
+              await page.screenshot({
+                path: path.join(artifactDir, "homepage-" + width + "px.png"),
+                fullPage: false
+              });
+            }
             for (const item of criticalLayout.elements) {
               if (item.missing || item.left < -1 ||
                   item.right > criticalLayout.clientWidth + 1) {
