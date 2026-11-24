@@ -229,6 +229,9 @@ async function boot() {
       .forEach(x => x.classList.remove("hidden"));
 
     await loadAdmin();
+    document.querySelectorAll("#admin [data-tab]").forEach(x => x.classList.toggle("active", x.dataset.tab === "overview"));
+    ["apps","people","work","reviews","reports"].forEach(id => $(id).classList.add("hidden"));
+    $("overview").classList.remove("hidden");
 
   } else if (profile.role === "pa") {
     $("admin").classList.remove("hidden");
@@ -421,20 +424,17 @@ async function loadPA() {
 async function loadAdmin() {
   msg("globalMsg", "Loading Founder dashboard...");
 
-  const [apps, people, portfolios, projects] = await Promise.all([
-    db.from("employee_applications")
-      .select("*").order("created_at", { ascending: false }),
-
-    db.from("profiles")
-      .select("id,role,account_status,created_at")
-      .order("created_at", { ascending: false }),
-
+  const [apps, people, portfolios, projects, assignments, submissions, employeeProfiles] = await Promise.all([
+    db.from("employee_applications").select("*").order("created_at", { ascending: false }),
+    db.from("profiles").select("id,role,account_status,created_at").order("created_at", { ascending: false }),
     db.from("employee_portfolios").select("*"),
-
-    db.from("portfolio_projects").select("*")
+    db.from("portfolio_projects").select("*"),
+    db.from("work_assignments").select("*").order("created_at", { ascending: false }),
+    db.from("work_submissions").select("*").order("submitted_at", { ascending: false }),
+    db.from("employee_portfolios").select("owner_id,full_name,job_title")
   ]);
 
-  for (const result of [apps, people, portfolios, projects]) {
+  for (const result of [apps, people, portfolios, projects, assignments, submissions, employeeProfiles]) {
     if (result.error) throw result.error;
   }
 
@@ -451,8 +451,53 @@ async function loadAdmin() {
   renderApplications(apps.data, true);
   renderPeople(people.data);
   renderReviews(portfolios.data, projects.data);
+  renderFounderWork(assignments.data, submissions.data, employeeProfiles.data);
+  renderFounderOverview(apps.data, people.data, portfolios.data, projects.data, assignments.data, submissions.data);
+  renderFounderReports(apps.data, people.data, portfolios.data, projects.data, assignments.data);
 
-  msg("globalMsg", "Founder dashboard loaded.");
+  msg("globalMsg", "Founder command centre loaded.");
+}
+
+function renderFounderWork(assignments, submissions, employeeProfiles) {
+  const names = new Map(employeeProfiles.map(p => [p.owner_id, p.full_name || "Team member"]));
+  $("assignmentEmployee").innerHTML = '<option value="">Choose an employee</option>' +
+    employeeProfiles.map(p => '<option value="' + esc(p.owner_id) + '">' + esc(p.full_name || "Team member") + ' — ' + esc(p.job_title || "Employee") + '</option>').join("");
+  $("founderAssignments").innerHTML = assignments.length ? assignments.map(task => {
+    const latest = submissions.find(s => s.assignment_id === task.id);
+    const derived = latest?.review_status === "pending" ? "submitted" : task.status;
+    return '<article class="portal-project-card"><div class="portal-project-top"><h3>' + esc(task.title) + '</h3><span class="portal-status">' + esc(derived.replace(/_/g," ")) + '</span></div><p>' + esc(task.description || "No extra instructions.") + '</p><div class="executive-task-meta"><span>Assigned to: <b>' + esc(names.get(task.assigned_to) || "Employee") + '</b></span><span>Priority: <b class="priority-' + esc(task.priority) + '">' + esc(task.priority) + '</b></span><span>Due: ' + (task.due_at ? esc(new Date(task.due_at).toLocaleString()) : "Not set") + '</span></div><div class="actions"><select aria-label="Assignment status" id="task-status-' + esc(task.id) + '">' + ["assigned","in_progress","submitted","approved","revision_requested","cancelled"].map(s => '<option value="' + s + '"' + (task.status===s?' selected':'') + '>' + s.replace(/_/g," ") + '</option>').join("") + '</select><button class="act primary" data-action="work-status" data-id="' + esc(task.id) + '">Save status</button><button class="act danger" data-action="delete-assignment" data-id="' + esc(task.id) + '">Delete</button></div></article>';
+  }).join("") : '<p class="muted">No assignments yet. Create the first task above.</p>';
+
+  $("founderSubmissions").innerHTML = submissions.length ? submissions.map(sub => {
+    const task = assignments.find(a => a.id === sub.assignment_id);
+    return '<article class="portal-project-card"><div class="portal-project-top"><h3>' + esc(task?.title || "Assignment") + '</h3><span class="portal-status">' + esc(sub.review_status.replace(/_/g," ")) + '</span></div><p><b>' + esc(names.get(sub.employee_id) || "Employee") + '</b> · ' + esc(new Date(sub.submitted_at).toLocaleString()) + '</p><p>' + esc(sub.message) + '</p>' + (safeURL(sub.attachment_url) ? '<a class="portal-link" href="' + esc(safeURL(sub.attachment_url)) + '" target="_blank" rel="noopener noreferrer">Open attachment / work link ↗</a>' : '') + (sub.reviewer_feedback ? '<p><b>Previous feedback:</b> ' + esc(sub.reviewer_feedback) + '</p>' : '') + '<label>Founder feedback<textarea id="work-feedback-' + esc(sub.id) + '" rows="2" maxlength="2000">' + esc(sub.reviewer_feedback || "") + '</textarea></label><div class="actions"><button class="act primary" data-action="review-work" data-id="' + esc(sub.id) + '" data-assignment="' + esc(sub.assignment_id) + '" data-decision="approved">Approve Work</button><button class="act" data-action="review-work" data-id="' + esc(sub.id) + '" data-assignment="' + esc(sub.assignment_id) + '" data-decision="revision_requested">Request Revision</button></div></article>';
+  }).join("") : '<p class="muted">No employee submissions yet.</p>';
+}
+
+function renderFounderOverview(apps, people, portfolios, projects, assignments, submissions) {
+  const active = people.filter(p => p.role === "employee" && p.account_status === "active").length;
+  const pending = portfolios.filter(p => p.review_status === "pending").length + projects.filter(p => p.review_status === "pending").length;
+  const open = assignments.filter(a => !["approved","cancelled"].includes(a.status)).length;
+  $("ceoAppKpi").textContent = apps.length;
+  $("ceoEmployeeKpi").textContent = active;
+  $("ceoReviewKpi").textContent = pending;
+  $("ceoWorkKpi").textContent = open;
+  const priorities = [];
+  const newApps = apps.filter(a => ["new","under_review"].includes(a.status)).length;
+  const pendingWork = submissions.filter(s => s.review_status === "pending").length;
+  if (newApps) priorities.push(newApps + " application(s) need review");
+  if (pendingWork) priorities.push(pendingWork + " employee work submission(s) await review");
+  if (pending) priorities.push(pending + " portfolio item(s) await approval");
+  $("ceoPriorityList").innerHTML = priorities.length ? priorities.map(x => '<div class="portal-project-card">' + esc(x) + '</div>').join("") : '<p class="muted">You are all caught up. No urgent reviews.</p>';
+}
+
+function renderFounderReports(apps, people, portfolios, projects, assignments) {
+  const employeeCount = people.filter(p => p.role === "employee").length;
+  const active = people.filter(p => p.role === "employee" && p.account_status === "active").length;
+  const approvedApps = apps.filter(a => a.status === "approved").length;
+  const completedTasks = assignments.filter(a => a.status === "approved").length;
+  const total = assignments.length;
+  $("ceoReports").innerHTML = '<div class="executive-kpis"><article class="executive-kpi"><small>Employee accounts</small><strong>' + employeeCount + '</strong><span>' + active + ' active</span></article><article class="executive-kpi"><small>Approved applications</small><strong>' + approvedApps + '</strong><span>Of ' + apps.length + ' total</span></article><article class="executive-kpi"><small>Assignments completed</small><strong>' + completedTasks + '</strong><span>Of ' + total + ' total</span></article><article class="executive-kpi"><small>Published profiles</small><strong>' + portfolios.filter(p => p.is_published).length + '</strong><span>Portfolio visibility</span></article></div><div class="portal-overview-panel"><h3>Assignment completion</h3><div class="executive-progress"><span style="width:' + (total ? Math.round(completedTasks/total*100) : 0) + '%"></span></div><p class="muted">' + (total ? Math.round(completedTasks/total*100) : 0) + '% of assignments approved by Founder.</p></div>';
 }
 
 /* EMPLOYEE ACCOUNT MANAGEMENT */
@@ -746,6 +791,40 @@ document.addEventListener("click", async event => {
       msg("globalMsg", "Portfolio and its projects deleted. Employee login account remains active.");
     }
 
+    if (action === "work-status") {
+      if (profile.role !== "admin") throw new Error("Founder access required.");
+      const nextStatus = $("task-status-" + button.dataset.id).value;
+      const { error } = await db.from("work_assignments").update({status:nextStatus,updated_at:new Date().toISOString()}).eq("id",button.dataset.id);
+      if (error) throw error;
+      await loadAdmin();
+      msg("globalMsg","Assignment status updated.");
+    }
+
+    if (action === "delete-assignment") {
+      if (profile.role !== "admin") throw new Error("Founder access required.");
+      if (!confirm("Delete this assignment and its linked submissions?")) return;
+      const { error } = await db.from("work_assignments").delete().eq("id",button.dataset.id);
+      if (error) throw error;
+      await loadAdmin();
+      msg("globalMsg","Assignment deleted.");
+    }
+
+    if (action === "review-work") {
+      if (profile.role !== "admin") throw new Error("Founder access required.");
+      const decision = button.dataset.decision;
+      const feedback = $("work-feedback-" + button.dataset.id).value.trim();
+      if (decision === "revision_requested" && feedback.length < 3) throw new Error("Add clear feedback before requesting a revision.");
+      const { error: reviewError } = await db.from("work_submissions").update({
+        review_status:decision, reviewer_feedback:feedback, reviewed_by:user.id, reviewed_at:new Date().toISOString()
+      }).eq("id",button.dataset.id);
+      if (reviewError) throw reviewError;
+      const taskStatus = decision === "approved" ? "approved" : "revision_requested";
+      const { error: taskError } = await db.from("work_assignments").update({status:taskStatus,updated_at:new Date().toISOString()}).eq("id",button.dataset.assignment);
+      if (taskError) throw taskError;
+      await loadAdmin();
+      msg("globalMsg", decision === "approved" ? "Work approved." : "Revision requested and feedback sent.");
+    }
+
     if (action === "portfolio-review") {
       if (profile.role !== "admin") {
         throw new Error("Founder access required.");
@@ -813,19 +892,47 @@ $("paInviteForm").addEventListener("submit", async event => {
   }
 });
 
+$("assignmentForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (profile?.role !== "admin") { msg("assignmentMsg","Founder access required."); return; }
+  const button = event.submitter;
+  setBusy(button,true);
+  try {
+    const values = new FormData(event.currentTarget);
+    const employeeId = String(values.get("assigned_to") || "");
+    const title = String(values.get("title") || "").trim();
+    if (!employeeId || title.length < 3) throw new Error("Choose an employee and enter a task title.");
+    const dueRaw = String(values.get("due_at") || "");
+    const { error } = await db.from("work_assignments").insert({
+      title,
+      description:String(values.get("description") || "").trim(),
+      assigned_to:employeeId,
+      assigned_by:user.id,
+      priority:String(values.get("priority") || "normal"),
+      due_at:dueRaw ? new Date(dueRaw).toISOString() : null
+    });
+    if (error) throw error;
+    event.currentTarget.reset();
+    msg("assignmentMsg","Assignment created and added to the employee workspace.");
+    await loadAdmin();
+    $("work").classList.remove("hidden");
+    ["overview","apps","people","reviews","reports"].forEach(id => $(id).classList.add("hidden"));
+  } catch(error) {
+    msg("assignmentMsg",error.message);
+  } finally { setBusy(button,false); }
+});
+
 /* NAVIGATION */
 
-document.querySelectorAll("[data-tab]").forEach(button => {
-  button.addEventListener("click", () => {
-    if (profile?.role !== "admin" &&
-        button.dataset.tab !== "apps") return;
-
-    document.querySelectorAll("[data-tab]")
-      .forEach(x => x.classList.toggle("active", x === button));
-
-    ["apps", "people", "reviews"].forEach(id => {
-      $(id).classList.toggle("hidden", id !== button.dataset.tab);
-    });
+document.addEventListener("click", event => {
+  const button = event.target.closest("[data-tab]");
+  if (!button) return;
+  if (profile?.role !== "admin" && button.dataset.tab !== "apps") return;
+  const page = button.dataset.tab;
+  document.querySelectorAll("#admin [data-tab]").forEach(x => x.classList.toggle("active", x.dataset.tab === page));
+  ["overview","apps","people","work","reviews","reports"].forEach(id => {
+    const section = $(id);
+    if (section) section.classList.toggle("hidden", id !== page);
   });
 });
 
@@ -914,6 +1021,20 @@ async function loadEmployee() {
     `).join("")
     : '<p class="muted">No projects yet. Add your first project to showcase your work.</p>';
 
+  const { data: assignments, error: assignmentsError } = await db
+    .from("work_assignments").select("*").eq("assigned_to", user.id).order("created_at", {ascending:false});
+  if (assignmentsError) throw assignmentsError;
+  const { data: submissions, error: submissionsError } = await db
+    .from("work_submissions").select("*").eq("employee_id", user.id).order("submitted_at", {ascending:false});
+  if (submissionsError) throw submissionsError;
+  $("employeeAssignmentCount").textContent = String(assignments.filter(a => !["approved","cancelled"].includes(a.status)).length);
+  $("employeeAssignments").innerHTML = assignments.length ? assignments.map(task => {
+    const latest = submissions.find(s => s.assignment_id === task.id);
+    const shownStatus = latest?.review_status === "pending" ? "submitted for review" : task.status.replace(/_/g," ");
+    const canSubmit = !["approved","cancelled"].includes(task.status) && latest?.review_status !== "pending";
+    return '<article class="portal-project-card"><div class="portal-project-top"><h3>' + esc(task.title) + '</h3><span class="portal-status">' + esc(shownStatus) + '</span></div><p>' + esc(task.description || "No additional instructions.") + '</p><div class="executive-task-meta"><span>Priority: <b class="priority-' + esc(task.priority) + '">' + esc(task.priority) + '</b></span><span>Deadline: ' + (task.due_at ? esc(new Date(task.due_at).toLocaleString()) : "Not specified") + '</span></div>' + (latest ? '<div class="portal-project-card"><b>Latest submission:</b><p>' + esc(latest.message) + '</p>' + (latest.reviewer_feedback ? '<p><b>Founder feedback:</b> ' + esc(latest.reviewer_feedback) + '</p>' : '') + (safeURL(latest.attachment_url) ? '<a class="portal-link" href="' + esc(safeURL(latest.attachment_url)) + '" target="_blank" rel="noopener noreferrer">Open submitted work ↗</a>' : '') + '</div>' : '') + (canSubmit ? '<form class="work-submit-form portal-form" data-task="' + esc(task.id) + '"><label>Progress update / work submission<textarea name="message" rows="3" minlength="5" required placeholder="Describe your progress or submit your completed work."></textarea></label><label>Attachment or work link (optional)<input name="attachment_url" type="url" placeholder="https://..."></label><button class="btn btn-primary" type="submit">Submit Update to Founder</button><p class="msg"></p></form>' : '') + '</article>';
+  }).join("") : '<p class="muted">No work has been assigned to you yet. New assignments from the Founder/CEO will appear here.</p>';
+
   $("myProjects").innerHTML = projects.length
     ? projects.map(project => {
         const url = safeURL(project.project_url);
@@ -933,6 +1054,7 @@ async function loadEmployee() {
 function showEmployeePanel(panel) {
   $("profileDetailsPanel").classList.toggle("hidden", panel !== "profile");
   $("projectsPanel").classList.toggle("hidden", panel !== "projects");
+  $("employeeWorkPanel").classList.add("hidden");
   $("profileForm").classList.add("hidden");
   if (panel === "profile") $("profileDetailsPanel").scrollIntoView({behavior:"smooth",block:"start"});
   if (panel === "projects") $("projectsPanel").scrollIntoView({behavior:"smooth",block:"start"});
@@ -940,6 +1062,13 @@ function showEmployeePanel(panel) {
 
 $("viewEmployeeProfile").addEventListener("click", () => showEmployeePanel("profile"));
 $("viewEmployeeProjects").addEventListener("click", () => showEmployeePanel("projects"));
+$("viewEmployeeAssignments").addEventListener("click", () => {
+  $("profileDetailsPanel").classList.add("hidden");
+  $("projectsPanel").classList.add("hidden");
+  $("employeeWorkPanel").classList.remove("hidden");
+  $("employeeWorkPanel").scrollIntoView({behavior:"smooth",block:"start"});
+});
+$("closeEmployeeWork").addEventListener("click", () => $("employeeWorkPanel").classList.add("hidden"));
 $("editEmployeeProfile").addEventListener("click", () => {
   $("profileDetailsPanel").classList.add("hidden");
   $("projectsPanel").classList.add("hidden");
@@ -962,6 +1091,35 @@ $("closeEmployeeProfile").addEventListener("click", () => $("profileDetailsPanel
 $("editEmployeeProfileFromDetails").addEventListener("click", () => $("editEmployeeProfile").click());
 $("cancelProfileEdit").addEventListener("click", () => $("profileForm").classList.add("hidden"));
 $("cancelProjectAdd").addEventListener("click", () => $("projectForm").classList.add("hidden"));
+
+document.addEventListener("submit", async event => {
+  const form = event.target.closest(".work-submit-form");
+  if (!form) return;
+  event.preventDefault();
+  const button = form.querySelector('button[type="submit"]');
+  setBusy(button,true);
+  try {
+    const values = new FormData(form);
+    const rawLink = String(values.get("attachment_url") || "").trim();
+    const link = rawLink ? safeURL(rawLink) : null;
+    if (rawLink && !link) throw new Error("Enter a valid attachment URL.");
+    const { error } = await db.from("work_submissions").insert({
+      assignment_id:form.dataset.task,
+      employee_id:user.id,
+      message:String(values.get("message") || "").trim(),
+      attachment_url:link
+    });
+    if (error) throw error;
+    await loadEmployee();
+    $("employeeWorkPanel").classList.remove("hidden");
+    $("employeeWorkPanel").scrollIntoView({behavior:"smooth",block:"start"});
+    msg("globalMsg","Your work update has been submitted to the Founder.");
+  } catch(error) {
+    form.querySelector(".msg").textContent = error.message;
+  } finally {
+    setBusy(button,false);
+  }
+});
 
 /* SAVE EMPLOYEE PROFILE */
 
