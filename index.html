@@ -7,7 +7,9 @@
   <meta name="theme-color" content="#080B16">
 
   <title>Ahmad WebWorks | Websites That Work for Your Business</title>
-  <meta name="description" content="Ahmad WebWorks is an independent web development studio creating modern, responsive websites for businesses and individuals.">
+  <meta name="description" content="Ahmad WebWorks is an independent web studio in Pakistan creating thoughtful, responsive websites for small businesses and individuals.">
+  <link rel="canonical" href="https://ahmadwebworks.github.io/ahmad-webworks/">
+  <meta name="author" content="Ahmad Hassan Khan">
 
   <meta property="og:title" content="Ahmad WebWorks">
   <meta property="og:description" content="Modern websites for growing businesses.">
@@ -19,34 +21,38 @@
 
   <link rel="stylesheet" href="css/style.css">
   <script src="js/main.js" defer></script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta property="og:site_name" content="Ahmad WebWorks">
+  <meta property="og:url" content="https://ahmadwebworks.github.io/ahmad-webworks/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Ahmad WebWorks | Websites That Work for Your Business">
+  <meta name="twitter:description" content="Ahmad WebWorks is an independent web studio in Pakistan creating thoughtful, responsive websites for small businesses and individuals.">
 </head>
   
-<body>
+<body class="home-page">
 
   <header class="site-header">
-    <nav class="nav container">
-      <a href="#home" class="brand" aria-label="Ahmad WebWorks home">
-        <span class="brand-mark">AW</span>
-        <span class="brand-word">AHMAD <em>WEBWORKS</em></span>
-      </a>
-
-      <button class="nav-toggle" aria-label="Open navigation" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
-
-      <div class="nav-backdrop"></div>
-
-      <div class="nav-links">
-  <a class="nav-link active" href="#home">Home</a>
-  <a class="nav-link" href="team.html">Our Team</a>
-  <a class="nav-link" href="#services">Services</a>
-  <a class="nav-link" href="#projects">Projects</a>
-  <a class="nav-link" href="#about">About</a>
-  <a class="nav-link" href="#contact">Contact</a>
-        <a class="btn btn-primary nav-cta" href="https://wa.me/923704513823" target="_blank" rel="noopener noreferrer">Let's Talk</a>
-      </div>
-    </nav>
-  </header>
+  <nav class="nav container" aria-label="Main navigation">
+    <a href="index.html" class="brand" aria-label="Ahmad WebWorks home">
+      <span class="brand-mark">AW</span><span class="brand-word">AHMAD <em>WEBWORKS</em></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-label="Open navigation" aria-controls="primary-navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-backdrop"></div>
+    <div class="nav-links" id="primary-navigation">
+      <button class="nav-close" type="button" aria-label="Close navigation">×</button>
+      <a class="nav-link active" href="index.html">Home</a>
+      <a class="nav-link" href="team.html">Our Team</a>
+      <a class="nav-link" href="services.html">Services</a>
+      <a class="nav-link" href="portfolio.html">Projects</a>
+      <a class="nav-link" href="about.html">About</a>
+      <a class="nav-link" href="index.html#founder">Founder</a>
+      <a class="nav-link" href="contact.html">Contact</a>
+      <a class="btn btn-primary nav-cta" href="contact.html">Let's Talk</a>
+    </div>
+  </nav>
+</header>
 
   <main>
     <!-- HERO -->
@@ -60,19 +66,19 @@
           <h1>WE BUILD <span class="grad-text">DIGITAL</span> EXPERIENCES.</h1>
 
           <p class="hero-sub">
-            We create modern, responsive websites that help businesses
-            present their ideas, connect with customers, and grow online.
+            We design and build clear, responsive websites that help small businesses
+            explain what they do, earn trust, and make it easier for customers to get in touch.
           </p>
 
           <div class="hero-actions">
-            <a href="#projects" class="btn btn-primary btn-lg">Explore Projects</a>
-            <a href="#contact" class="btn btn-ghost btn-lg">Start a Project</a>
+            <a href="#projects" class="btn btn-primary btn-lg">Explore Our Work</a>
+            <a href="https://wa.me/923704513823" class="btn btn-ghost btn-lg" target="_blank" rel="noopener noreferrer">Discuss Your Project ↗</a>
           </div>
 
           <div class="hero-tags">
-            <span>Web Design</span><i></i>
-            <span>Development</span><i></i>
-            <span>Responsive Websites</span>
+            <span>Independent Studio</span><i></i>
+            <span>Based in Pakistan</span><i></i>
+            <span>Remote Collaboration</span>
           </div>
         </div>
 
@@ -115,8 +121,8 @@
       <div class="container">
         <div class="section-head reveal">
           <span class="eyebrow center"><span class="eyebrow-dot"></span> WHAT WE DO</span>
-          <h2>Solutions for your <span class="grad-text">digital presence.</span></h2>
-          <p class="section-sub">Practical web solutions designed around your goals and your audience.</p>
+          <h2>Make your online presence <span class="grad-text">work harder.</span></h2>
+          <p class="section-sub">Focused website services for businesses and people who need a clearer, more useful place online.</p>
         </div>
 
         <div class="services-grid">
@@ -124,28 +130,28 @@
             <div class="sc-icon">✦</div>
             <h3>Website Design</h3>
             <p>Modern layouts and thoughtful visual design that make a strong first impression.</p>
-            <span class="sc-link">Creative layouts →</span>
+            <a class="sc-link" href="https://wa.me/923704513823?text=Hi%20Ahmad%20WebWorks%2C%20I%27m%20interested%20in%20website%20design.%20Can%20we%20discuss%20my%20project%3F">Discuss website design →</a>
           </article>
 
           <article class="service-card reveal d1">
             <div class="sc-icon">⌘</div>
             <h3>Web Development</h3>
             <p>Functional websites built with clean structure and practical features.</p>
-            <span class="sc-link">Built with purpose →</span>
+            <a class="sc-link" href="https://wa.me/923704513823?text=Hi%20Ahmad%20WebWorks%2C%20I%27m%20looking%20for%20web%20development%20help.%20Can%20we%20discuss%20my%20requirements%3F">Discuss web development →</a>
           </article>
 
           <article class="service-card reveal d2">
             <div class="sc-icon">▣</div>
             <h3>Responsive Design</h3>
             <p>Layouts designed to adapt to mobile phones, tablets, and desktop screens.</p>
-            <span class="sc-link">Every screen matters →</span>
+            <a class="sc-link" href="https://wa.me/923704513823?text=Hi%20Ahmad%20WebWorks%2C%20I%20need%20a%20mobile-friendly%20responsive%20website.%20Can%20we%20discuss%3F">Discuss responsive design →</a>
           </article>
 
           <article class="service-card reveal d3">
             <div class="sc-icon">↗</div>
             <h3>Website Improvements</h3>
             <p>Updates to layout, usability, content presentation, and existing website features.</p>
-            <span class="sc-link">Make it better →</span>
+            <a class="sc-link" href="https://wa.me/923704513823?text=Hi%20Ahmad%20WebWorks%2C%20I%20need%20some%20improvements%20to%20my%20existing%20website.%20Can%20you%20take%20a%20look%3F">Discuss website improvements →</a>
           </article>
         </div>
       </div>
@@ -155,7 +161,7 @@
     <section class="section" id="projects">
       <div class="container">
         <div class="section-head reveal">
-          <span class="eyebrow center"><span class="eyebrow-dot"></span> SELECTED WORK</span>
+          <span class="eyebrow center"><span class="eyebrow-dot"></span> WORK & EXPLORATIONS</span>
           <h2>Ideas turned into <span class="grad-text">digital projects.</span></h2>
           <p class="section-sub">A look at a live website project and selected design concepts.</p>
         </div>
@@ -262,6 +268,29 @@
       </div>
     </section>
 
+    
+    <!-- FOUNDER STORY -->
+    <section class="section founder-section" id="founder">
+      <div class="container founder-grid">
+        <div class="founder-portrait-wrap reveal">
+          <img class="founder-portrait-image" src="images/founder-formal.jpg" alt="Ahmad Hassan Khan, founder of Ahmad WebWorks, wearing a light pink blazer and brown tie" loading="lazy">
+          <span class="founder-caption">Built with curiosity. Driven by practical ideas.</span>
+        </div>
+        <div class="founder-copy reveal d1">
+          <span class="eyebrow"><span class="eyebrow-dot"></span> THE PERSON BEHIND THE STUDIO</span>
+          <h2>Meet the person <span class="grad-text">behind the work.</span></h2>
+          <p class="founder-lead">I'm Ahmad Hassan Khan, founder of Ahmad WebWorks.</p>
+          <p> I started this studio to turn ideas into useful, clear, and thoughtfully built digital experiences. I believe a good website should do more than look attractive: it should help people understand a business, trust its work, and take the next step.</p>
+          <p>My approach is hands-on, collaborative, and focused on learning with every project. Whether you're starting from scratch or improving an existing website, let's talk about what would genuinely help.</p>
+          <div class="founder-actions">
+            <a class="btn btn-primary" href="mailto:ahmadhassankhan79@gmail.com">Get in touch ↗</a>
+            <a class="btn btn-ghost" href="team.html">Meet the team</a>
+          </div>
+          <span class="founder-signoff">Ahmad Hassan Khan <span>· Founder, Ahmad WebWorks</span></span>
+        </div>
+      </div>
+    </section>
+
     <!-- PROCESS -->
     <section class="section">
       <div class="container">
@@ -301,44 +330,41 @@
 
   <!-- FOOTER -->
   <footer class="site-footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="f-brand">
-          <a href="#home" class="brand">
-            <span class="brand-mark">AW</span>
-            <span class="brand-word">AHMAD <em>WEBWORKS</em></span>
-          </a>
-          <p class="f-tag">Thoughtful websites for ideas, people, and growing businesses.</p>
-        </div>
-
-        <div class="f-col">
-  <h4>Explore</h4>
-  <a href="#home">Home</a>
-  <a href="team.html">Our Team</a>
-  <a href="#services">Services</a>
-  <a href="#projects">Projects</a>
-  <a href="#about">About</a>
-</div>
-
-        <div class="f-col">
-          <h4>Contact</h4>
-          <a href="mailto:ahmadhassankhan79@gmail.com">Email Us</a>
-          <a href="https://wa.me/923704513823" target="_blank" rel="noopener noreferrer">WhatsApp</a>
-        </div>
-
-        <div class="f-col">
-          <h4>Follow</h4>
-          <a href="https://www.facebook.com/profile.php?id=61596110341289" target="_blank" rel="noopener noreferrer">Facebook</a>
-          <a href="https://whatsapp.com/channel/0029VbDgUJtKrWQwrKaFiu3S" target="_blank" rel="noopener noreferrer">WhatsApp Channel</a>
-        </div>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="f-brand">
+        <a href="index.html" class="brand"><span class="brand-mark">AW</span><span class="brand-word">AHMAD <em>WEBWORKS</em></span></a>
+        <p class="f-tag">Thoughtful websites for ideas, people, and growing businesses.</p>
       </div>
-
-      <div class="footer-bottom">
-        <p>© <span id="year"></span> Ahmad WebWorks. All rights reserved.</p>
-        <p>Designed with purpose. Built with care.</p>
+      <div class="f-col">
+        <h4>Explore</h4>
+        <a href="index.html">Home</a>
+        <a href="team.html">Our Team</a>
+        <a href="services.html">Services</a>
+        <a href="portfolio.html">Projects</a>
+        <a href="work-with-us.html">Work With Us</a>
+        <a href="about.html">About</a>
+        <a href="index.html#founder">Founder</a>
+      </div>
+      <div class="f-col">
+        <h4>Contact</h4>
+        <a href="contact.html">Contact page</a>
+        <a href="privacy.html">Privacy notice</a>
+        <a href="mailto:ahmadhassankhan79@gmail.com">Email Us</a>
+        <a href="https://wa.me/923704513823" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+      </div>
+      <div class="f-col">
+        <h4>Follow</h4>
+        <a href="https://www.facebook.com/profile.php?id=61596110341289" target="_blank" rel="noopener noreferrer">Facebook</a>
+        <a href="https://whatsapp.com/channel/0029VbDgUJtKrWQwrKaFiu3S" target="_blank" rel="noopener noreferrer">WhatsApp Channel</a>
       </div>
     </div>
-  </footer>
+    <div class="footer-bottom">
+      <p>© <span id="year"></span> Ahmad WebWorks. All rights reserved.</p>
+      <p>Designed with purpose. Built with care.</p>
+    </div>
+  </div>
+</footer>
 
 </body>
 </html>

@@ -121,23 +121,27 @@ import { createClient } from
     message.textContent = "Saving your application securely...";
 
     try {
-      const { data: savedApplication, error: saveError } = await db
-        .from("employee_applications")
-        .insert({
-          applicant_name: clean(data.get("fullName")),
-          email,
-          preferred_role: clean(data.get("role")),
-          location: clean(data.get("location")),
-          skills: clean(data.get("skills")).split(",").map(x => x.trim()).filter(Boolean),
-          introduction: clean(data.get("experience")),
-          portfolio_url: portfolio || null
-        })
-        .select("id")
-        .single();
+      const { data: submission, error: saveError } = await db.functions.invoke(
+        "submit-employee-application",
+        {
+          body: {
+            applicant_name: clean(data.get("fullName")),
+            email,
+            preferred_role: clean(data.get("role")),
+            location: clean(data.get("location")),
+            skills: clean(data.get("skills")).split(",").map(x => x.trim()).filter(Boolean),
+            introduction: clean(data.get("experience")),
+            portfolio_url: portfolio || null,
+            website: clean(data.get("site_reference"), 200)
+          }
+        }
+      );
 
       if (saveError) throw saveError;
+      const applicationId = submission?.application_id;
+      if (!applicationId) throw new Error(submission?.error || "The application was not saved. Please try again.");
 
-      lines.push("", "Application Reference: " + savedApplication.id);
+      lines.push("", "Application Reference: " + applicationId);
 
       let receiptNote = "";
       try {
@@ -146,7 +150,7 @@ import { createClient } from
           {
             body: {
               action: "application_received",
-              application_id: savedApplication.id
+              application_id: applicationId
             }
           }
         );
@@ -167,7 +171,7 @@ import { createClient } from
         encodeURIComponent(lines.join("\n"));
 
       message.textContent =
-        "Application saved. Reference: " + savedApplication.id +
+        "Application saved. Reference: " + applicationId +
         ". WhatsApp is opening; please review the message and press Send." +
         receiptNote;
 

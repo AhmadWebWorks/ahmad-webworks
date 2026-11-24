@@ -6,6 +6,7 @@
   const navToggle = document.querySelector(".nav-toggle");
   const navLinks = document.querySelector(".nav-links");
   const backdrop = document.querySelector(".nav-backdrop");
+  const navClose = document.querySelector(".nav-close");
 
   // MOBILE NAVIGATION
   function closeMenu() {
@@ -25,6 +26,7 @@
   });
 
   backdrop?.addEventListener("click", closeMenu);
+  navClose?.addEventListener("click", closeMenu);
 
   navLinks?.querySelectorAll("a").forEach(link => {
     link.addEventListener("click", closeMenu);
@@ -66,13 +68,18 @@
 
   // ACTIVE NAVIGATION LINK
   const sections = document.querySelectorAll("main section[id]");
-  const pageLinks = document.querySelectorAll(".nav-link");
+  const pageLinks = [...document.querySelectorAll(".nav-link")];
+  const sectionLinks = pageLinks.filter(link =>
+    (link.getAttribute("href") || "").startsWith("#")
+  );
 
-  if ("IntersectionObserver" in window) {
+  // Only update active states for same-page section links.
+  // Dedicated page links keep their page-level active state.
+  if (sectionLinks.length && "IntersectionObserver" in window) {
     const sectionObserver = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          pageLinks.forEach(link => {
+          sectionLinks.forEach(link => {
             const active = link.getAttribute("href") === `#${entry.target.id}`;
             link.classList.toggle("active", active);
           });

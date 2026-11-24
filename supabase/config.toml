@@ -1,0 +1,10 @@
+project_id = "vxdzyfbxcorxqysvlzgn"
+
+[functions.submit-employee-application]
+verify_jwt = false
+
+[functions.notify-application-status]
+verify_jwt = false
+
+[functions.invite-team-member]
+verify_jwt = true

@@ -1,0 +1,18 @@
+# Local environment files and credentials
+.env
+.env.*
+!.env.example
+
+# Supabase local development state
+supabase/.temp/
+supabase/.branches/
+supabase/.env
+
+# Dependencies and build output
+node_modules/
+dist/
+build/
+
+# Operating-system files
+.DS_Store
+Thumbs.db

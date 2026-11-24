@@ -109,18 +109,14 @@
   </style>
 
   <script type="module" src="js/portal.js"></script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta name="robots" content="noindex, nofollow">
+<script src="js/main.js" defer></script>
 </head>
 
 <body>
-<header class="site-header">
-  <nav class="nav container">
-    <a href="index.html" class="brand">
-      <span class="brand-mark">AW</span>
-      <span class="brand-word">AHMAD <em>WEBWORKS</em></span>
-    </a>
-    <a href="team.html" class="btn btn-ghost">Public Website</a>
-  </nav>
-</header>
+<header class="site-header"><nav class="nav container" aria-label="Main navigation"><a href="index.html" class="brand" aria-label="Ahmad WebWorks home"><span class="brand-mark">AW</span><span class="brand-word">AHMAD <em>WEBWORKS</em></span></a><button class="nav-toggle" type="button" aria-label="Open navigation" aria-controls="primary-navigation" aria-expanded="false"><span></span><span></span><span></span></button><div class="nav-backdrop"></div><div class="nav-links" id="primary-navigation">
+      <button class="nav-close" type="button" aria-label="Close navigation">×</button><a class="nav-link" href="index.html">Home</a><a class="nav-link" href="team.html">Our Team</a><a class="nav-link" href="services.html">Services</a><a class="nav-link" href="portfolio.html">Projects</a><a class="nav-link" href="about.html">About</a><a class="nav-link" href="index.html#founder">Founder</a><a class="nav-link" href="contact.html">Contact</a><a class="btn btn-primary nav-cta" href="contact.html">Let's Talk</a></div></nav></header>
 
 <main class="portal">
 
@@ -128,7 +124,7 @@
     <h1>Team <span class="grad-text">Portal.</span></h1>
     <p>Authorized team members only.</p>
 
-    <form id="loginForm" class="fields">
+    <form method="post" id="loginForm" class="fields">
       <label>Email
         <input name="email" type="email" required autocomplete="username">
       </label>
@@ -153,7 +149,7 @@
     <h1>Accept <span class="grad-text">Invitation.</span></h1>
     <p id="inviteInfo">Create a password for your Ahmad WebWorks team account.</p>
 
-    <form id="inviteForm" class="fields">
+    <form method="post" id="inviteForm" class="fields">
       <label>Email
         <input id="inviteEmail" type="email" readonly>
       </label>
@@ -188,9 +184,9 @@
       </div>
 
       <div class="tabs">
-        <button class="tab active" data-tab="apps">Applications</button>
-        <button class="tab" data-tab="people">Employees & PA</button>
-        <button class="tab" data-tab="reviews">Portfolio Reviews</button>
+        <button type="button" class="tab active" data-tab="apps">Applications</button>
+        <button type="button" class="tab" data-tab="people">Employees & PA</button>
+        <button type="button" class="tab" data-tab="reviews">Portfolio Reviews</button>
       </div>
 
       <section id="apps" class="panel">
@@ -209,7 +205,7 @@
             They cannot manage employee accounts or publish portfolios.
           </p>
 
-          <form id="paInviteForm" class="fields">
+          <form method="post" id="paInviteForm" class="fields">
             <label>Full Name
               <input name="full_name" maxlength="100" required>
             </label>
@@ -231,7 +227,7 @@
     <div id="employee" class="hidden">
       <section class="panel">
         <h2>My Professional Profile</h2>
-        <form id="profileForm" class="fields">
+        <form method="post" id="profileForm" class="fields">
           <label>Full Name<input name="full_name" required></label>
           <label>Professional Title<input name="job_title"></label>
           <label>Location<input name="location"></label>
@@ -247,7 +243,7 @@
 
       <section class="panel">
         <h2>My Projects</h2>
-        <form id="projectForm" class="fields">
+        <form method="post" id="projectForm" class="fields">
           <label>Project Title<input name="title" required></label>
           <label>Description<textarea name="description"></textarea></label>
           <label>Project URL<input name="project_url" type="url"></label>
@@ -261,5 +257,7 @@
     <p id="globalMsg" class="msg"></p>
   </section>
 </main>
+<footer class="site-footer"><div class="container"><div class="footer-grid"><div class="f-brand"><a href="index.html" class="brand"><span class="brand-mark">AW</span><span class="brand-word">AHMAD <em>WEBWORKS</em></span></a><p class="f-tag">Thoughtful websites for ideas, people, and growing businesses.</p></div><div class="f-col"><h4>Explore</h4><a href="index.html">Home</a><a href="team.html">Our Team</a><a href="services.html">Services</a><a href="portfolio.html">Projects</a>
+        <a href="work-with-us.html">Work With Us</a><a href="about.html">About</a><a href="index.html#founder">Founder</a></div><div class="f-col"><h4>Contact</h4><a href="contact.html">Contact page</a><a href="privacy.html">Privacy notice</a><a href="mailto:ahmadhassankhan79@gmail.com">Email Us</a><a href="https://wa.me/923704513823" target="_blank" rel="noopener noreferrer">WhatsApp</a></div><div class="f-col"><h4>Follow</h4><a href="https://www.facebook.com/profile.php?id=61596110341289" target="_blank" rel="noopener noreferrer">Facebook</a><a href="https://whatsapp.com/channel/0029VbDgUJtKrWQwrKaFiu3S" target="_blank" rel="noopener noreferrer">WhatsApp Channel</a></div></div><div class="footer-bottom"><p>© <span id="year"></span> Ahmad WebWorks. All rights reserved.</p><p>Designed with purpose. Built with care.</p></div></div></footer>
 </body>
 </html>

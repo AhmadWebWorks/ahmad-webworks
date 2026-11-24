@@ -559,18 +559,25 @@ document.addEventListener("click", async event => {
 
       if (diagnosticError) throw new Error(diagnosticError.message);
 
-      if (diagnostic?.ok && diagnostic?.template_active) {
+      if (diagnostic?.ok && diagnostic?.templates?.length === 4) {
         msg(
           "globalMsg",
-          "Brevo API connection verified. Template #2 is active. No email was sent. (" +
+          "Brevo connection verified. Transactional templates #1, #2, #3 and #4 are active. No email was sent. (" +
             diagnostic.elapsed_ms + " ms)"
+        );
+      } else if (diagnostic?.templates?.length) {
+        const status = diagnostic.templates
+          .map(item => "#" + item.template_id + ": " + (item.active ? "active" : "inactive / unavailable"))
+          .join("; ");
+        msg(
+          "globalMsg",
+          "Brevo template check: " + status + ". No email was sent."
         );
       } else {
         msg(
           "globalMsg",
           "Brevo API check failed: " +
-            (diagnostic?.error || "Template #2 is not active.") +
-            (diagnostic?.http_status ? " HTTP " + diagnostic.http_status : "")
+            (diagnostic?.error || "Could not verify the transactional templates.")
         );
       }
     }
@@ -782,10 +789,11 @@ $("paInviteForm").addEventListener("submit", async event => {
   }
 
   const button = event.submitter;
+  const formElement = event.currentTarget;
   setBusy(button, true);
 
   try {
-    const form = new FormData(event.currentTarget);
+    const form = new FormData(formElement);
 
     const result = await inviteFunction({
       action: "invite_pa",
@@ -793,7 +801,7 @@ $("paInviteForm").addEventListener("submit", async event => {
       full_name: form.get("full_name")
     });
 
-    event.currentTarget.reset();
+    formElement.reset();
 
     msg("paInviteMsg", result.message || result.warning);
     await loadAdmin();
@@ -941,10 +949,11 @@ $("projectForm").addEventListener("submit", async event => {
   event.preventDefault();
 
   const button = event.submitter;
+  const formElement = event.currentTarget;
   setBusy(button, true);
 
   try {
-    const form = new FormData(event.currentTarget);
+    const form = new FormData(formElement);
     const title = String(form.get("title") || "").trim();
 
     if (title.length < 2) {
@@ -969,7 +978,7 @@ const { error } = await db
 
     if (error) throw error;
 
-    event.currentTarget.reset();
+    formElement.reset();
 
     msg("projectMsg", "Project submitted for Founder review.");
     await loadEmployee();
