@@ -865,3 +865,18 @@ section,
 @media(max-width:900px){.engagement-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.path-grid,.journey-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.brief-contact-grid{grid-template-columns:1fr}.studio-note-grid{gap:25px}}
 @media(max-width:650px){.path-grid,.journey-grid,.engagement-grid,.expect-grid{grid-template-columns:1fr}.path-card{min-height:200px}.portfolio-proof-panel{align-items:flex-start;flex-direction:column}.studio-note-grid{padding:23px}.project-brief-form{padding:18px}.journey-card,.engagement-card{min-height:auto}}
 @media(prefers-reduced-motion:reduce){.path-card,.journey-card,.engagement-card{transition:none}.path-card:hover,.journey-card:hover,.engagement-card:hover{transform:none}}
+
+
+/* FOUNDER-LED BRAND STORY — HOMEPAGE */
+.founder-feature-grid{display:grid;grid-template-columns:minmax(260px,.82fr) minmax(0,1.18fr);align-items:center;gap:clamp(30px,6vw,82px)}
+.founder-feature-portrait{position:relative;max-width:430px;margin-inline:auto;padding:12px;border:1px solid rgba(157,174,255,.22);border-radius:26px;background:linear-gradient(145deg,rgba(82,123,255,.14),rgba(155,112,255,.07));box-shadow:0 24px 65px rgba(0,0,0,.25)}
+.founder-feature-portrait img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;object-position:center 28%;border-radius:18px}
+.founder-photo-caption{display:block;padding:13px 8px 3px;color:#c5d0ff;font-size:.68rem;font-weight:750;letter-spacing:.13em;text-align:center}
+.founder-feature-copy h2{margin:17px 0 18px;font-size:clamp(2rem,4vw,3.25rem);line-height:1.13}
+.founder-feature-copy>.section-sub{max-width:650px}
+.founder-honesty{max-width:650px;margin-top:16px;color:#aeb9d0;font-size:.94rem;line-height:1.8}
+.founder-feature-actions{display:flex;align-items:center;flex-wrap:wrap;gap:22px;margin-top:25px}
+.founder-feature-actions .text-link{color:#c5d0ff;font-size:.9rem;font-weight:700;text-decoration:none}
+.founder-feature-actions .text-link:hover{text-decoration:underline;text-underline-offset:4px}
+@media(max-width:760px){.founder-feature-grid{grid-template-columns:1fr;gap:28px}.founder-feature-portrait{width:min(100%,360px)}.founder-feature-copy{text-align:left}.founder-feature-actions{gap:16px}}
+@media(prefers-reduced-motion:reduce){.founder-feature-portrait{scroll-behavior:auto}}
