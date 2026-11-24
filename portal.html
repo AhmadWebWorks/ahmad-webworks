@@ -277,7 +277,7 @@
         <section class="portal-overview-panel">
           <div class="portal-overview-heading">
             <div><span class="portal-eyebrow">RECENT WORK</span><h3>Project highlights</h3></div>
-            <button id="addEmployeeProject" class="act primary" type="button">+ Add Project</button>
+            <button id="addEmployeeProjectFromPanel" class="act primary" type="button">+ Add Project</button>
           </div>
           <div id="employeeProjectPreview" class="portal-project-list"></div>
         </section>
@@ -286,14 +286,14 @@
       <section id="profileDetailsPanel" class="portal-detail-panel hidden">
         <div class="portal-detail-heading">
           <div><span class="portal-eyebrow">YOUR INFORMATION</span><h2>My Professional Profile</h2></div>
-          <button class="act" type="button" onclick="document.getElementById('profileDetailsPanel').classList.add('hidden')">Close</button>
+          <button id="closeEmployeeProfile" class="act" type="button">Close</button>
         </div>
-        <h3 id="employeeProfileName"></h3>
-        <p id="employeeProfileTitle" class="portal-role-line"></p>
+        <h3 id="employeeProfileDetailName"></h3>
+        <p id="employeeProfileDetailTitle" class="portal-role-line"></p>
         <p id="employeeProfileBio"></p>
         <div id="employeeSkills" class="portal-chip-list"></div>
         <div id="employeeProfileLinks" class="portal-link-list"></div>
-        <button class="btn btn-primary" type="button" onclick="document.getElementById('editEmployeeProfile').click()">Edit Profile</button>
+        <button id="editEmployeeProfileFromDetails" class="btn btn-primary" type="button">Edit Profile</button>
       </section>
 
       <section id="projectsPanel" class="portal-detail-panel hidden">
@@ -317,7 +317,7 @@
         <label>Website<input name="website_url" type="url"></label>
         <label>GitHub<input name="github_url" type="url"></label>
         <label>LinkedIn<input name="linkedin_url" type="url"></label>
-        <div class="actions"><button class="btn btn-primary" type="submit">Save & Submit for Review</button><button class="act" type="button" onclick="document.getElementById('profileForm').classList.add('hidden')">Cancel</button></div>
+        <div class="actions"><button class="btn btn-primary" type="submit">Save & Submit for Review</button><button id="cancelProfileEdit" class="act" type="button">Cancel</button></div>
         <p id="profileMsg" class="msg"></p>
       </form>
 
@@ -326,7 +326,7 @@
         <label>Project Title<input name="title" required></label>
         <label>Description<textarea name="description"></textarea></label>
         <label>Project URL<input name="project_url" type="url"></label>
-        <div class="actions"><button class="btn btn-primary" type="submit">Submit Project</button><button class="act" type="button" onclick="document.getElementById('projectForm').classList.add('hidden')">Cancel</button></div>
+        <div class="actions"><button class="btn btn-primary" type="submit">Submit Project</button><button id="cancelProjectAdd" class="act" type="button">Cancel</button></div>
         <p id="projectMsg" class="msg"></p>
       </form>
     </div>
