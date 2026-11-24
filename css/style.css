@@ -797,3 +797,14 @@ section,
     padding: .4rem .6rem;
   }
 }
+
+
+/* FIX: keep the mobile drawer viewport-fixed after the sticky header scrolls.
+   backdrop-filter on the header creates a containing block for fixed descendants. */
+@media (max-width: 768px) {
+  body.nav-open .site-header,
+  body.nav-open .site-header.scrolled {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
