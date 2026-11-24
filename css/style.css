@@ -232,12 +232,14 @@ body.nav-open .nav-toggle span:nth-child(3){transform:translateY(-7px) rotate(-4
 .service-card:hover::before,.service-card:hover::after{opacity:1}
 .sc-icon{
   width:52px;height:52px;border-radius:14px;display:grid;place-items:center;margin-bottom:1.3rem;
-  background:linear-gradient(135deg,rgba(82,123,255,.18),rgba(155,112,255,.18));
-  border:1px solid rgba(155,112,255,.3);color:var(--accent-2);
-  transition:transform .4s var(--ease);
+  background:linear-gradient(135deg,rgba(91,132,255,.30),rgba(157,112,255,.27));
+  border:1px solid rgba(157,174,255,.52);
+  color:#e7edff;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 5px 18px rgba(67,91,190,.14);
+  transition:transform .4s var(--ease),background .3s,border-color .3s,box-shadow .3s;
 }
 .sc-icon svg{width:26px;height:26px}
-.service-card:hover .sc-icon{transform:scale(1.08) rotate(-4deg)}
+.service-card:hover .sc-icon{transform:scale(1.08) rotate(-4deg);background:linear-gradient(135deg,rgba(91,132,255,.42),rgba(157,112,255,.39));border-color:rgba(185,197,255,.72);box-shadow:0 8px 24px rgba(67,91,190,.22)}
 .service-card h3{margin-bottom:.6rem}
 .service-card p{font-size:.9rem;margin-bottom:1.1rem}
 .sc-link{display:inline-block;position:relative;z-index:1;font-size:.82rem;font-weight:600;color:var(--accent);opacity:.85;text-decoration:none;transition:opacity .3s,letter-spacing .3s}
