@@ -3,7 +3,12 @@ name: Website quality checks
 on:
   push:
     branches:
+      - main
       - site-redesign/2026-11-22
+      - premium-live-site-refinement-2026-11-24
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
