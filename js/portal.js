@@ -832,7 +832,7 @@ document.querySelectorAll("[data-tab]").forEach(button => {
 /* EMPLOYEE PROFILE */
 
 async function loadEmployee() {
-  let { data: portfolio, error } = await db
+  const { data: portfolio, error } = await db
     .from("employee_portfolios")
     .select("*")
     .eq("owner_id", user.id)
@@ -840,38 +840,56 @@ async function loadEmployee() {
 
   if (error) throw error;
 
-  if (!portfolio) {
-    const name = user.user_metadata?.full_name ||
-      user.email.split("@")[0];
-
-    const { data, error: insertError } = await db
-      .from("employee_portfolios")
-      .insert({
-        owner_id: user.id,
-        full_name: name,
-        slug: slugify(name) + "-" + user.id.slice(0, 6)
-      })
-      .select()
-      .single();
-
-    if (insertError) throw insertError;
-
-    portfolio = data;
-  }
+  if (!portfolio) throw new Error("Employee profile record not found.");
 
   const form = $("profileForm");
-
   [
     "full_name", "job_title", "location", "bio",
     "website_url", "github_url", "linkedin_url"
   ].forEach(key => {
     form.elements[key].value = portfolio[key] || "";
   });
+  form.elements.skills.value = (portfolio.skills || []).join(", ");
 
-  form.elements.skills.value =
-    (portfolio.skills || []).join(", ");
+  const hasProfile = Boolean(
+    portfolio.job_title || portfolio.location || portfolio.bio ||
+    (portfolio.skills || []).length ||
+    portfolio.website_url || portfolio.github_url || portfolio.linkedin_url
+  );
+  const status = String(portfolio.review_status || "draft").toLowerCase();
+  const setupNeeded = !hasProfile && status !== "approved";
 
-  msg("profileMsg", "Status: " + portfolio.review_status);
+  $("employeeSetup").classList.toggle("hidden", !setupNeeded);
+  $("employeeDashboard").classList.toggle("hidden", setupNeeded);
+  $("profileForm").classList.add("hidden");
+  $("profileDetailsPanel").classList.add("hidden");
+  $("projectsPanel").classList.add("hidden");
+
+  $("employeeProfileName").textContent = portfolio.full_name || "Team Member";
+  $("employeeProfileTitle").textContent = portfolio.job_title || "Role not added yet";
+  $("employeeProfileLocation").textContent = portfolio.location || "Location not added";
+  $("employeeProfileStatus").textContent = status.replace(/_/g, " ");
+  $("employeeProfileBio").textContent = portfolio.bio || "No introduction added yet.";
+  $("employeeSkills").innerHTML = (portfolio.skills || []).length
+    ? portfolio.skills.map(skill => '<span class="portal-chip">' + esc(skill) + '</span>').join("")
+    : '<span class="muted">No skills added yet.</span>';
+
+  const links = [
+    ["Website", portfolio.website_url],
+    ["GitHub", portfolio.github_url],
+    ["LinkedIn", portfolio.linkedin_url]
+  ].filter(([, value]) => safeURL(value));
+  $("employeeProfileLinks").innerHTML = links.length
+    ? links.map(([label, value]) => '<a class="portal-link" href="' + esc(safeURL(value)) + '" target="_blank" rel="noopener noreferrer">' + label + ' ↗</a>').join("")
+    : '<span class="muted">No external links added.</span>';
+
+  $("employeeStatusNote").textContent =
+    status === "approved" ? "Your profile has been approved by the Founder."
+    : status === "pending" ? "Your profile is waiting for Founder review."
+    : status === "rejected" ? "Your profile needs changes before it can be approved."
+    : "Complete your profile to submit it for Founder review.";
+
+  $("employeeSetup").classList.toggle("hidden", !setupNeeded);
 
   const { data: projects, error: projectError } = await db
     .from("portfolio_projects")
@@ -881,18 +899,59 @@ async function loadEmployee() {
 
   if (projectError) throw projectError;
 
-  $("myProjects").innerHTML = projects.length
-    ? projects.map(project => `
-      <div class="stat">
-        <b>${esc(project.title)}</b>
-        <p>${esc(project.description)}</p>
-        <p class="muted">
-          Status: ${esc(project.review_status)}
-        </p>
-      </div>
+  $("employeeProjectCount").textContent = String(projects.length);
+  $("employeeProjectPreview").innerHTML = projects.length
+    ? projects.slice(0, 3).map(project => `
+      <article class="portal-project-card">
+        <div class="portal-project-top">
+          <h3>${esc(project.title)}</h3>
+          <span class="portal-status">${esc(project.review_status || "pending")}</span>
+        </div>
+        <p>${esc(project.description || "No description provided.")}</p>
+      </article>
     `).join("")
-    : "<p>No projects submitted.</p>";
+    : '<p class="muted">No projects yet. Add your first project to showcase your work.</p>';
+
+  $("myProjects").innerHTML = projects.length
+    ? projects.map(project => {
+        const url = safeURL(project.project_url);
+        return `
+          <article class="portal-project-card">
+            <div class="portal-project-top">
+              <h3>${esc(project.title)}</h3>
+              <span class="portal-status">${esc(project.review_status || "pending")}</span>
+            </div>
+            <p>${esc(project.description || "No description provided.")}</p>
+            ${url ? '<a class="portal-link" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">Open project ↗</a>' : ""}
+          </article>`;
+      }).join("")
+    : '<p class="muted">No projects submitted yet.</p>';
 }
+
+function showEmployeePanel(panel) {
+  $("profileDetailsPanel").classList.toggle("hidden", panel !== "profile");
+  $("projectsPanel").classList.toggle("hidden", panel !== "projects");
+  $("profileForm").classList.add("hidden");
+  if (panel === "profile") $("profileDetailsPanel").scrollIntoView({behavior:"smooth",block:"start"});
+  if (panel === "projects") $("projectsPanel").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+$("viewEmployeeProfile").addEventListener("click", () => showEmployeePanel("profile"));
+$("viewEmployeeProjects").addEventListener("click", () => showEmployeePanel("projects"));
+$("editEmployeeProfile").addEventListener("click", () => {
+  $("profileDetailsPanel").classList.add("hidden");
+  $("projectsPanel").classList.add("hidden");
+  $("profileForm").classList.remove("hidden");
+  $("profileForm").scrollIntoView({behavior:"smooth",block:"start"});
+});
+$("completeEmployeeProfile").addEventListener("click", () => {
+  $("profileForm").classList.remove("hidden");
+  $("profileForm").scrollIntoView({behavior:"smooth",block:"start"});
+});
+$("addEmployeeProject").addEventListener("click", () => {
+  $("projectForm").classList.toggle("hidden");
+  $("projectForm").scrollIntoView({behavior:"smooth",block:"start"});
+});
 
 /* SAVE EMPLOYEE PROFILE */
 
@@ -935,6 +994,7 @@ slug: slugify(name) + "-" + user.id.slice(0, 6)
 
     msg("profileMsg", "Profile submitted for Founder approval.");
     await loadEmployee();
+    $("profileForm").classList.add("hidden");
 
   } catch (error) {
     msg("profileMsg", error.message);
@@ -982,6 +1042,7 @@ const { error } = await db
 
     msg("projectMsg", "Project submitted for Founder review.");
     await loadEmployee();
+    $("projectForm").classList.add("hidden");
 
   } catch (error) {
     msg("projectMsg", error.message);
