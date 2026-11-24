@@ -160,6 +160,44 @@ async function main() {
             };
           });
 
+          if (width <= 640 && pageName === "index.html") {
+            const criticalLayout = await page.evaluate(() => {
+              const selectors = [
+                ".site-header .brand",
+                ".hero-content",
+                ".hero-content h1",
+                ".hero-sub",
+                ".hero-actions",
+                ".hero-tags"
+              ];
+              return {
+                scrollX: window.scrollX,
+                clientWidth: document.documentElement.clientWidth,
+                elements: selectors.map(selector => {
+                  const element = document.querySelector(selector);
+                  if (!element) return { selector, missing: true };
+                  const rect = element.getBoundingClientRect();
+                  return {
+                    selector,
+                    left: Math.round(rect.left),
+                    right: Math.round(rect.right),
+                    width: Math.round(rect.width)
+                  };
+                })
+              };
+            });
+            console.log("MOBILE HOMEPAGE GEOMETRY " + width + "px: " +
+              JSON.stringify(criticalLayout));
+            for (const item of criticalLayout.elements) {
+              if (item.missing || item.left < -1 ||
+                  item.right > criticalLayout.clientWidth + 1) {
+                fail("Homepage critical content is clipped at " + width +
+                  "px: " + JSON.stringify(item) +
+                  "; scrollX=" + criticalLayout.scrollX);
+              }
+            }
+          }
+
           if (layout.documentWidth > width + 1 || layout.bodyWidth > width + 1 ||
               layout.offenders.length) {
             fail(
