@@ -26,3 +26,11 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Check links, assets, responsive layouts and navigation
         run: node tests/site-check.cjs
+      - name: Upload mobile homepage screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-homepage-visuals
+          path: artifacts/*.png
+          if-no-files-found: ignore
+          retention-days: 3
