@@ -125,6 +125,25 @@
     });
   }
 
+  // PROJECT BRIEF — opens WhatsApp; no form data is stored on this website.
+  const projectBriefForm = document.getElementById("projectBriefForm");
+  projectBriefForm?.addEventListener("submit", event => {
+    event.preventDefault();
+    if (!projectBriefForm.reportValidity()) return;
+    const data = new FormData(projectBriefForm);
+    const lines = [
+      "Hello Ahmad WebWorks, I'd like to discuss a project.",
+      "",
+      "Name: " + (data.get("name") || ""),
+      "Business / project: " + (data.get("business") || "Not provided"),
+      "Service: " + (data.get("service") || ""),
+      "Estimated budget: " + (data.get("budget") || "Prefer to discuss"),
+      "Project details: " + (data.get("message") || "I'd like to discuss the requirements.")
+    ];
+    const url = "https://wa.me/923704513823?text=" + encodeURIComponent(lines.join("\n"));
+    window.open(url, "_blank", "noopener,noreferrer");
+  });
+
   // AUTOMATIC FOOTER YEAR
   const yearElement = document.getElementById("year");
 
