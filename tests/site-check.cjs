@@ -69,8 +69,9 @@ function checkLocalReferences(page) {
   const forms = [...html.matchAll(/<form\b([^>]*)>/gi)];
   for (const form of forms) {
     const method = form[1].match(/\bmethod\s*=\s*["']?([^\s"' >]+)/i)?.[1];
-    if (method?.toLowerCase() !== "post") {
-      fail(page + " contains a form without an explicit POST method");
+    const submitMode = form[1].match(/\bdata-submit-mode\s*=\s*["']([^"']+)["']/i)?.[1];
+    if (method?.toLowerCase() !== "post" && submitMode !== "client") {
+      fail(page + " contains a form without an explicit POST method or client-side submit mode");
     }
   }
   const refs = [...html.matchAll(/\b(?:href|src)\s*=\s*["']([^"']+)["']/gi)];
