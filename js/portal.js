@@ -224,8 +224,9 @@ async function boot() {
     $("admin").classList.remove("hidden");
     $("employee").classList.add("hidden");
     $("paInvitePanel").classList.remove("hidden");
+    $("paStats").classList.add("hidden");
 
-    document.querySelectorAll("[data-tab]")
+    document.querySelectorAll("#admin [data-tab]")
       .forEach(x => x.classList.remove("hidden"));
 
     await loadAdmin();
@@ -237,14 +238,15 @@ async function boot() {
     $("admin").classList.remove("hidden");
     $("employee").classList.add("hidden");
     $("paInvitePanel").classList.add("hidden");
+    $("paStats").classList.remove("hidden");
 
-    document.querySelectorAll(
-      '[data-tab="people"],[data-tab="reviews"]'
-    ).forEach(x => x.classList.add("hidden"));
+    document.querySelectorAll("#admin [data-tab]").forEach(x => {
+      x.classList.toggle("hidden", x.dataset.tab !== "apps");
+      x.classList.toggle("active", x.dataset.tab === "apps");
+    });
 
+    ["overview","people","work","reviews","reports"].forEach(id => $(id).classList.add("hidden"));
     $("apps").classList.remove("hidden");
-    $("people").classList.add("hidden");
-    $("reviews").classList.add("hidden");
 
     await loadPA();
 
@@ -451,7 +453,10 @@ async function loadAdmin() {
   renderApplications(apps.data, true);
   renderPeople(people.data);
   renderReviews(portfolios.data, projects.data);
-  renderFounderWork(assignments.data, submissions.data, employeeProfiles.data);
+  const activeEmployeeProfiles = employeeProfiles.data.filter(p =>
+    people.data.some(person => person.id === p.owner_id && person.role === "employee" && person.account_status === "active")
+  );
+  renderFounderWork(assignments.data, submissions.data, activeEmployeeProfiles);
   renderFounderOverview(apps.data, people.data, portfolios.data, projects.data, assignments.data, submissions.data);
   renderFounderReports(apps.data, people.data, portfolios.data, projects.data, assignments.data);
 
@@ -895,10 +900,11 @@ $("paInviteForm").addEventListener("submit", async event => {
 $("assignmentForm").addEventListener("submit", async event => {
   event.preventDefault();
   if (profile?.role !== "admin") { msg("assignmentMsg","Founder access required."); return; }
+  const formElement = event.currentTarget;
   const button = event.submitter;
   setBusy(button,true);
   try {
-    const values = new FormData(event.currentTarget);
+    const values = new FormData(formElement);
     const employeeId = String(values.get("assigned_to") || "");
     const title = String(values.get("title") || "").trim();
     if (!employeeId || title.length < 3) throw new Error("Choose an employee and enter a task title.");
@@ -912,7 +918,7 @@ $("assignmentForm").addEventListener("submit", async event => {
       due_at:dueRaw ? new Date(dueRaw).toISOString() : null
     });
     if (error) throw error;
-    event.currentTarget.reset();
+    formElement.reset();
     msg("assignmentMsg","Assignment created and added to the employee workspace.");
     await loadAdmin();
     $("work").classList.remove("hidden");
