@@ -25,7 +25,15 @@
     </section>`;
   document.body.appendChild(root);
   const launcher=root.querySelector(".aw-chat-launcher"),panel=root.querySelector(".aw-chat-window"),close=root.querySelector(".aw-chat-close"),form=root.querySelector(".aw-chat-form"),input=root.querySelector(".aw-chat-input"),messages=root.querySelector(".aw-chat-messages");
-  const SUPABASE_URL="https://vxdzyfbxcorxqysvlzgn.supabase.co";\n  const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4ZHp5ZmJ4Y29yeHF5c3ZsemduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUyNzk4NzgsImV4cCI6MjExMDg1NTg3OH0.-cqjsxRhBceb7e_Nq3_gln-_hm1mHCW4DKXdCh_8BUE";\n  const ASSISTANT_API_URL=SUPABASE_URL+"/functions/v1/assistant-api";\n  const sendButton=root.querySelector(".aw-chat-send");\n  let sessionId="";\n  try{sessionId=localStorage.getItem("aw_assistant_session_id")||"";}catch(_){}\n  const makeSessionId=()=>{if(window.crypto&&crypto.randomUUID)return crypto.randomUUID();return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,(c)=>{const r=Math.random()*16|0;return (c==="x"?r:(r&3|8)).toString(16);});};\n  const getSessionId=()=>{if(!sessionId){sessionId=makeSessionId();try{localStorage.setItem("aw_assistant_session_id",sessionId);}catch(_){}}return sessionId;};\n  const setOpen=(open)=>{root.classList.toggle("is-open",open);launcher.setAttribute("aria-expanded",String(open));panel.setAttribute("aria-hidden",String(!open));if(open)input.focus();else launcher.focus();};
+  const SUPABASE_URL="https://vxdzyfbxcorxqysvlzgn.supabase.co";
+  const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4ZHp5ZmJ4Y29yeHF5c3ZsemduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUyNzk4NzgsImV4cCI6MjExMDg1NTg3OH0.-cqjsxRhBceb7e_Nq3_gln-_hm1mHCW4DKXdCh_8BUE";
+  const ASSISTANT_API_URL=SUPABASE_URL+"/functions/v1/assistant-api";
+  const sendButton=root.querySelector(".aw-chat-send");
+  let sessionId="";
+  try{sessionId=localStorage.getItem("aw_assistant_session_id")||"";}catch(_){}
+  const makeSessionId=()=>{if(window.crypto&&crypto.randomUUID)return crypto.randomUUID();return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,(c)=>{const r=Math.random()*16|0;return (c==="x"?r:(r&3|8)).toString(16);});};
+  const getSessionId=()=>{if(!sessionId){sessionId=makeSessionId();try{localStorage.setItem("aw_assistant_session_id",sessionId);}catch(_){}}return sessionId;};
+  const setOpen=(open)=>{root.classList.toggle("is-open",open);launcher.setAttribute("aria-expanded",String(open));panel.setAttribute("aria-hidden",String(!open));if(open)input.focus();else launcher.focus();};
   const addMessage=(value,user)=>{const item=document.createElement("div");item.className="aw-chat-message"+(user?" is-user":"");const paragraph=document.createElement("p");paragraph.textContent=value;item.appendChild(paragraph);messages.appendChild(item);messages.scrollTop=messages.scrollHeight;};
   launcher.addEventListener("click",()=>setOpen(!root.classList.contains("is-open")));
   close.addEventListener("click",()=>setOpen(false));
