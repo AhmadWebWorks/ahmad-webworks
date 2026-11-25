@@ -421,18 +421,17 @@
 }
 
 
-/* Clearly identify the seeded Aurther Lufus profile as a demo.
-   Red is reserved for public-facing attention labels; gold stays in the private portal. */
+/* Public demo label: force red on the Team page. Gold is reserved for the private Team Portal. */
 .team-card .team-demo-badge {
   display: inline-flex;
   align-items: center;
   width: fit-content;
-  margin: .45rem 0 .7rem;
+  margin: .45rem 0 .2rem;
   padding: .35rem .65rem;
-  border: 1px solid rgba(239, 68, 68, .65) !important;
+  border: 1px solid #ef4444 !important;
   border-radius: 999px;
-  background: rgba(239, 68, 68, .16) !important;
-  color: #ff6b6b !important;
+  background: rgba(239, 68, 68, .2) !important;
+  color: #ff5b5b !important;
   font-size: .65rem;
   font-weight: 800;
   letter-spacing: .1em;
