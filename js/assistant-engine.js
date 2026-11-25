@@ -153,8 +153,8 @@
     let intent = detectIntent(question);
     let searchQuestion = question;
     const previousQuestion = getPreviousUserQuestion(history);
-    const identityClaim = /^(yes|yeah|yep|that's me|that is me|correct|exactly|no[, ]+i am|i am the founder|i'm the founder|i am ahmad|i'm ahmad|i am ahmad hassan khan|i'm ahmad hassan khan)\b/.test(q) ||
-      /\b(i am|i'm) (the )?(founder|owner)\b/.test(q);
+    const identityClaim = /^(yes|yeah|yep|that's me|that is me|correct|exactly|no[, ]+i am|i am the founder|i'm the founder|i m the founder|i am ahmad|i'm ahmad|i m ahmad|i am ahmad hassan khan|i'm ahmad hassan khan|i m ahmad hassan khan)\b/.test(q) ||
+      /\b(i am|i'm|i m) (the )?(founder|owner)\b/.test(q);
     const explicitFollowUp = /^(and|also|what about|how about|tell me more|more about it|yes|yeah|yep|that's me|that is me|correct|exactly)\b/.test(q);
     if (identityClaim && (detectIntent(previousQuestion)?.name === "founder" || /\b(founder|owner)\b/.test(q))) {
       return result("I can share public information about Ahmad WebWorks, but I can't verify who is using this chat or confirm anyone's identity. The public business information lists Ahmad Hassan Khan as the founder.", "identity_boundary", 1,
