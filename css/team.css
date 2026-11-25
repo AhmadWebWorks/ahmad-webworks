@@ -419,3 +419,21 @@
   font-size: .78rem !important;
   margin-top: -.25rem;
 }
+
+
+/* Clearly identify the seeded Aurther Lufus profile as a demo */
+.team-demo-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-bottom: .7rem;
+  padding: .35rem .65rem;
+  border: 1px solid rgba(245, 196, 107, .42);
+  border-radius: 999px;
+  background: rgba(245, 158, 11, .1);
+  color: #f5c46b;
+  font-size: .65rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  line-height: 1.3;
+}
