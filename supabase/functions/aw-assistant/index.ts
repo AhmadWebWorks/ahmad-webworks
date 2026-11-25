@@ -85,8 +85,9 @@ async function getOrCreateSession(supabase: ReturnType<typeof getAdminClient>, r
       .from("assistant_sessions").select("id").eq("id", candidate).maybeSingle();
     if (error) throw error;
     if (data?.id) {
-      await supabase.from("assistant_sessions")
+      const { error: updateError } = await supabase.from("assistant_sessions")
         .update({ last_activity_at: new Date().toISOString() }).eq("id", candidate);
+      if (updateError) throw updateError;
       return candidate;
     }
   }
@@ -98,10 +99,11 @@ async function getOrCreateSession(supabase: ReturnType<typeof getAdminClient>, r
 
 async function enforceRateLimit(supabase: ReturnType<typeof getAdminClient>, sessionId: string, table: "assistant_messages" | "assistant_leads", limit: number, windowMinutes: number) {
   const since = new Date(Date.now() - windowMinutes * 60_000).toISOString();
-  const { count, error } = await supabase.from(table)
+  const baseQuery = supabase.from(table)
     .select("id", { count: "exact", head: true })
-    .eq("session_id", sessionId)
-    .gte("created_at", since);
+    .eq("session_id", sessionId);
+  const limitedQuery = table === "assistant_messages" ? baseQuery.eq("role", "user") : baseQuery;
+  const { count, error } = await limitedQuery.gte("created_at", since);
   if (error) throw error;
   return (count || 0) < limit;
 }
@@ -220,11 +222,10 @@ Deno.serve(async (req: Request) => {
   if (origin && !allowedOrigins.has(origin)) return respond({ ok: false, error: "Origin not allowed." }, 403, origin);
   if (!checkPublicKey(req)) return respond({ ok: false, error: "Request could not be authenticated." }, 401, origin);
 
-  const contentLength = Number(req.headers.get("content-length") || 0);
-  if (contentLength > 12_000) return respond({ ok: false, error: "Request is too large." }, 413, origin);
-
   try {
-    const body = await req.json();
+    const rawBody = await req.text();
+    if (rawBody.length > 12_000) return respond({ ok: false, error: "Request is too large." }, 413, origin);
+    const body = JSON.parse(rawBody);
     if (!body || typeof body !== "object" || Array.isArray(body)) {
       return respond({ ok: false, error: "Invalid request." }, 400, origin);
     }
