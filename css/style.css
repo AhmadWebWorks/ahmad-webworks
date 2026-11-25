@@ -898,6 +898,6 @@ section,
 @media(max-width:650px){.case-study-columns{grid-template-columns:1fr}.case-study-feature{padding:20px;border-radius:18px}}
 
 
-/* DISCREET INTERNAL TEAM PORTAL FOOTER LINK */
-.footer-team-login{display:inline-block;color:var(--muted,#9aa7c4);font-size:.76rem;font-weight:600;text-decoration:none;opacity:.78;transition:color .2s ease,opacity .2s ease}
-.footer-team-login:hover,.footer-team-login:focus-visible{color:#c5d0ff;opacity:1;text-decoration:underline;text-underline-offset:4px}
+/* INTERNAL TEAM PORTAL FOOTER LINK */
+.footer-team-login{display:inline-flex;align-items:center;gap:.45rem;padding:.55rem .85rem;border:1px solid var(--border);border-radius:999px;color:var(--text);font-size:.8rem;font-weight:650;text-decoration:none;opacity:.9;transition:background .2s ease,border-color .2s ease,opacity .2s ease}
+.footer-team-login:hover,.footer-team-login:focus-visible{background:var(--surface,rgba(255,255,255,.06));border-color:var(--muted);opacity:1;text-decoration:none;outline-offset:3px}
