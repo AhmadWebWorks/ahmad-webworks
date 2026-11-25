@@ -151,7 +151,7 @@
     const margin = second ? best.score - second.score : best.score;
     const confidence = Math.max(0, Math.min(1, (best.score / 15) * 0.72 + (Math.max(0, margin) / 8) * 0.28));
 
-    if (best.score < 4.2 || (second && margin < 0.35 && best.score < 6)) {
+    if (best.score < 4.2 || (intent && intent.name !== "services" && second && margin < 0.35 && best.score < 6)) {
       return result("I found a few possibly related topics, but I'm not confident enough to give you a reliable answer. Could you rephrase your question or contact us directly at https://wa.me/923704513823?", "clarify", confidence, []);
     }
 
