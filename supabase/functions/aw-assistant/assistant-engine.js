@@ -153,15 +153,17 @@
     let intent = detectIntent(question);
     let searchQuestion = question;
     const previousQuestion = getPreviousUserQuestion(history);
+    const identityClaim = /^(yes|yeah|yep|that's me|that is me|correct|exactly|no[, ]+i am|i am the founder|i'm the founder|i m the founder|i am ahmad|i'm ahmad|i m ahmad|i am ahmad hassan khan|i'm ahmad hassan khan|i m ahmad hassan khan)\b/.test(q) ||
+      /\b(i am|i'm|i m) (the )?(founder|owner)\b/.test(q);
     const explicitFollowUp = /^(and|also|what about|how about|tell me more|more about it|yes|yeah|yep|that's me|that is me|correct|exactly)\b/.test(q);
+    if (identityClaim && (detectIntent(previousQuestion)?.name === "founder" || /\b(founder|owner)\b/.test(q))) {
+      return result("I can share public information about Ahmad WebWorks, but I can't verify who is using this chat or confirm anyone's identity. The public business information lists Ahmad Hassan Khan as the founder.", "identity_boundary", 1,
+        knowledge.filter(r => r && r.category === "business" && r.status === "approved" && r.is_public !== false &&
+          /founded by Ahmad Hassan Khan/i.test(r.content || "")).map(r => r.id).filter(Boolean).slice(0,1));
+    }
     if (!intent && explicitFollowUp && previousQuestion) {
       intent = detectIntent(previousQuestion);
       searchQuestion = question + " " + previousQuestion;
-      if (intent?.name === "founder" && /^(yes|yeah|yep|that's me|that is me|correct|exactly)\b/.test(q)) {
-        return result("Got it — thanks for confirming! Ahmad Hassan Khan is the founder of Ahmad WebWorks.", "founder", 1,
-          knowledge.filter(r => r && r.category === "business" && r.status === "approved" && r.is_public !== false &&
-            /founded by Ahmad Hassan Khan/i.test(r.content || "")).map(r => r.id).filter(Boolean).slice(0,1));
-      }
     }
 
     if (intent?.name === "recruitment")
@@ -174,13 +176,20 @@
       const priceRecord = knowledge.find(r => r && r.category === "pricing" && r.status === "approved" && r.is_public !== false &&
         /fixed packages|quoted after|requirements are understood/i.test(r.content || ""));
       const ids = priceRecord?.id ? [priceRecord.id] : [];
-      if (/\b(build|create|develop|make)\b/.test(q) && /\b(website|site|company|business)\b/.test(q)) {
-        return result("Yes — we can discuss and build a professional website for your company. The price depends on the agreed pages, features and requirements, so we prepare a quote after reviewing the scope.", "pricing", 1, ids);
+      const contactRecord = knowledge.find(r => r && r.category === "contact" && r.status === "approved" && r.is_public !== false &&
+        /wa\.me\/|contact page/i.test(r.content || ""));
+      const contactUrl = "https://ahmadwebworks.github.io/ahmad-webworks/contact.html";
+      const whatsappUrl = "https://wa.me/923704513823";
+      const hasProjectRequest = /\b(i need|i want|we need|we want|looking for|require|build|create|develop|make)\b/.test(q) &&
+        /\b(website|websites|site|company|business|store|online shop)\b/.test(q);
+      const hasScope = /\b\d+\s*(page|pages)\b|\b(home|projects|services|team|about|contact)\b/.test(q);
+      if (hasProjectRequest || hasScope) {
+        return result("Yes, Ahmad WebWorks can discuss your website project. We don't publish a fixed starting price or package rate; the quote depends on the agreed pages, features and content. To request a quote, use our project inquiry page: " + contactUrl + " or WhatsApp: " + whatsappUrl, "pricing", 1, [...ids, ...(contactRecord?.id ? [contactRecord.id] : [])]);
       }
       if (/\b(sufficient|enough|afford|budget|dollars?|usd|pkr|rupees?)\b/.test(q) || /(?:^|\s)(?:rs\.?|₨|\$)\s?\d/.test(q)) {
-        return result("I can't confirm whether your budget is sufficient without knowing the website's pages and features. Ahmad WebWorks doesn't offer fixed packages; each project is quoted after its requirements are understood.", "pricing", 1, ids);
+        return result("We don't publish a standard starting price, so I can't confirm whether that budget is sufficient. Costs depend on the pages, features and content. Share your requirements through our project inquiry page: " + contactUrl, "pricing", 1, [...ids, ...(contactRecord?.id ? [contactRecord.id] : [])]);
       }
-      return result("Ahmad WebWorks doesn't offer fixed packages. Each website is quoted after we understand the pages, features and requirements you need.", "pricing", 1, ids);
+      return result("Ahmad WebWorks doesn't offer fixed packages or publish a standard starting price. Each quote depends on the pages, features and content. For a project quote, contact us here: " + contactUrl + " or WhatsApp: " + whatsappUrl, "pricing", 1, [...ids, ...(contactRecord?.id ? [contactRecord.id] : [])]);
     }
 
     if (intent?.name === "timeline") {
