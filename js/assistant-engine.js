@@ -41,7 +41,7 @@
   }
 
   function tokens(value) {
-    return normalize(value).split(" ").filter(word => word.length > 1 && !STOP_WORDS.has(word));
+    return normalize(value).split(" ").filter(word => word.length > 1 && !STOP_WORDS.has(word)).map(word => word.endsWith("ies") && word.length > 5 ? word.slice(0, -3) + "y" : word.endsWith("s") && !word.endsWith("ss") && word.length > 4 ? word.slice(0, -1) : word);
   }
 
   function detectIntent(question) {
@@ -95,7 +95,7 @@
     score += diceSimilarity(q, title) * 3;
     score += diceSimilarity(q, keywords.join(" ")) * 2;
 
-    if (intent && record.category === intent.category) score += 2.5;
+    if (intent && record.category === intent.category) score += 3.5;
     if (record.status && record.status !== "approved") return -1;
     if (record.is_public === false) return -1;
     score += Math.max(-1, Math.min(1, Number(record.priority || 0) / 100));
@@ -114,7 +114,7 @@
     return null;
   }
 
-  function answerQuestion(options) {
+  function getPreviousUserQuestion(history) {\n    if (!Array.isArray(history)) return "";\n    for (let i = history.length - 1; i >= 0; i--) {\n      const item = history[i];\n      if (item && item.role === "user") return String(item.content || item.message || "");\n    }\n    return "";\n  }\n\n  function answerQuestion(options) {
     const question = String(options && options.question || "").trim();
     const knowledge = Array.isArray(options && options.knowledge) ? options.knowledge : [];
     const history = Array.isArray(options && options.history) ? options.history : [];
@@ -138,7 +138,7 @@
 
     const ranked = knowledge
       .filter(record => record && record.content && record.title)
-      .map(record => ({ record, score:scoreRecord(question, record, intent) }))
+      .map(record => ({ record, score:scoreRecord(searchQuestion, record, intent) }))
       .filter(item => item.score >= 0)
       .sort((a,b) => b.score - a.score);
 
