@@ -571,7 +571,6 @@ function renderReviews(portfolios, projects) {
         <p class="muted">${esc(item.job_title || "Team member")} · Public on Team page</p>
         <div class="actions">
           <button class="act" data-action="unpublish-profile" data-id="${esc(item.id)}">Unpublish</button>
-          <button class="act danger" data-action="delete-employee-profile" data-id="${esc(item.id)}" data-owner="${esc(item.owner_id)}">Delete Profile & Projects</button>
         </div>
       </div>`).join("") : '<p class="muted">No published employee profiles.</p>'}
   `;
@@ -782,18 +781,6 @@ document.addEventListener("click", async event => {
       if (error) throw error;
       await loadAdmin();
       msg("globalMsg", "Employee profile unpublished. The employee account remains active.");
-    }
-
-    if (action === "delete-employee-profile") {
-      if (profile.role !== "admin") throw new Error("Founder access required.");
-      if (!confirm("Permanently delete this employee portfolio and all of this employee's portfolio projects? Their login account and employee access will NOT be deleted.")) return;
-      const ownerId = button.dataset.owner;
-      const { error: projectError } = await db.from("portfolio_projects").delete().eq("owner_id", ownerId);
-      if (projectError) throw projectError;
-      const { error: profileError } = await db.from("employee_portfolios").delete().eq("id", button.dataset.id);
-      if (profileError) throw profileError;
-      await loadAdmin();
-      msg("globalMsg", "Portfolio and its projects deleted. Employee login account remains active.");
     }
 
     if (action === "employee-start-work") {
