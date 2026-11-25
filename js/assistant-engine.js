@@ -182,6 +182,13 @@
     }
 
     if (intent?.name === "portfolio") {
+      const conceptName = /business dashboard/i.test(question) ? "business dashboard" :
+        /creative portfolio/i.test(question) ? "creative portfolio" : "";
+      if (conceptName) {
+        const concept = knowledge.find(r => r && r.category === "portfolio" && r.status === "approved" && r.is_public !== false &&
+          (r.title || "").toLowerCase().includes(conceptName));
+        if (concept) return result(cleanSentence(concept.content, 260), "portfolio", 0.98, concept.id ? [concept.id] : []);
+      }
       const dua = knowledge.find(r => r && r.category === "portfolio" && r.status === "approved" && r.is_public !== false &&
         /dua boutique/i.test((r.title || "") + " " + (r.content || "")));
       if (dua) {
