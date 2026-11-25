@@ -46,6 +46,9 @@
 
   function detectIntent(question) {
     const q = normalize(question);
+    if (/\b(hire|hiring|recruit|recruiting|vacanc|job opening|career|employment|internship|team member)\b/.test(q)) return { name:"recruitment", category:"policy", score:10 };
+    if (/\b(football|cricket|weather|politics|recipe|homework|exam|movie|anime|game score)\b/.test(q)) return { name:"off_topic", category:null, score:10 };
+    if (/\b(do you have|show me|any|your|recent)\b/.test(q) && /\b(projects?|work|websites?)\b/.test(q)) return { name:"portfolio", category:"portfolio", score:7 };
     let best = null, bestScore = 0;
     for (const intent of INTENTS) {
       let score = 0;
@@ -140,13 +143,14 @@
 
     let intent = detectIntent(question);
     let searchQuestion = question;
-    const shortFollowUp = tokens(question).length <= 4;
-    if (shortFollowUp && (!intent || FOLLOW_UP_TERMS.has(q))) {
-      const context = getContextIntent(history);
-      const previousQuestion = getPreviousUserQuestion(history);
-      if (!intent && context) intent = context;
-      if (previousQuestion) searchQuestion = question + " " + previousQuestion;
+    const previousQuestion = getPreviousUserQuestion(history);
+    const explicitFollowUp = /^(and|also|what about|how about|tell me more|more about it)\b/.test(q);
+    if (!intent && explicitFollowUp && previousQuestion) {
+      intent = detectIntent(previousQuestion);
+      searchQuestion = question + " " + previousQuestion;
     }
+    if (intent?.name === "recruitment") return result("I don't have verified information about current jobs or team openings at Ahmad WebWorks. Please contact us directly for updates.", "recruitment", 1, []);
+    if (intent?.name === "off_topic") return result("I’m here to help with Ahmad WebWorks, so that’s outside my area. I can help with our services, projects, pricing or starting a website project.", "off_topic", 1, []);
 
     const ranked = knowledge
       .filter(record => record && record.content && record.title)
@@ -155,7 +159,7 @@
       .sort((a,b) => b.score - a.score);
 
     if (!ranked.length || ranked[0].score < 3.1) {
-      return result("I don't have a verified answer to that in my current knowledge base, and I don't want to guess. Please contact Ahmad WebWorks through WhatsApp at https://wa.me/923704513823 or the contact page: https://ahmadwebworks.github.io/ahmad-webworks/contact.html.", "fallback", 0, []);
+      return result("I don't have verified information about that yet. I can help with Ahmad WebWorks services, projects, pricing or project inquiries.", "fallback", 0, []);
     }
 
     const best = ranked[0];
@@ -174,7 +178,7 @@
       const serviceRecords = ranked.filter(item => item.record.category === "service" && item.score >= Math.max(3.5, best.score - 3)).slice(0, 4);
       if (serviceRecords.length > 1) {
         answer = "Ahmad WebWorks can help with these website services:\n" +
-          serviceRecords.map(item => "• " + item.record.title + ": " + String(item.record.content).trim()).join("\n");
+          serviceRecords.map(item => "• " + item.record.title + ": " + String(item.record.content).replace(/\s+/g, " ").trim().split(/(?<=[.!?])\s+/).slice(0, 1).join(" ")).join("\n");
         matched.splice(0, matched.length, ...serviceRecords.map(item => item.record.id).filter(Boolean));
       }
     }
