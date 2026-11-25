@@ -126,8 +126,7 @@
 
   function cleanSentence(text, max = 260) {
     const clean = String(text || "").replace(/\s+/g, " ").trim();
-    const sentences = clean.match(/[^.!?]+[.!?](?=\s|$)|[^.!?]+$/g) || [clean];
-    const first = sentences[0].trim();
+    const first = clean.split(/(?<=[.!?])\s+/)[0].trim();
     if (first.length <= max) return first;
     return first.slice(0, max - 1).trimEnd() + "…";
   }
