@@ -480,7 +480,7 @@ body.nav-open .nav-toggle span:nth-child(3){transform:translateY(-7px) rotate(-4
   .code-area{padding:1rem .75rem;font-size:clamp(.6rem,2.5vw,.76rem)}
   .float-chip{max-width:calc(100% - 16px);white-space:nowrap}
   .chip-a{top:2%;right:8px}
-  .chip-b{bottom:10%;left:8px}
+  .chip-b{bottom:15%;left:8px}
   .chip-c{top:55%;right:8px}
 }
 
