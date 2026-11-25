@@ -6,7 +6,7 @@
   window.__ahmadWebWorksAssistantMounted = true;
   const root = document.createElement("div");
   root.className = "aw-assistant";
-  root.innerHTML = \`
+  root.innerHTML = `
     <button class="aw-chat-launcher" type="button" aria-label="Open Ahmad WebWorks assistant" aria-expanded="false" aria-controls="aw-chat-window">
       <span class="aw-chat-launcher-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-6.5A7.5 7.5 0 1 1 20 11.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 11h8M8 14.5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
       <span class="aw-chat-launcher-label">Ask us anything</span>
@@ -22,7 +22,7 @@
       <p class="aw-chat-notice">Please don't share passwords, payment details or other sensitive information here.</p>
       <form class="aw-chat-form"><textarea class="aw-chat-input" rows="1" maxlength="1000" aria-label="Your message" placeholder="Type your question..." required></textarea><button class="aw-chat-send" type="submit" aria-label="Send message"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 3-7.2 18-3.8-7-7-3.8L21 3Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 3 10 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></form>
       <div class="aw-chat-powered">AHMAD WEBWORKS · DIGITAL SUPPORT</div>
-    </section>\`;
+    </section>`;
   document.body.appendChild(root);
   const launcher=root.querySelector(".aw-chat-launcher"),panel=root.querySelector(".aw-chat-window"),close=root.querySelector(".aw-chat-close"),form=root.querySelector(".aw-chat-form"),input=root.querySelector(".aw-chat-input"),messages=root.querySelector(".aw-chat-messages");
   const setOpen=(open)=>{root.classList.toggle("is-open",open);launcher.setAttribute("aria-expanded",String(open));panel.setAttribute("aria-hidden",String(!open));if(open)input.focus();else launcher.focus();};
