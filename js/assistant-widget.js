@@ -37,7 +37,7 @@
         <p class="aw-chat-date">WELCOME</p>
         <div class="aw-chat-message"><p>Hi there! 👋 I'm the Ahmad WebWorks assistant. Ask me about our services, project process, portfolio, pricing approach or contact details.</p></div>
         <div class="aw-chat-message"><p>I use verified information from Ahmad WebWorks. If I don't know something, I'll tell you rather than guess.</p></div>
-        <div class="aw-chat-chips" aria-label="Suggested questions"><button class="aw-chat-chip" type="button">What services do you offer?</button><button class="aw-chat-chip" type="button">How does a project start?</button><button class="aw-chat-chip" type="button">Do you have fixed packages?</button></div>
+        <div class="aw-chat-chips" aria-label="Suggested questions"><button class="aw-chat-chip" type="button">What services do you offer?</button><button class="aw-chat-chip" type="button">How does a project start?</button><button class="aw-chat-chip" type="button">Do you have fixed packages?</button><button class="aw-chat-chip aw-chat-lead-trigger" type="button">Start a project</button></div>
       </div>
       <p class="aw-chat-notice">Please don't share passwords, payment details or other sensitive information here.</p>
       <form class="aw-chat-form"><textarea class="aw-chat-input" rows="1" maxlength="1000" aria-label="Your message" placeholder="Type your question..." required></textarea><button class="aw-chat-send" type="submit" aria-label="Send message"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 3-7.2 18-3.8-7-7-3.8L21 3Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 3 10 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></form>
@@ -70,6 +70,77 @@
     messages.scrollTop = messages.scrollHeight;
     return item;
   };
+
+
+  function openLeadForm() {
+    const wrapper = document.createElement("div");
+    wrapper.className = "aw-chat-message aw-lead-card";
+    wrapper.innerHTML = `
+      <form class="aw-lead-form">
+        <strong class="aw-lead-title">Tell us about your project</strong>
+        <label>Name *<input name="name" type="text" maxlength="120" autocomplete="name" required></label>
+        <label>Email<input name="email" type="email" maxlength="254" autocomplete="email" placeholder="you@example.com"></label>
+        <label>WhatsApp / Phone<input name="phone" type="tel" maxlength="25" autocomplete="tel" placeholder="+92..."></label>
+        <label>Business name (optional)<input name="businessName" type="text" maxlength="120"></label>
+        <label>What do you need?
+          <select name="serviceInterest">
+            <option value="">Choose a service</option>
+            <option>Website design</option><option>Web development</option>
+            <option>Responsive website</option><option>Website improvements</option>
+            <option>Not sure yet</option>
+          </select>
+        </label>
+        <label>Budget (optional)<input name="budgetRange" type="text" maxlength="80" placeholder="Not sure yet"></label>
+        <label>Existing website (optional)<input name="existingWebsite" type="url" maxlength="300" placeholder="https://..."></label>
+        <label>Project details *<textarea name="projectDetails" rows="3" minlength="10" maxlength="5000" required placeholder="What would you like us to build or improve?"></textarea></label>
+        <label>Preferred contact
+          <select name="preferredContact">
+            <option value="either">Either email or WhatsApp</option>
+            <option value="email">Email</option>
+            <option value="whatsapp">WhatsApp</option>
+          </select>
+        </label>
+        <label class="aw-lead-consent"><input name="consent" type="checkbox" required> I agree that Ahmad WebWorks may use these details to respond to my project inquiry.</label>
+        <button class="aw-lead-submit" type="submit">Send project inquiry</button>
+        <p class="aw-lead-help">Please provide at least one contact method. Don't include passwords or payment details.</p>
+      </form>`;
+    messages.appendChild(wrapper);
+    messages.scrollTop = messages.scrollHeight;
+    const leadForm = wrapper.querySelector("form");
+    const submitButton = wrapper.querySelector(".aw-lead-submit");
+    leadForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (submitButton.disabled) return;
+      const data = new FormData(leadForm);
+      const payload = {
+        action: "lead", sessionId, sourcePage: window.location.href,
+        name: data.get("name"), email: data.get("email"), phone: data.get("phone"),
+        businessName: data.get("businessName"), serviceInterest: data.get("serviceInterest"),
+        budgetRange: data.get("budgetRange"), existingWebsite: data.get("existingWebsite"),
+        projectDetails: data.get("projectDetails"), preferredContact: data.get("preferredContact"),
+        consent: data.get("consent") === "on"
+      };
+      submitButton.disabled = true;
+      submitButton.textContent = "Sending…";
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "apikey": PUBLISHABLE_KEY },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || !result.ok) throw new Error(result.error || "The inquiry could not be sent.");
+        wrapper.remove();
+        addMessage(result.message || "Thanks! Your project inquiry has been received.", false);
+      } catch (error) {
+        const note = wrapper.querySelector(".aw-lead-help");
+        note.textContent = error.message || "Something went wrong. Please try again.";
+        submitButton.disabled = false;
+        submitButton.textContent = "Try again";
+      }
+    });
+    messages.scrollTop = messages.scrollHeight;
+  }
 
   async function sendMessage(value) {
     addMessage(value, true);
@@ -110,6 +181,10 @@
     if (event.key === "Escape" && root.classList.contains("is-open")) setOpenHandler(false);
   });
   root.querySelectorAll(".aw-chat-chip").forEach((chip) => chip.addEventListener("click", () => {
+    if (chip.classList.contains("aw-chat-lead-trigger")) {
+      openLeadForm();
+      return;
+    }
     input.value = chip.textContent.trim();
     form.requestSubmit();
   }));
