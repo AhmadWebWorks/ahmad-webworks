@@ -64,7 +64,20 @@
     const item = document.createElement("div");
     item.className = "aw-chat-message" + (user ? " is-user" : "") + (extraClass ? " " + extraClass : "");
     const paragraph = document.createElement("p");
-    paragraph.textContent = value;
+    const urlPattern = /(https:\/\/ahmadwebworks\.github\.io\/ahmad-webworks\/contact\.html|https:\/\/wa\.me\/923704513823)/g;
+    let cursor = 0, match;
+    while ((match = urlPattern.exec(String(value))) !== null) {
+      paragraph.appendChild(document.createTextNode(String(value).slice(cursor, match.index).replace(/[：:]\\s*$/, "")));
+      const link = document.createElement("a");
+      link.href = match[0];
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.className = "aw-chat-action";
+      link.textContent = match[0].includes("wa.me") ? "Chat on WhatsApp" : "Request a Quote";
+      paragraph.appendChild(link);
+      cursor = match.index + match[0].length;
+    }
+    paragraph.appendChild(document.createTextNode(String(value).slice(cursor)));
     item.appendChild(paragraph);
     messages.appendChild(item);
     messages.scrollTop = messages.scrollHeight;
