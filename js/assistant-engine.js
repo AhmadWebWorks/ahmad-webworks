@@ -62,6 +62,9 @@
         /\b(project|projects|work|portfolio|website|websites|examples)\b/.test(q))
       return { name:"portfolio", category:"portfolio", score:8 };
 
+    if (/\b(build|create|make|develop|design)\b/.test(q) && /\b(website|websites|site|store|online shop|ecommerce)\b/.test(q))
+      return { name:"services", category:"service", score:8 };
+
     for (const intent of INTENTS.slice(1)) {
       let score = 0;
       for (const term of intent.terms) {
@@ -173,7 +176,7 @@
       const timeRecord = knowledge.find(r => r && r.category === "pricing" && r.status === "approved" && r.is_public !== false &&
         /timeline|estimate/i.test((r.title || "") + " " + (r.content || "")));
       if (!timeRecord) return result("The timeline is agreed after we understand the website's pages, content and features. I don't have a verified standard delivery time to quote.", "timeline", 0.9, []);
-      return result(cleanSentence(timeRecord.content, 260), "timeline", 0.95, timeRecord.id ? [timeRecord.id] : []);
+      return result("The timeline is agreed after we understand your pages, content and features. I do not have a verified standard delivery time to quote.", "timeline", 0.95, timeRecord.id ? [timeRecord.id] : []);
     }
 
     if (intent?.name === "services") {
