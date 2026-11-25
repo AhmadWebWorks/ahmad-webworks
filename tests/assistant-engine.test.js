@@ -31,7 +31,8 @@ test("answers contact questions with verified details",()=>{
 });
 test("uses prior context for short follow-ups",()=>{
   const out=engine.answerQuestion({question:"and the price?",knowledge,history:[{role:"user",content:"Tell me about website design"}]});
-  assert.equal(out.intent,"pricing");\n  assert.match(out.answer,/does not currently offer fixed packages/i);
+  assert.equal(out.intent,"pricing");
+  assert.match(out.answer,/does not currently offer fixed packages/i);
 });
 test("does not return private or unapproved records",()=>{
   const out=engine.answerQuestion({question:"secret contact note",knowledge});
