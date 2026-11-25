@@ -167,7 +167,7 @@
       return result("I found a few possibly related topics, but I'm not confident enough to give you a reliable answer. Could you rephrase your question or contact us directly at https://wa.me/923704513823?", "clarify", confidence, []);
     }
 
-    let answer = String(best.record.content).trim();
+    let answer = String(best.record.content).replace(/\s+/g, " ").trim().split(/(?<=[.!?])\s+/).slice(0, 2).join(" ");
     const matched = [best.record.id].filter(Boolean);
 
     if (intent && intent.name === "services") {
