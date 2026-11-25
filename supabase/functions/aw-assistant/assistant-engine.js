@@ -51,7 +51,7 @@
       return { name:"off_topic", category:null, score:10 };
 
     // Budget and price questions take priority over generic words such as "website" or "business".
-    if (/\b(how much|how many dollars|price|pricing|cost|charge|budget|quote|quotation|estimate|package|rate|afford|sufficient|enough|dollars?|usd|pkr|rupees?|cheap|expensive)\b/.test(q) ||
+    if (/\b(how much|how many dollars|price|pricing|cost|charge|budget|quote|quotation|estimate|packages?|rate|afford|sufficient|enough|dollars?|usd|pkr|rupees?|cheap|expensive)\b/.test(q) ||
         /(?:^|\s)(?:rs\.?|₨|\$)\s?\d/.test(q) || /\b\d+(?:\.\d+)?\s?(?:usd|dollars?|pkr|rupees?)\b/.test(q))
       return { name:"pricing", category:"pricing", score:10 };
 
@@ -126,7 +126,7 @@
 
   function cleanSentence(text, max = 260) {
     const clean = String(text || "").replace(/\s+/g, " ").trim();
-    const first = (clean.match(/[^.!?]+[.!?]?/) || [clean])[0].trim();
+    const first = clean.split(/(?<=[.!?])\s+/)[0].trim();
     if (first.length <= max) return first;
     return first.slice(0, max - 1).trimEnd() + "…";
   }
