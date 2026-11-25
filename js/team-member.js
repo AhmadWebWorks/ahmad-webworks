@@ -108,8 +108,12 @@ async function loadPortfolio() {
     $("memberTitle").textContent =
         employee.job_title || "Ahmad WebWorks Team Member";
 
+    const isDemoProfile =
+        String(employee.full_name || "").trim().toLowerCase() === "aurther lufus";
+    $("memberDemoBadge").hidden = !isDemoProfile;
+    $("memberLocation").hidden = isDemoProfile;
     $("memberLocation").textContent =
-        employee.location || "";
+        isDemoProfile ? "" : (employee.location || "");
 
     $("memberBio").textContent =
         employee.bio || "";
