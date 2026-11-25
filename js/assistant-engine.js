@@ -55,7 +55,7 @@
         /(?:^|\s)(?:rs\.?|₨|\$)\s?\d/.test(q) || /\b\d+(?:\.\d+)?\s?(?:usd|dollars?|pkr|rupees?)\b/.test(q))
       return { name:"pricing", category:"pricing", score:10 };
 
-    if (/\b(how long|timeline|deadline|delivery time|turnaround|duration)\b/.test(q))
+    if (/\b(how long|timeline|deadline|delivery time|turnaround|duration|when can you deliver|when will you deliver|when do you deliver|when is it ready|delivery date)\b/.test(q))
       return { name:"timeline", category:"pricing", score:9 };
 
     if (/\b(do you have|show me|any|your|recent|what)\b/.test(q) &&
