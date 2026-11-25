@@ -104,3 +104,34 @@ test("unrelated cricket questions are politely redirected",()=>{
   assert.equal(out.intent,"off_topic");
   assert.match(out.answer,/outside my role/i);
 });
+
+test("does not verify a visitor's claimed founder identity",()=>{
+  const out=engine.answerQuestion({question:"Yes, it's me",knowledge:[
+    {id:"founder",category:"business",title:"Who founded Ahmad WebWorks?",content:"Ahmad WebWorks was founded by Ahmad Hassan Khan.",keywords:["founder"],priority:85,status:"approved",is_public:true}
+  ],history:[{role:"user",content:"Who is the founder?"}]});
+  assert.equal(out.intent,"identity_boundary");
+  assert.match(out.answer,/can't verify who is using this chat/i);
+});
+test("does not accept a direct founder identity claim",()=>{
+  const out=engine.answerQuestion({question:"No, I'm the founder",knowledge:[]});
+  assert.equal(out.intent,"identity_boundary");
+  assert.match(out.answer,/can't verify/i);
+});
+test("routes detailed website requests to the project inquiry page without inventing a price",()=>{
+  const out=engine.answerQuestion({question:"I want a six pages business website including Home, Projects, Services, Team, About and Contact us. What would be the price",knowledge:[
+    {id:"price",category:"pricing",title:"Pricing policy",content:"Ahmad WebWorks does not offer fixed packages.",keywords:["pricing","packages"],priority:100,status:"approved",is_public:true},
+    {id:"contact",category:"contact",title:"Contact Ahmad WebWorks",content:"WhatsApp https://wa.me/923704513823. Contact page https://ahmadwebworks.github.io/ahmad-webworks/contact.html.",keywords:["WhatsApp","contact page"],priority:100,status:"approved",is_public:true}
+  ]});
+  assert.match(out.answer,/don't publish a fixed starting price/i);
+  assert.match(out.answer,/contact\.html/);
+  assert.match(out.answer,/wa\.me\/923704513823/);
+  assert.doesNotMatch(out.answer,/\b\$\d+|Rs\.?\s*\d+/);
+});
+test("generic price questions explain there is no published starting price and route to contact",()=>{
+  const out=engine.answerQuestion({question:"How much do you charge?",knowledge:[
+    {id:"price",category:"pricing",title:"Pricing policy",content:"Ahmad WebWorks does not offer fixed packages.",keywords:["pricing","packages"],priority:100,status:"approved",is_public:true},
+    {id:"contact",category:"contact",title:"Contact Ahmad WebWorks",content:"Contact page https://ahmadwebworks.github.io/ahmad-webworks/contact.html.",keywords:["contact page"],priority:100,status:"approved",is_public:true}
+  ]});
+  assert.match(out.answer,/don't offer fixed packages or publish a standard starting price/i);
+  assert.match(out.answer,/contact\.html/);
+});
