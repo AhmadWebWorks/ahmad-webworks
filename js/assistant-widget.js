@@ -67,7 +67,7 @@
     const urlPattern = /(https:\/\/ahmadwebworks\.github\.io\/ahmad-webworks\/contact\.html|https:\/\/wa\.me\/923704513823)/g;
     let cursor = 0, match;
     while ((match = urlPattern.exec(String(value))) !== null) {
-      paragraph.appendChild(document.createTextNode(String(value).slice(cursor, match.index).replace(/[：:]\\s*$/, "")));
+      paragraph.appendChild(document.createTextNode(String(value).slice(cursor, match.index).replace(/[：:]\s*$/, "")));
       const link = document.createElement("a");
       link.href = match[0];
       link.target = "_blank";
