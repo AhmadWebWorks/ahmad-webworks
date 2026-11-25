@@ -55,6 +55,9 @@
         /(?:^|\s)(?:rs\.?|₨|\$)\s?\d/.test(q) || /\b\d+(?:\.\d+)?\s?(?:usd|dollars?|pkr|rupees?)\b/.test(q))
       return { name:"pricing", category:"pricing", score:10 };
 
+    if (/\b(website|site)\b/.test(q) && /\b(improve|improvement|update|redesign|fix|moderni[sz]e)\b/.test(q))
+      return { name:"existing_site", category:"service", score:9 };
+
     if (/\b(how long|timeline|deadline|delivery time|turnaround|duration|when can you deliver|when will you deliver|when do you deliver|when is it ready|delivery date)\b/.test(q))
       return { name:"timeline", category:"pricing", score:9 };
 
@@ -150,10 +153,15 @@
     let intent = detectIntent(question);
     let searchQuestion = question;
     const previousQuestion = getPreviousUserQuestion(history);
-    const explicitFollowUp = /^(and|also|what about|how about|tell me more|more about it)\b/.test(q);
+    const explicitFollowUp = /^(and|also|what about|how about|tell me more|more about it|yes|yeah|yep|that's me|that is me|correct|exactly)\b/.test(q);
     if (!intent && explicitFollowUp && previousQuestion) {
       intent = detectIntent(previousQuestion);
       searchQuestion = question + " " + previousQuestion;
+      if (intent?.name === "founder" && /^(yes|yeah|yep|that's me|that is me|correct|exactly)\b/.test(q)) {
+        return result("Got it — thanks for confirming! Ahmad Hassan Khan is the founder of Ahmad WebWorks.", "founder", 1,
+          knowledge.filter(r => r && r.category === "business" && r.status === "approved" && r.is_public !== false &&
+            /founded by Ahmad Hassan Khan/i.test(r.content || "")).map(r => r.id).filter(Boolean).slice(0,1));
+      }
     }
 
     if (intent?.name === "recruitment")
@@ -166,6 +174,9 @@
       const priceRecord = knowledge.find(r => r && r.category === "pricing" && r.status === "approved" && r.is_public !== false &&
         /fixed packages|quoted after|requirements are understood/i.test(r.content || ""));
       const ids = priceRecord?.id ? [priceRecord.id] : [];
+      if (/\b(build|create|develop|make)\b/.test(q) && /\b(website|site|company|business)\b/.test(q)) {
+        return result("Yes — we can discuss and build a professional website for your company. The price depends on the agreed pages, features and requirements, so we prepare a quote after reviewing the scope.", "pricing", 1, ids);
+      }
       if (/\b(sufficient|enough|afford|budget|dollars?|usd|pkr|rupees?)\b/.test(q) || /(?:^|\s)(?:rs\.?|₨|\$)\s?\d/.test(q)) {
         return result("I can't confirm whether your budget is sufficient without knowing the website's pages and features. Ahmad WebWorks doesn't offer fixed packages; each project is quoted after its requirements are understood.", "pricing", 1, ids);
       }
@@ -177,6 +188,12 @@
         /timeline|estimate/i.test((r.title || "") + " " + (r.content || "")));
       if (!timeRecord) return result("The timeline is agreed after we understand the website's pages, content and features. I don't have a verified standard delivery time to quote.", "timeline", 0.9, []);
       return result("The timeline is agreed after we understand your pages, content and features. I do not have a verified standard delivery time to quote.", "timeline", 0.95, timeRecord.id ? [timeRecord.id] : []);
+    }
+
+    if (intent?.name === "existing_site") {
+      const record = knowledge.find(r => r && r.category === "service" && r.status === "approved" && r.is_public !== false &&
+        /existing website/i.test((r.title || "") + " " + (r.content || "")));
+      return result(record ? cleanSentence(record.content, 260) : "Yes. We can review your existing website and discuss improvements to its layout, content, navigation or features.", "services", 1, record?.id ? [record.id] : []);
     }
 
     if (intent?.name === "services") {
