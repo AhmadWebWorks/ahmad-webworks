@@ -62,8 +62,8 @@ test("budget questions never retrieve portfolio concepts",()=>{
 test("professional website cost questions return the pricing policy",()=>{
   const out=engine.answerQuestion({question:"How much do I need for a professional business website?",knowledge});
   assert.equal(out.intent,"pricing");
-  assert.match(out.answer,/doesn.t offer fixed packages or publish a standard starting price/i);
-  assert.match(out.answer,/pages, features and content/i);
+  assert.match(out.answer,/don't publish a fixed starting price or package rate/i);
+  assert.match(out.answer,/contact\.html/);
 });
 test("a generic project question points to the live portfolio example",()=>{
   const out=engine.answerQuestion({question:"Do you have a project?",knowledge:[
