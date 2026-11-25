@@ -32,7 +32,7 @@ test("answers contact questions with verified details",()=>{
 test("uses prior context for short follow-ups",()=>{
   const out=engine.answerQuestion({question:"and the price?",knowledge,history:[{role:"user",content:"Tell me about website design"}]});
   assert.equal(out.intent,"pricing");
-  assert.match(out.answer,/does not currently offer fixed packages/i);
+  assert.match(out.answer,/doesn.t offer fixed packages/i);
 });
 test("does not return private or unapproved records",()=>{
   const out=engine.answerQuestion({question:"secret contact note",knowledge});
@@ -40,8 +40,8 @@ test("does not return private or unapproved records",()=>{
 });
 test("uses a safe fallback for unrelated questions",()=>{
   const out=engine.answerQuestion({question:"Who won the football match yesterday?",knowledge});
-  assert.equal(out.intent,"fallback");
-  assert.match(out.answer,/don't want to guess/i);
+  assert.equal(out.intent,"off_topic");
+  assert.match(out.answer,/outside my role/i);
 });
 test("handles greetings without needing knowledge records",()=>{
   const out=engine.answerQuestion({question:"Assalam o alaikum",knowledge:[]});
