@@ -130,10 +130,13 @@
     }
 
     let intent = detectIntent(question);
+    let searchQuestion = question;
     const shortFollowUp = tokens(question).length <= 4;
     if (shortFollowUp && (!intent || FOLLOW_UP_TERMS.has(q))) {
       const context = getContextIntent(history);
-      if (context && (!intent || intent.category === "pricing")) intent = context;
+      const previousQuestion = getPreviousUserQuestion(history);
+      if (!intent && context) intent = context;
+      if (previousQuestion) searchQuestion = question + " " + previousQuestion;
     }
 
     const ranked = knowledge
