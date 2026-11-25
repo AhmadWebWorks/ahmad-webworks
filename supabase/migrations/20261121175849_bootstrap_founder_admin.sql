@@ -1,0 +1,5 @@
+-- Historical bootstrap migration for the live Founder account.
+-- The original Auth user UUID is intentionally redacted from this public repository.
+-- Founder provisioning is environment-specific and must be performed through a
+-- trusted Supabase operator workflow when creating a separate environment.
+-- This file is retained to preserve the migration version/name history only.
