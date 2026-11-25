@@ -13,8 +13,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/style.css?v=20261125-polish1">
-  <link rel="stylesheet" href="css/team.css?v=20261125-demo-label1">
+  <link rel="stylesheet" href="css/style.css?v=20261125-polish2">
+  <link rel="stylesheet" href="css/team.css?v=20261125-demo-red2">
   <script src="js/main.js" defer></script>
 <script>
 (() => {
@@ -64,13 +64,14 @@
     const body = document.createElement("div");
     body.className = "team-card-body";
     const isDemoProfile = String(member.full_name || "").trim().toLowerCase() === "aurther lufus";
+    addText(body, "span", "team-role", member.job_title || "TEAM MEMBER");
+    addText(body, "h3", "", member.full_name || "Team Member");
     if (isDemoProfile) {
       const demoBadge = addText(body, "span", "team-demo-badge", "DEMO / EXPERIMENT");
       demoBadge.setAttribute("aria-label", "Demo profile, not a confirmed team member");
+    } else {
+      addText(body, "p", "team-location", member.location);
     }
-    addText(body, "span", "team-role", member.job_title || "TEAM MEMBER");
-    addText(body, "h3", "", member.full_name || "Team Member");
-    addText(body, "p", "team-location", member.location);
     addText(body, "p", "", member.bio || "A member of the Ahmad WebWorks team.");
 
     if (Array.isArray(member.skills) && member.skills.length) {
