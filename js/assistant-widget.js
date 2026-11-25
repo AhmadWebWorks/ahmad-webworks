@@ -92,11 +92,13 @@
       <form class="aw-lead-form">
         <strong class="aw-lead-title">Tell us about your project</strong>
         <label>Name *<input name="name" type="text" maxlength="120" autocomplete="name" required></label>
-        <label>Email<input name="email" type="email" maxlength="254" autocomplete="email" placeholder="you@example.com"></label>
-        <label>WhatsApp / Phone<input name="phone" type="tel" maxlength="25" autocomplete="tel" placeholder="+92..."></label>
+        <fieldset class="aw-lead-contact-group"><legend>Contact details * <span>(provide at least one)</span></legend>
+          <label>Email<input name="email" type="email" maxlength="254" autocomplete="email" placeholder="you@example.com"></label>
+          <label>WhatsApp / Phone<input name="phone" type="tel" maxlength="25" autocomplete="tel" placeholder="+92..."></label>
+        </fieldset>
         <label>Business name (optional)<input name="businessName" type="text" maxlength="120"></label>
-        <label>What do you need?
-          <select name="serviceInterest">
+        <label>Project type *
+          <select name="serviceInterest" required>
             <option value="">Choose a service</option>
             <option>Website design</option><option>Web development</option>
             <option>Responsive website</option><option>Website improvements</option>
@@ -125,6 +127,14 @@
       event.preventDefault();
       if (submitButton.disabled) return;
       const data = new FormData(leadForm);
+      const emailValue = String(data.get("email") || "").trim();
+      const phoneValue = String(data.get("phone") || "").trim();
+      if (!emailValue && !phoneValue) {
+        const note = wrapper.querySelector(".aw-lead-help");
+        note.textContent = "Please provide at least one contact method: your email address or WhatsApp / phone number.";
+        leadForm.querySelector('[name="email"]').focus();
+        return;
+      }
       const payload = {
         action: "lead", sessionId, sourcePage: window.location.href,
         name: data.get("name"), email: data.get("email"), phone: data.get("phone"),
