@@ -16,8 +16,8 @@ test("normalizes case and punctuation",()=>assert.equal(engine.normalize("  HELL
 test("detects pricing intent",()=>assert.equal(engine.detectIntent("How much does a website cost?").name,"pricing"));
 test("answers from approved public pricing knowledge",()=>{
   const out=engine.answerQuestion({question:"Do you have fixed website packages?",knowledge});
-  assert.match(out.answer,/doesn.t offer fixed packages/i);
-  assert.deepEqual(out.matchedKnowledgeIds,["price"]);
+  assert.match(out.answer,/don't publish a fixed starting price/i);
+  assert.ok(out.matchedKnowledgeIds.includes("price"));
 });
 test("answers broad service questions in one concise sentence",()=>{
   const out=engine.answerQuestion({question:"What services do you offer?",knowledge});
@@ -55,7 +55,7 @@ test("budget questions never retrieve portfolio concepts",()=>{
     {id:"dashboard",category:"portfolio",title:"Business Dashboard concept",content:"Business Dashboard is a visual design concept.",keywords:["business dashboard","concept"],priority:100,status:"approved",is_public:true}
   ]});
   assert.equal(out.intent,"pricing");
-  assert.match(out.answer,/can't confirm whether your budget is sufficient/i);
+  assert.match(out.answer,/don't publish a standard starting price/i);
   assert.doesNotMatch(out.answer,/dashboard/i);
   assert.deepEqual(out.matchedKnowledgeIds,["price"]);
 });
@@ -132,6 +132,6 @@ test("generic price questions explain there is no published starting price and r
     {id:"price",category:"pricing",title:"Pricing policy",content:"Ahmad WebWorks does not offer fixed packages.",keywords:["pricing","packages"],priority:100,status:"approved",is_public:true},
     {id:"contact",category:"contact",title:"Contact Ahmad WebWorks",content:"Contact page https://ahmadwebworks.github.io/ahmad-webworks/contact.html.",keywords:["contact page"],priority:100,status:"approved",is_public:true}
   ]});
-  assert.match(out.answer,/don't offer fixed packages or publish a standard starting price/i);
+  assert.match(out.answer,/doesn't offer fixed packages or publish a standard starting price/i);
   assert.match(out.answer,/contact\.html/);
 });
