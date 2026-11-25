@@ -114,7 +114,16 @@
     return null;
   }
 
-  function getPreviousUserQuestion(history) {\n    if (!Array.isArray(history)) return "";\n    for (let i = history.length - 1; i >= 0; i--) {\n      const item = history[i];\n      if (item && item.role === "user") return String(item.content || item.message || "");\n    }\n    return "";\n  }\n\n  function answerQuestion(options) {
+  function getPreviousUserQuestion(history) {
+    if (!Array.isArray(history)) return "";
+    for (let i = history.length - 1; i >= 0; i--) {
+      const item = history[i];
+      if (item && item.role === "user") return String(item.content || item.message || "");
+    }
+    return "";
+  }
+
+  function answerQuestion(options) {
     const question = String(options && options.question || "").trim();
     const knowledge = Array.isArray(options && options.knowledge) ? options.knowledge : [];
     const history = Array.isArray(options && options.history) ? options.history : [];
