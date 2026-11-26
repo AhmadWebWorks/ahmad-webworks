@@ -17,6 +17,10 @@
     .inner-hero{padding:150px 0 55px;text-align:center}.inner-hero h1{max-width:850px;margin:0 auto 1rem}.inner-hero p{max-width:690px;margin:auto}
     .contact-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.4rem;max-width:850px;margin:auto}.contact-card{padding:2rem;border:1px solid var(--border);border-radius:20px;background:var(--glass)}.contact-card p{margin:.7rem 0 1.2rem}
     .contact-detail{color:var(--muted);font-size:.9rem;overflow-wrap:anywhere}
+    .project-brief-form .brief-consent{display:flex;align-items:flex-start;gap:10px;line-height:1.6}
+    .project-brief-form .brief-consent input{width:18px;min-width:18px;min-height:18px;margin-top:3px}
+    .project-brief-form .form-note{margin:0;color:var(--muted)}
+    .project-brief-form button:disabled{opacity:.7;cursor:wait}
     @media(max-width:640px){.inner-hero{padding-top:125px}.contact-grid{grid-template-columns:1fr}}
   </style>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -59,14 +63,20 @@
 <article class="contact-card reveal d1"><span class="sc-icon">✉</span><h2>Email</h2><p>Prefer email? Send your project details or question directly.</p><p class="contact-detail">ahmadhassankhan79@gmail.com</p><a class="btn btn-ghost" href="mailto:ahmadhassankhan79@gmail.com?subject=Website%20Project%20Enquiry">Send an email ↗</a></article>
 </div></div></section>
 <section class="section"><div class="container brief-contact-grid">
-<div class="brief-contact-copy reveal"><span class="eyebrow"><span class="eyebrow-dot"></span> START A PROJECT</span><h2>Give us the <span class="grad-text">starting details.</span></h2><p class="section-sub">A few details help us understand your idea. This form opens a WhatsApp message for you to review and send — it does not store your information on this website.</p><ul class="brief-checks"><li>Share the kind of website you need</li><li>Tell us what the website should help you do</li><li>We'll discuss scope before making a commitment</li></ul></div>
-<form class="project-brief-form reveal d1" id="projectBriefForm" data-submit-mode="client">
-<label for="briefName">Your name</label><input id="briefName" name="name" autocomplete="name" required maxlength="80" placeholder="How should we address you?">
-<label for="briefBusiness">Business or project</label><input id="briefBusiness" name="business" maxlength="100" placeholder="Business / project name">
-<label for="briefService">What do you need?</label><select id="briefService" name="service" required><option value="">Choose a service</option><option>New business website</option><option>Website design</option><option>Web development</option><option>Website improvements</option><option>Portfolio website</option><option>Not sure yet</option></select>
+<div class="brief-contact-copy reveal"><span class="eyebrow"><span class="eyebrow-dot"></span> START A PROJECT</span><h2>Give us the <span class="grad-text">starting details.</span></h2><p class="section-sub">Share a few details and submit securely. Your inquiry is saved for the Ahmad WebWorks team, and we'll follow up using your preferred contact method.</p><ul class="brief-checks"><li>Tell us what you want to build or improve</li><li>Provide at least one way for us to reach you</li><li>Your details are handled under our <a href="privacy.html">Privacy Notice</a></li></ul></div>
+<form class="project-brief-form reveal d1" id="projectBriefForm">
+<label for="briefName">Your name *</label><input id="briefName" name="name" autocomplete="name" required minlength="2" maxlength="120" placeholder="How should we address you?">
+<label for="briefEmail">Email address</label><input id="briefEmail" name="email" type="email" autocomplete="email" maxlength="254" placeholder="you@example.com">
+<label for="briefPhone">WhatsApp / phone number</label><input id="briefPhone" name="phone" type="tel" autocomplete="tel" maxlength="25" placeholder="+92...">
+<p class="form-note">Please provide at least one contact method.</p>
+<label for="briefBusiness">Business or project</label><input id="briefBusiness" name="business" maxlength="120" placeholder="Business / project name">
+<label for="briefService">What do you need? *</label><select id="briefService" name="service" required><option value="">Choose a service</option><option>New business website</option><option>Website design</option><option>Web development</option><option>Website improvements</option><option>Portfolio website</option><option>Not sure yet</option></select>
 <label for="briefBudget">Estimated budget (optional)</label><select id="briefBudget" name="budget"><option value="">Prefer to discuss</option><option>Under PKR 20,000</option><option>PKR 20,000–50,000</option><option>PKR 50,000–100,000</option><option>PKR 100,000+</option></select>
-<label for="briefMessage">A little about your idea</label><textarea id="briefMessage" name="message" rows="4" maxlength="1200" placeholder="Pages, features, goals, deadline or anything useful..."></textarea>
-<button class="btn btn-primary btn-lg" type="submit">Prepare WhatsApp enquiry ↗</button><p class="form-note">WhatsApp will open with your message. Nothing is sent until you press Send there.</p>
+<label for="briefWebsite">Existing website (optional)</label><input id="briefWebsite" name="existingWebsite" type="url" maxlength="300" placeholder="https://example.com">
+<label for="briefMessage">A little about your idea *</label><textarea id="briefMessage" name="message" rows="4" minlength="10" maxlength="5000" required placeholder="Pages, features, goals, deadline or anything useful..."></textarea>
+<label for="briefPreferredContact">How should we contact you?</label><select id="briefPreferredContact" name="preferredContact"><option value="either">Either email or WhatsApp</option><option value="email">Email</option><option value="whatsapp">WhatsApp</option></select>
+<label class="brief-consent"><input name="consent" type="checkbox" required> <span>I agree that Ahmad WebWorks may use these details to respond to my project inquiry. *</span></label>
+<button class="btn btn-primary btn-lg" type="submit">Send project inquiry ↗</button><p class="form-note" id="briefFormStatus" role="status" aria-live="polite">Your details are submitted securely. Please don't include passwords or payment information.</p>
 </form></div></section>
 <section class="section"><div class="container"><div class="note-panel reveal" style="max-width:850px;margin:auto;padding:1.5rem;border:1px solid var(--border);border-radius:18px;background:rgba(255,255,255,.025)"><h3>What should you include?</h3><p>A short description of your business, what you want the website to achieve, any pages or features you have in mind, and links to an existing site or examples you like. You can share the rest later.</p><a class="sc-link" href="work-with-us.html">See how a project starts →</a></div></div></section>
 </main><footer class="site-footer">
