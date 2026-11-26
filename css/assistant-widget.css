@@ -74,3 +74,8 @@
 .aw-chat-launcher{cursor:grab}
 .aw-chat-launcher:active{cursor:grabbing}
 .aw-chat-launcher-label{pointer-events:none}
+
+@media(max-width:520px){
+  .aw-assistant.is-left-edge .aw-chat-window{left:10px;right:auto}
+  .aw-assistant.is-near-top .aw-chat-window{top:76px;bottom:auto}
+}
