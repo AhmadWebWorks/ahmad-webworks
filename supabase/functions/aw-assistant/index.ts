@@ -181,6 +181,9 @@ async function handleLead(supabase: ReturnType<typeof getAdminClient>, body: Rec
   if (name.length < 2 || projectDetails.length < 10) {
     return { status: 400, body: { ok: false, error: "Please provide your name and a little more detail about the project." } };
   }
+  if (!serviceInterest) {
+    return { status: 400, body: { ok: false, error: "Please choose the type of project you need." } };
+  }
   if (!consent) return { status: 400, body: { ok: false, error: "Please give consent before submitting your project inquiry." } };
   if ((!email && !phone) || (email && !EMAIL_RE.test(email)) || (phone && !PHONE_RE.test(phone))) {
     return { status: 400, body: { ok: false, error: "Please provide a valid email address or phone number." } };
@@ -207,6 +210,47 @@ async function handleLead(supabase: ReturnType<typeof getAdminClient>, body: Rec
     source_page: safeSourcePage(body.sourcePage), status: "new"
   }).select("id").single();
   if (error || !data?.id) throw error || new Error("Inquiry could not be saved");
+
+  // Email notification is best-effort: a Brevo outage must never discard a saved lead.
+  const brevoApiKey = Deno.env.get("BREVO_API_KEY") || "";
+  if (brevoApiKey) {
+    const escapeHtml = (value: string) => value.replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[char] || char));
+    const fields = [
+      ["Name", name], ["Email", email || "Not provided"], ["Phone / WhatsApp", phone || "Not provided"],
+      ["Business", businessName || "Not provided"], ["Service", serviceInterest || "Not specified"],
+      ["Budget", budgetRange || "Not specified"], ["Preferred contact", preferredContact],
+      ["Existing website", existingWebsite || "Not provided"], ["Project details", projectDetails],
+      ["Source page", safeSourcePage(body.sourcePage) || "Not available"], ["Lead ID", String(data.id)]
+    ];
+    const htmlContent = `<div style="font-family:Arial,sans-serif;color:#182033;max-width:680px;margin:auto">
+      <h2 style="color:#182033">New project inquiry — Ahmad WebWorks</h2>
+      <p>A visitor submitted a project inquiry through the website assistant.</p>
+      <table style="border-collapse:collapse;width:100%">${fields.map(([label,value]) =>
+        `<tr><th style="text-align:left;vertical-align:top;padding:10px;border:1px solid #ddd;background:#f5f6f8;width:180px">${escapeHtml(label)}</th><td style="padding:10px;border:1px solid #ddd;white-space:pre-wrap">${escapeHtml(value)}</td></tr>`
+      ).join("")}</table></div>`;
+    try {
+      const mailResponse = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: { "accept": "application/json", "api-key": brevoApiKey, "content-type": "application/json" },
+        body: JSON.stringify({
+          sender: { name: "Ahmad WebWorks", email: "ahmadhassankhan79@gmail.com" },
+          to: [{ email: "ahmadhassankhan79@gmail.com", name: "Ahmad Hassan Khan" }],
+          subject: "New website project inquiry — " + name,
+          htmlContent
+        })
+      });
+      if (!mailResponse.ok) {
+        const failure = await mailResponse.text();
+        console.error("Brevo lead notification failed", mailResponse.status, failure.slice(0, 500));
+      }
+    } catch (mailError) {
+      console.error("Brevo lead notification request failed", mailError instanceof Error ? mailError.message : "unknown error");
+    }
+  } else {
+    console.warn("BREVO_API_KEY is not configured; lead saved without email notification.");
+  }
 
   return { status: 201, body: { ok: true, leadId: data.id, message: "Your project inquiry has been received. The Ahmad WebWorks team will follow up using your preferred contact method." } };
 }
