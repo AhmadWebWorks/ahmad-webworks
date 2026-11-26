@@ -125,23 +125,103 @@
     });
   }
 
-  // PROJECT BRIEF — opens WhatsApp; no form data is stored on this website.
+  // PROJECT INQUIRY — securely saved through the existing Supabase assistant endpoint.
   const projectBriefForm = document.getElementById("projectBriefForm");
-  projectBriefForm?.addEventListener("submit", event => {
+  projectBriefForm?.addEventListener("submit", async event => {
     event.preventDefault();
     if (!projectBriefForm.reportValidity()) return;
+
     const data = new FormData(projectBriefForm);
-    const lines = [
-      "Hello Ahmad WebWorks, I'd like to discuss a project.",
-      "",
-      "Name: " + (data.get("name") || ""),
-      "Business / project: " + (data.get("business") || "Not provided"),
-      "Service: " + (data.get("service") || ""),
-      "Estimated budget: " + (data.get("budget") || "Prefer to discuss"),
-      "Project details: " + (data.get("message") || "I'd like to discuss the requirements.")
-    ];
-    const url = "https://wa.me/923704513823?text=" + encodeURIComponent(lines.join("\n"));
-    window.open(url, "_blank", "noopener,noreferrer");
+    const email = String(data.get("email") || "").trim();
+    const phone = String(data.get("phone") || "").trim();
+    const preferredContact = String(data.get("preferredContact") || "either");
+    const status = document.getElementById("briefFormStatus");
+    const submitButton = projectBriefForm.querySelector('button[type="submit"]');
+
+    const showError = message => {
+      if (status) status.textContent = message;
+    };
+
+    if (!email && !phone) {
+      showError("Please provide at least one contact method: email or WhatsApp / phone.");
+      projectBriefForm.querySelector('[name="email"]')?.focus();
+      return;
+    }
+    if (phone && !/^[+0-9() .-]{7,25}$/.test(phone)) {
+      showError("Please enter a valid phone number, including its country code if possible.");
+      projectBriefForm.querySelector('[name="phone"]')?.focus();
+      return;
+    }
+    if (preferredContact === "email" && !email) {
+      showError("You selected email contact. Please enter your email address.");
+      projectBriefForm.querySelector('[name="email"]')?.focus();
+      return;
+    }
+    if (preferredContact === "whatsapp" && !phone) {
+      showError("You selected WhatsApp contact. Please enter your phone number.");
+      projectBriefForm.querySelector('[name="phone"]')?.focus();
+      return;
+    }
+
+    const sessionKey = "awAssistantSessionId";
+    let sessionId;
+    try {
+      sessionId = localStorage.getItem(sessionKey);
+      if (!sessionId) {
+        sessionId = crypto.randomUUID();
+        localStorage.setItem(sessionKey, sessionId);
+      }
+    } catch (_) {
+      sessionId = crypto.randomUUID();
+    }
+
+    const payload = {
+      action: "lead",
+      sessionId,
+      sourcePage: window.location.href,
+      name: data.get("name"),
+      email,
+      phone,
+      businessName: data.get("business"),
+      serviceInterest: data.get("service"),
+      budgetRange: data.get("budget"),
+      existingWebsite: data.get("existingWebsite"),
+      projectDetails: data.get("message"),
+      preferredContact,
+      consent: data.get("consent") === "on"
+    };
+
+    const originalLabel = submitButton?.textContent || "Send project inquiry";
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = "Sending securely…";
+    }
+    showError("Sending your inquiry securely…");
+
+    try {
+      const response = await fetch("https://vxdzyfbxcorxqysvlzgn.supabase.co/functions/v1/aw-assistant", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": "sb_publishable_egeeneg2jGd6y2yotB_Bdw_FR2XMVJB"
+        },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.ok) {
+        throw new Error(result.error || "Your inquiry could not be submitted. Please try again.");
+      }
+
+      projectBriefForm.reset();
+      showError(result.message || "Your inquiry has been received. We'll follow up using your preferred contact method.");
+      if (submitButton) submitButton.textContent = "Inquiry sent ✓";
+    } catch (error) {
+      showError(error.message || "Something went wrong. Please try again or contact us on WhatsApp.");
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = "Try again";
+      }
+    }
   });
 
   // AUTOMATIC FOOTER YEAR
