@@ -4,7 +4,15 @@ import { createClient } from
 
 const db = createClient(
   "https://vxdzyfbxcorxqysvlzgn.supabase.co",
-  "sb_publishable_egeeneg2jGd6y2yotB_Bdw_FR2XMVJB"
+  "sb_publishable_egeeneg2jGd6y2yotB_Bdw_FR2XMVJB",
+  {
+    auth: {
+      // Never keep Team Portal sessions in localStorage or across page reloads.
+      persistSession: false,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  }
 );
 
 const $ = id => document.getElementById(id);
@@ -12,6 +20,112 @@ const $ = id => document.getElementById(id);
 let user = null;
 let profile = null;
 let busy = false;
+
+const PORTAL_IDLE_TIMEOUT_MS = 10 * 60 * 1000;
+const PORTAL_SESSION_CHANNEL = "aw-portal-session";
+let portalIdleTimer = null;
+let endingPortalSession = false;
+
+const portalChannel = "BroadcastChannel" in window
+  ? new BroadcastChannel(PORTAL_SESSION_CHANNEL)
+  : null;
+
+function publishPortalSignOut(reason) {
+  const signal = {
+    type: "force-signout",
+    reason: reason || "Team Portal session ended."
+  };
+
+  try {
+    if (portalChannel) {
+      portalChannel.postMessage(signal);
+    } else {
+      localStorage.setItem("awPortalSignOutSignal", JSON.stringify({
+        ...signal,
+        timestamp: Date.now()
+      }));
+    }
+  } catch (_) {
+    // Local session is memory-only; cross-tab notification is best effort.
+  }
+}
+
+async function endPortalSession(message, announce = true) {
+  if (endingPortalSession) return;
+  endingPortalSession = true;
+
+  if (portalIdleTimer) {
+    clearTimeout(portalIdleTimer);
+    portalIdleTimer = null;
+  }
+
+  if (announce) publishPortalSignOut(message);
+
+  try {
+    await db.auth.signOut({ scope: "local" });
+  } catch (_) {
+    // The in-memory session is discarded when this page is closed regardless.
+  }
+
+  user = null;
+  profile = null;
+  $("workspace")?.classList.add("hidden");
+  $("inviteSetup")?.classList.add("hidden");
+  $("login")?.classList.remove("hidden");
+  if (message) msg("loginMsg", message);
+
+  endingPortalSession = false;
+}
+
+function resetPortalIdleTimer() {
+  if (!user || endingPortalSession) return;
+
+  if (portalIdleTimer) clearTimeout(portalIdleTimer);
+  portalIdleTimer = setTimeout(() => {
+    void endPortalSession(
+      "You were signed out after 10 minutes of inactivity. Please sign in again."
+    );
+  }, PORTAL_IDLE_TIMEOUT_MS);
+}
+
+["pointerdown", "keydown", "touchstart", "scroll"].forEach(eventName => {
+  window.addEventListener(eventName, resetPortalIdleTimer, { passive: true });
+});
+
+portalChannel?.addEventListener("message", event => {
+  if (event.data?.type === "force-signout") {
+    void endPortalSession(
+      "You were signed out because another website page was opened.",
+      false
+    );
+  }
+});
+
+window.addEventListener("storage", event => {
+  if (event.key !== "awPortalSignOutSignal" || !event.newValue) return;
+  try {
+    const signal = JSON.parse(event.newValue);
+    if (signal.type === "force-signout") {
+      void endPortalSession(
+        "You were signed out because another website page was opened.",
+        false
+      );
+    }
+  } catch (_) {}
+});
+
+// Closing, refreshing or navigating away discards the session and revokes it when possible.
+window.addEventListener("pagehide", () => {
+  if (portalIdleTimer) clearTimeout(portalIdleTimer);
+  publishPortalSignOut("Team Portal was closed or left.");
+  void db.auth.signOut({ scope: "local" });
+});
+
+window.addEventListener("pageshow", event => {
+  if (event.persisted) {
+    void endPortalSession("Please sign in again to reopen the Team Portal.");
+  }
+});
 
 const invitationFlow =
   new URLSearchParams(location.search).get("flow") === "invite";
@@ -129,7 +243,7 @@ $("inviteForm").addEventListener("submit", async event => {
 
     $("inviteDone").classList.remove("hidden");
 
-    await db.auth.signOut();
+    await db.auth.signOut({ scope: "local" });
 
   } catch (error) {
     msg("inviteMsg", error.message);
@@ -167,8 +281,7 @@ $("loginForm").addEventListener("submit", async event => {
 });
 
 $("logout").addEventListener("click", async () => {
-  await db.auth.signOut();
-  location.reload();
+  await endPortalSession("You have been signed out.");
 });
 
 /* ACCOUNT AND ROLE CHECK */
@@ -194,7 +307,7 @@ async function boot() {
   profile = data;
 
   if (profile.account_status !== "active") {
-    await db.auth.signOut();
+    await db.auth.signOut({ scope: "local" });
     $("workspace").classList.add("hidden");
     $("login").classList.remove("hidden");
     msg("loginMsg", "Your account is pending or suspended. Contact the Founder.");
@@ -204,6 +317,7 @@ async function boot() {
   $("login").classList.add("hidden");
   $("inviteSetup").classList.add("hidden");
   $("workspace").classList.remove("hidden");
+  resetPortalIdleTimer();
 
   const displayName =
     user.user_metadata?.full_name?.trim() ||
