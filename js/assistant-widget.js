@@ -7,7 +7,6 @@
   const API_URL = "https://vxdzyfbxcorxqysvlzgn.supabase.co/functions/v1/aw-assistant";
   const PUBLISHABLE_KEY = "sb_publishable_egeeneg2jGd6y2yotB_Bdw_FR2XMVJB";
   const SESSION_KEY = "awAssistantSessionId";
-  const POSITION_KEY = "awAssistantPosition";
 
   function createUuid() {
     const bytes = new Uint8Array(16);
@@ -59,7 +58,7 @@
     x: Math.max(8, Math.min(x, window.innerWidth - Math.min(launcher.offsetWidth || 58, window.innerWidth - 16) - 8)),
     y: Math.max(8, Math.min(y, window.innerHeight - (launcher.offsetHeight || 58) - 8))
   });
-  const applyPosition = (x, y, save = true) => {
+  const applyPosition = (x, y) => {
     const point = clampPosition(x, y);
     root.style.left = point.x + "px";
     root.style.top = point.y + "px";
@@ -67,16 +66,7 @@
     root.style.bottom = "auto";
     root.classList.toggle("is-left-edge", point.x < 390);
     root.classList.toggle("is-near-top", point.y < window.innerHeight / 2);
-    if (save) {
-      try { localStorage.setItem(POSITION_KEY, JSON.stringify(point)); } catch (_) {}
-    }
   };
-  try {
-    const savedPosition = JSON.parse(localStorage.getItem(POSITION_KEY) || "null");
-    if (savedPosition && Number.isFinite(savedPosition.x) && Number.isFinite(savedPosition.y)) {
-      applyPosition(savedPosition.x, savedPosition.y, false);
-    }
-  } catch (_) {}
 
   let dragState = null;
   let suppressLauncherClick = false;
