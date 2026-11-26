@@ -11,7 +11,6 @@
     if ("BroadcastChannel" in window) {
       const channel = new BroadcastChannel("aw-portal-session");
       channel.postMessage(signal);
-      channel.close();
     } else {
       localStorage.setItem("awPortalSignOutSignal", JSON.stringify({
         ...signal,
