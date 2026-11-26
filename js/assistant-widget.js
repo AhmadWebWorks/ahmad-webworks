@@ -53,7 +53,17 @@
   const send = root.querySelector(".aw-chat-send");
   const messages = root.querySelector(".aw-chat-messages");
 
-  // Restore and clamp the visitor's preferred launcher position.
+  // The launcher can move during this page visit, but always starts at bottom-right
+  // when the page is loaded or restored from the browser's back-forward cache.
+  const resetAssistantPosition = () => {
+    root.style.left = "";
+    root.style.top = "";
+    root.style.right = "";
+    root.style.bottom = "";
+    root.classList.remove("is-left-edge", "is-near-top");
+  };
+  window.addEventListener("pageshow", resetAssistantPosition);
+
   const clampPosition = (x, y) => ({
     x: Math.max(8, Math.min(x, window.innerWidth - Math.min(launcher.offsetWidth || 58, window.innerWidth - 16) - 8)),
     y: Math.max(8, Math.min(y, window.innerHeight - (launcher.offsetHeight || 58) - 8))
