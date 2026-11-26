@@ -1,3 +1,28 @@
+// Opening any public site page signs out active Team Portal tabs in this browser.
+(() => {
+  if (/(?:^|\/)portal\.html$/i.test(window.location.pathname)) return;
+
+  const signal = {
+    type: "force-signout",
+    reason: "Another website page was opened."
+  };
+
+  try {
+    if ("BroadcastChannel" in window) {
+      const channel = new BroadcastChannel("aw-portal-session");
+      channel.postMessage(signal);
+      channel.close();
+    } else {
+      localStorage.setItem("awPortalSignOutSignal", JSON.stringify({
+        ...signal,
+        timestamp: Date.now()
+      }));
+    }
+  } catch (_) {
+    // The portal also uses a non-persistent session, so this is a best-effort cross-tab signal.
+  }
+})();
+
 (() => {
   "use strict";
 
