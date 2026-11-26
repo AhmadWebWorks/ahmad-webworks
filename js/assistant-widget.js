@@ -7,6 +7,7 @@
   const API_URL = "https://vxdzyfbxcorxqysvlzgn.supabase.co/functions/v1/aw-assistant";
   const PUBLISHABLE_KEY = "sb_publishable_egeeneg2jGd6y2yotB_Bdw_FR2XMVJB";
   const SESSION_KEY = "awAssistantSessionId";
+  const POSITION_KEY = "awAssistantPosition";
 
   function createUuid() {
     const bytes = new Uint8Array(16);
@@ -27,7 +28,7 @@
   const root = document.createElement("div");
   root.className = "aw-assistant";
   root.innerHTML = `
-    <button class="aw-chat-launcher" type="button" aria-label="Open Ahmad WebWorks assistant" aria-expanded="false" aria-controls="aw-chat-window">
+    <button class="aw-chat-launcher" type="button" aria-label="Open Ahmad WebWorks assistant. Drag to move." title="Tap to chat · drag to move" aria-expanded="false" aria-controls="aw-chat-window">
       <span class="aw-chat-launcher-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-6.5A7.5 7.5 0 1 1 20 11.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 11h8M8 14.5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
       <span class="aw-chat-launcher-label">Ask us anything</span>
     </button>
@@ -52,6 +53,68 @@
   const input = root.querySelector(".aw-chat-input");
   const send = root.querySelector(".aw-chat-send");
   const messages = root.querySelector(".aw-chat-messages");
+
+  // Restore and clamp the visitor's preferred launcher position.
+  const clampPosition = (x, y) => ({
+    x: Math.max(8, Math.min(x, window.innerWidth - Math.min(launcher.offsetWidth || 58, window.innerWidth - 16) - 8)),
+    y: Math.max(8, Math.min(y, window.innerHeight - (launcher.offsetHeight || 58) - 8))
+  });
+  const applyPosition = (x, y, save = true) => {
+    const point = clampPosition(x, y);
+    root.style.left = point.x + "px";
+    root.style.top = point.y + "px";
+    root.style.right = "auto";
+    root.style.bottom = "auto";
+    root.classList.toggle("is-left-edge", point.x < 390);
+    root.classList.toggle("is-near-top", point.y < window.innerHeight / 2);
+    if (save) {
+      try { localStorage.setItem(POSITION_KEY, JSON.stringify(point)); } catch (_) {}
+    }
+  };
+  try {
+    const savedPosition = JSON.parse(localStorage.getItem(POSITION_KEY) || "null");
+    if (savedPosition && Number.isFinite(savedPosition.x) && Number.isFinite(savedPosition.y)) {
+      applyPosition(savedPosition.x, savedPosition.y, false);
+    }
+  } catch (_) {}
+
+  let dragState = null;
+  let suppressLauncherClick = false;
+  launcher.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || event.target.closest("a")) return;
+    const rect = root.getBoundingClientRect();
+    dragState = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY,
+      originX: rect.left, originY: rect.top, moved: false };
+    launcher.setPointerCapture?.(event.pointerId);
+  });
+  launcher.addEventListener("pointermove", (event) => {
+    if (!dragState || dragState.pointerId !== event.pointerId) return;
+    const dx = event.clientX - dragState.startX;
+    const dy = event.clientY - dragState.startY;
+    if (!dragState.moved && Math.hypot(dx, dy) < 6) return;
+    dragState.moved = true;
+    event.preventDefault();
+    applyPosition(dragState.originX + dx, dragState.originY + dy);
+  });
+  const finishDrag = (event) => {
+    if (!dragState || dragState.pointerId !== event.pointerId) return;
+    suppressLauncherClick = dragState.moved;
+    dragState = null;
+  };
+  launcher.addEventListener("pointerup", finishDrag);
+  launcher.addEventListener("pointercancel", finishDrag);
+  launcher.addEventListener("click", (event) => {
+    if (suppressLauncherClick) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      suppressLauncherClick = false;
+    }
+  }, true);
+  window.addEventListener("resize", () => {
+    if (root.style.left && root.style.top) {
+      applyPosition(parseFloat(root.style.left), parseFloat(root.style.top));
+    }
+  });
 
   const setOpen = (open) => {
     root.classList.toggle("is-open", open);
