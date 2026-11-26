@@ -45,6 +45,18 @@
     </section>`;
   document.body.appendChild(root);
 
+  // Always begin each page load at the original bottom-right position.
+  const resetLauncherPosition = () => {
+    root.style.removeProperty("left");
+    root.style.removeProperty("top");
+    root.style.removeProperty("right");
+    root.style.removeProperty("bottom");
+    root.classList.remove("is-left-edge", "is-near-top");
+    try { localStorage.removeItem("awAssistantPosition"); } catch (_) {}
+  };
+  resetLauncherPosition();
+  window.addEventListener("pageshow", resetLauncherPosition);
+
   const launcher = root.querySelector(".aw-chat-launcher");
   const panel = root.querySelector(".aw-chat-window");
   const close = root.querySelector(".aw-chat-close");
