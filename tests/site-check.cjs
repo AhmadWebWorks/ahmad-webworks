@@ -94,6 +94,27 @@ function checkLocalReferences(page) {
 }
 
 async function main() {
+  const portalAuthSource = fs.readFileSync(path.join(ROOT, "js/portal.js"), "utf8");
+  const publicScriptSource = fs.readFileSync(path.join(ROOT, "js/main.js"), "utf8");
+  const portalHtmlSource = fs.readFileSync(path.join(ROOT, "portal.html"), "utf8");
+
+  if (!/persistSession:\s*false/.test(portalAuthSource)) {
+    fail("Team Portal must not persist authenticated sessions between page loads");
+  }
+  if (!/PORTAL_IDLE_TIMEOUT_MS\s*=\s*10\s*\*\s*60\s*\*\s*1000/.test(portalAuthSource)) {
+    fail("Team Portal must enforce its 10-minute inactivity timeout");
+  }
+  if (!/addEventListener\(["']pagehide["']/.test(portalAuthSource)) {
+    fail("Team Portal must sign out when its page is closed or left");
+  }
+  if (!/aw-portal-session/.test(portalAuthSource) ||
+      !/force-signout/.test(publicScriptSource)) {
+    fail("Opening another public page must signal active Team Portal tabs to sign out");
+  }
+  if (!/auto-logout/.test(portalHtmlSource)) {
+    fail("Team Portal must load the updated automatic sign-out scripts");
+  }
+
   for (const page of PAGES) {
     if (!fs.existsSync(path.join(ROOT, page))) fail("Missing page: " + page);
     else checkLocalReferences(page);
